@@ -1,54 +1,13 @@
 #include "tetromino.hpp"
 
-typedef std::uint16_t mino;
+Tetromino::Tetromino(unsigned int block_type) : shape(TETROMINO[block_type]), rotation(0), x(0), y(0) {}
 
-static mino I_MINO[4] = {
-    0b1111000000000000,
-    0b0010001000100010,
-    0b0000111100000000,
-    0b0100010001000100
-};
+void Tetromino::rotate(int rot) 
+{
+    rotation = rot;
+}
 
-static mino O_MINO[4] = {
-    0b1100110000000000,
-    0b1100110000000000,
-    0b1100110000000000,
-    0b1100110000000000
-};
+void Tetromino::move(int dir) 
+{
 
-static mino Z_MINO[4] = {
-    0b1100011000000000,
-    0b0010011001000000,
-    0b0000110001100000,
-    0b0100110010000000
-};
-
-static mino S_MINO[4] = {
-    0b0110110000000000,
-    0b0100011000100000,
-    0b0000011011000000,
-    0b1000110001000000,
-};
-
-static mino J_MINO[4] = {
-    0b1000111000000000,
-    0b0110010001000000,
-    0b0000111000100000,
-    0b0100010011000000,
-};
-
-static mino L_MINO[4] = {
-    0b0010111000000000,
-    0b0100010001100000,
-    0b0000111010000000,
-    0b1100010001000000
-};
-
-static mino T_MINO[4] = {
-    0b0100111000000000,
-    0b0100011001000000,
-    0b0000111001000000,
-    0b0100110001000000
-};
-
-static mino *TETROMINO[7] = { I_MINO, O_MINO, Z_MINO, S_MINO, J_MINO, L_MINO, T_MINO };
+}

@@ -3,17 +3,21 @@
 
 #include <cstdint>
 
+typedef std::uint16_t mino;
 
+extern mino *TETROMINO[7];
 
 class Tetromino
 {
     private:
-    int shape[4][4][4];
+    mino *shape;
     int rotation;
+    int x, y;
 
     public:
     Tetromino(unsigned int block_type);
     void rotate(int rot);
+    void move(int dir);
 };
 
 #endif
