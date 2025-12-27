@@ -18,10 +18,11 @@ class Tetromino
 
     public:
     Tetromino();
-    void set_mino(int type);
+    void init_mino(int type);
     void rotate(int rot);
-    void move(int dir);
+    void set_pos(int new_r, int new_c);
     std::pair<int, int> get_pos();
+    mino get_shape();
 };
 
 #endif

@@ -7,6 +7,8 @@
       "command": "g++",
       "args": [
         "source/tetris/tetris.cpp",
+        "source/tetromino/tetromino.cpp",
+        "source/tetromino/tetromino_shape.cpp",
         "source/board/board.cpp",
         "-Iinclude",
         "-std=c++17",
