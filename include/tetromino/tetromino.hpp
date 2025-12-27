@@ -2,6 +2,7 @@
 #define __TETROMINO_HPP__
 
 #include <cstdint>
+#include <cstddef>
 
 typedef std::uint16_t mino;
 
