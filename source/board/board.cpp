@@ -40,7 +40,7 @@ bool Board::has_active_mino()
  * @brief 테트로미노가 새로운 위치와 회전 상태일 때 보드 상에서 충돌이 있는 지 판정
  * @return 0: 벽에 충돌 / 1: 바닥이나 벽에 충돌 / 2: 충돌 없음
  */
-int Board::can_move_mino(int new_r, int new_c, int new_rot)
+int Board::can_move_mino(int new_r, int new_c, int new_rot, int cmd)
 {
     int move_result;
     uint16_t mino_mask = 0b1111000000000000;
@@ -55,7 +55,11 @@ int Board::can_move_mino(int new_r, int new_c, int new_rot)
         mino_row >>= i * 4;
         mino_row <<= (9 - new_c);
         if ((r >= 22 && mino_row) ) return BLOCKED;
-        if (r < 22 && game_board[r] & mino_row) return BLOCKED;
+        if (r < 22 && game_board[r] & mino_row) 
+        {
+            if (cmd == Action::LEFT || cmd == Action::RIGHT) return BLOCKED_BY_WALL;
+            else return BLOCKED;
+        }
         if ((mino_row & left_edge << 1) || (mino_row & right_edge >> 1)) return BLOCKED_BY_WALL;
     }
 
@@ -83,7 +87,7 @@ void Board::move_mino(int cmd)
     if (new_rot == -1) new_rot = 3;
     else if (new_rot == 4) new_rot = 0;
 
-    move_result = can_move_mino(new_r, new_c, new_rot);
+    move_result = can_move_mino(new_r, new_c, new_rot, cmd);
 
     if (move_result == NON_BLOCKED) 
     {
@@ -106,7 +110,7 @@ bool Board::spawn_mino(int type)
 {
     active_mino.init_mino(type);
 
-    is_mino_active = (can_move_mino(0, 3, 0) == NON_BLOCKED);
+    is_mino_active = (can_move_mino(0, 3, 0 , Action::DROP) == NON_BLOCKED);
     return is_mino_active;
 
     return is_mino_active;
