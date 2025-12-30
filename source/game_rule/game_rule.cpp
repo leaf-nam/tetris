@@ -20,11 +20,11 @@ int RuleEngine::update_score(Board& board)
     return score;
 }
 
-bool RuleEngine::is_game_over(const Board& board)
+bool RuleEngine::is_game_over(const uint16_t *board)
 {
     for (int r = 0; r < 2; ++r) 
     {
-        if (board.get_board()[r]) return true;
+        if (board[r]) return true;
     }
 
     return false;

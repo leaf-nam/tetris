@@ -101,6 +101,22 @@ void Board::move_mino(int cmd)
     }
 }
 
+void Board::drop_mino()
+{
+    auto [curr_r, curr_c] = active_mino.get_pos();
+    int curr_rot = active_mino.get_rotation();
+    int new_r = curr_r + dr[Action::DROP], new_c = curr_c + dc[Action::DROP];
+
+    while (can_move_mino(new_r, new_c, curr_rot, Action::DROP))
+    {
+        active_mino.set_pos(new_r, new_c);
+        new_r += dr[Action::DROP], new_c += dr[Action::DROP];
+    }
+
+    update_board();
+    is_mino_active = false;
+}
+
 /**
  * @brief 새 테트로미노를 스폰
  * @param type 테트로미노의 타입
@@ -168,8 +184,8 @@ void Board::draw_mino()
     {
         std::cout << "\x1b[20A";
         auto [pos_r, pos_c] = active_mino.get_pos();
-        uint16_t mino_mask = 0b1111000000000000;
-        uint16_t mino_shape = active_mino.get_shape();
+        mino mino_mask = 0b1111000000000000;
+        mino mino_shape = active_mino.get_shape();
         uint16_t mino_row;
 
         for (int r = 2; r < 22; ++r) 
@@ -203,7 +219,7 @@ void Board::render()
 /**
  * @brief 게임 보드를 반환
  */
-mino const * const Board::get_board() const
+const uint16_t *Board::get_board() const
 {
     return game_board;
 }
@@ -213,6 +229,7 @@ mino const * const Board::get_board() const
  */
 void Board::delete_line(int del_row)
 {
+    if (del_row >= 22 || del_row < 0) return;
     for (int r = del_row; r >= 1; --r)
     {
         game_board[r] = game_board[r - 1];

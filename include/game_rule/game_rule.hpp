@@ -6,7 +6,7 @@
 class RuleEngine
 {
     public:
-    bool is_game_over(const Board& board);
+    bool is_game_over(const uint16_t* board);
     int update_score(Board& board);
 };
 

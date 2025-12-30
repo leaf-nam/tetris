@@ -21,9 +21,10 @@ class Board
     Board();
     bool has_active_mino();
     void move_mino(int cmd);
+    void drop_mino();
     bool spawn_mino(int type);
     bool is_line_full(int row);
-    mino const * const get_board() const;
+    const uint16_t* get_board() const;
     void delete_line(int del_row);
     void render(); // 추후 UI 전용 객체로 이전
 };
