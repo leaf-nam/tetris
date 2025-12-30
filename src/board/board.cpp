@@ -129,12 +129,26 @@ bool board::gameover_check(int x_move, int y_move, int angle_move)
 	return false;
 }
 
-void board::update()
+void board::update(bool is_block_move_stop)
 {
 	int block_type = current_block.get_block_type();
 	int angle = current_block.get_angle();
 	int x = current_block.get_x();
 	int y = current_block.get_y();
+	int plate_x = this->plate_x;
+	int plate_y = this->plate_y;
+
+	block_type = (is_block_move_stop ? block_type : block_type + 7);
+
+	for (int j = 0; j < plate_y; ++j)
+	{
+		for (int i = 0; i < plate_x; ++i)
+		{
+			if (plate[j][i] > 7)
+				plate[j][i] = 0;
+		}
+	}
+
 	switch (block_type)
 	{
 	case 1:

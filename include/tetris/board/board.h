@@ -14,7 +14,7 @@ private:
 public:
 	static board get_instance();
 	void set_block(block* current_block);
-	void update();
+	void update(bool is_block_move_stop);
 	bool upper_collision_check(int y_move, int x_move, int angle_move);
 	bool left_right_collision_check(int y_move, int x_move, int angle_move);
 	bool down_collision_check(int y_move, int x_move, int angle_move);
