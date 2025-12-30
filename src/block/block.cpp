@@ -7,9 +7,9 @@ block block::get_instance()
 	return current_block;
 }
 
-void block::set_block_type(int block_type)
+void block::random_set_block_type()
 {
-	this->block_type = block_type;
+	this->block_type = 1;
 }
 
 void block::y_move()
@@ -45,6 +45,14 @@ int block::get_block_type()
 int block::get_angle()
 {
 	return angle;
+}
+
+void block::init_block()
+{
+	angle = 0;
+	x = 10;
+	y = 0;
+	random_set_block_type();
 }
 
 block block::current_block();

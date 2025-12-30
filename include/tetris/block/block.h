@@ -17,7 +17,7 @@ private:
 	static block current_block;
 public:
 	static block get_instance();
-	void set_block_type(int type);
+	void random_set_block_type();
 	void y_move();
 	void rotate(int angle_num);
 	void x_move(int move_num);
@@ -25,4 +25,5 @@ public:
 	int get_y();
 	int get_angle();
 	int get_block_type();
+	void init_block();
 };
