@@ -1,0 +1,7 @@
+# ninja log v7
+21	266	7887880411242278	CMakeFiles/tetris.dir/src/main.cpp.obj	ad70eee11e0dc4e
+31	340	7887856278271209	CMakeFiles/tetris.dir/src/board/board.cpp.obj	38f9aaccf3c5f86c
+267	369	7887880413704765	tetris.exe	f2117380bf52af79
+30	326	7887879723425718	CMakeFiles/tetris.dir/src/block/block.cpp.obj	bfc66df9ae962b2d
+37	298	7887880515050301	CMakeFiles/tetris.dir/src/main.cpp.obj	ad70eee11e0dc4e
+298	402	7887880517678457	tetris.exe	f2117380bf52af79
