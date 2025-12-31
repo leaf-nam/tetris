@@ -139,7 +139,7 @@ bool board::gameover_check(int y_move, int x_move, int angle_move)
 	int y = current_block->get_y();
 	if (upper_collision_check(y_move, x_move, angle_move))
 		return true;
-	else if ((x == 10 && y == 0) && block_collision_check(0, 0, 0))
+	else if ((x == 9 && y == 0) && block_collision_check(0, 0, 0))
 		return true;
 
 	return false;
