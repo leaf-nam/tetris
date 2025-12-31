@@ -1,6 +1,6 @@
 #include <block/block.h>
 
-block::block() :block_type(0), x(9), y(0), angle(0)
+block::block() :block_type(0), x(9), y(-1), angle(0)
 {
 	random_set_block_type();
 }
