@@ -13,6 +13,12 @@ render::render(int start_y, int start_x) :start_y(start_y), start_x(start_x)
 	default_console_color = info.wAttributes;
 }
 
+render& render::get_instance(int start_y, int start_x)
+{
+	static render instance(start_y, start_x);
+	return instance;
+}
+
 void render::prompt(int y, int x)
 {
 	COORD locate = { x, y };

@@ -4,8 +4,8 @@
 
 int main()
 {
-	input i;
-	render r(5, 40);
+	input& i = input::get_instance();
+	render& r = render::get_instance(5, 40);
 	block* new_block = new block();
 
 	i.set_current_block(new_block);

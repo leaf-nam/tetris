@@ -3,6 +3,14 @@
 #include <conio.h>
 using namespace std;
 
+input::input() {}
+
+input& input::get_instance()
+{
+	static input instance;
+	return instance;
+}
+
 void input::set_current_block(block* current_block)
 {
 	this->current_block = current_block;
