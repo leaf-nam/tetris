@@ -1,3 +1,0 @@
-C:/git/tetris/build/CMakeFiles/tetris.dir
-C:/git/tetris/build/CMakeFiles/edit_cache.dir
-C:/git/tetris/build/CMakeFiles/rebuild_cache.dir

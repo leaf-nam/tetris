@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/git/tetris/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
