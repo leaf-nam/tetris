@@ -47,17 +47,22 @@ bool input::activate_block()
 	board& current_board = board::get_instance();
 	int x = current_block->get_x();
 	int y = current_block->get_y();
+	int y_move_num;
 	bool is_gameover = false;
 	bool is_block_move_stop = false;
 
-	if (current_order == 'w' && current_board.gameover_check(0, 0, 0))
+	if (current_order == 'w')
 	{
-		is_block_move_stop = true;
-		is_gameover = true;
-	}
-	else if (current_order == 'w')
-	{
-		current_block->y_move(current_board.get_collision_upper_y_move());
+		y_move_num = current_board.get_collision_upper_y_move();
+		if (current_board.gameover_check(y_move_num, 0, 0))
+		{
+			is_block_move_stop = true;
+			is_gameover = true;
+		}
+		else
+		{
+			current_block->y_move(y_move_num);
+		}
 	}
 	else if (current_board.gameover_check(operation[current_order - 'a'][0], operation[current_order - 'a'][1], operation[current_order - 'a'][2]))
 	{
