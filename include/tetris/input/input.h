@@ -8,9 +8,9 @@ class input
 {
 private:
 	char current_order;
-	block current_block;
+	block* current_block;
 public:
-	void set_current_block(block current_block);
+	void set_current_block(block* current_block);
 	void get_user_input();
 	bool activate_block();
 	char get_current_order();

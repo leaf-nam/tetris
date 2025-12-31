@@ -8,13 +8,13 @@ private:
 	int plate_x;
 	int plate[20][20];
 	int deleted_line_count;
-	block current_block;
+	block* current_block;
 	board();
 public:
 	static board& get_instance();
 	board(const board&) = delete;
 	board& operator=(const board&) = delete;
-	void set_current_block(block current_block);
+	void set_current_block(block* current_block);
 	void update(bool is_block_move_stop);
 	bool upper_collision_check(int y_move, int x_move, int angle_move);
 	bool left_right_collision_check(int y_move, int x_move, int angle_move);

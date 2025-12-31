@@ -17,17 +17,17 @@ board& board::get_instance()
 	return instance;
 }
 
-void board::set_current_block(block current_block)
+void board::set_current_block(block* current_block)
 {
 	this->current_block = current_block;
 }
 
 bool board::upper_collision_check(int y_move, int x_move, int angle_move)
 {
-	int block_type = current_block.get_block_type();
-	int angle = (current_block.get_angle() + angle_move) % 360;
-	int x = current_block.get_x() + x_move;
-	int y = current_block.get_y() + y_move;
+	int block_type = current_block->get_block_type();
+	int angle = (current_block->get_angle() + angle_move) % 360;
+	int x = current_block->get_x() + x_move;
+	int y = current_block->get_y() + y_move;
 	switch (block_type)
 	{
 	case 1:
@@ -50,10 +50,10 @@ bool board::upper_collision_check(int y_move, int x_move, int angle_move)
 
 bool board::left_right_collision_check(int y_move, int x_move, int angle_move)
 {
-	int block_type = current_block.get_block_type();
-	int angle = (current_block.get_angle() + angle_move) % 360;
-	int x = current_block.get_x() + x_move;
-	int y = current_block.get_y() + y_move;
+	int block_type = current_block->get_block_type();
+	int angle = (current_block->get_angle() + angle_move) % 360;
+	int x = current_block->get_x() + x_move;
+	int y = current_block->get_y() + y_move;
 	switch (block_type)
 	{
 	case 1:
@@ -77,10 +77,10 @@ bool board::left_right_collision_check(int y_move, int x_move, int angle_move)
 
 bool board::down_collision_check(int y_move, int x_move, int angle_move)
 {
-	int block_type = current_block.get_block_type();
-	int angle = (current_block.get_angle() + angle_move) % 360;
-	int x = current_block.get_x() + x_move;
-	int y = current_block.get_y() + y_move;
+	int block_type = current_block->get_block_type();
+	int angle = (current_block->get_angle() + angle_move) % 360;
+	int x = current_block->get_x() + x_move;
+	int y = current_block->get_y() + y_move;
 	switch (block_type)
 	{
 	case 1:
@@ -103,21 +103,27 @@ bool board::down_collision_check(int y_move, int x_move, int angle_move)
 
 bool board::block_collision_check(int y_move, int x_move, int angle_move)
 {
-	int block_type = current_block.get_block_type();
-	int angle = (current_block.get_angle() + angle_move) % 360;
-	int x = current_block.get_x() + x_move;
-	int y = current_block.get_y() + y_move;
+	int block_type = current_block->get_block_type();
+	int angle = (current_block->get_angle() + angle_move) % 360;
+	int x = current_block->get_x() + x_move;
+	int y = current_block->get_y() + y_move;
 	switch (block_type)
 	{
 	case 1:
 		if (angle == 0 || angle == 180)
 		{
-			if (plate[y][x] > 0 || plate[y][x + 1] > 0 || plate[y + 1][x] > 0 || plate[y + 1][x - 1] > 0)
+			if ((plate[y][x] > 0 && plate[y][x] < 8) || 
+				(plate[y][x + 1] > 0 && plate[y][x + 1] < 8) ||
+				(plate[y + 1][x] > 0 && plate[y + 1][x] < 8) ||
+				(plate[y + 1][x - 1] > 0 && plate[y + 1][x - 1] < 8))
 				return true;
 		}
 		else if (angle == 90 || angle == 270)
 		{
-			if (plate[y][x] > 0 || plate[y - 1][x] > 0 || plate[y - 1][x - 1] > 0 || plate[y - 2][x - 1] > 0)
+			if ((plate[y][x] > 0 && plate[y][x] < 8) ||
+				(plate[y - 1][x] > 0 && plate[y - 1][x] < 8)||
+				(plate[y - 1][x - 1] > 0 && plate[y - 1][x - 1] < 8) ||
+				(plate[y - 2][x - 1] > 0 && plate[y - 2][x - 1] < 8))
 				return true;
 		}
 		break;
@@ -129,8 +135,8 @@ bool board::block_collision_check(int y_move, int x_move, int angle_move)
 
 bool board::gameover_check(int y_move, int x_move, int angle_move)
 {
-	int x = current_block.get_x();
-	int y = current_block.get_y();
+	int x = current_block->get_x();
+	int y = current_block->get_y();
 	if (upper_collision_check(y_move, x_move, angle_move))
 		return true;
 	else if ((x == 10 && y == 0) && block_collision_check(0, 0, 0))
@@ -141,10 +147,10 @@ bool board::gameover_check(int y_move, int x_move, int angle_move)
 
 void board::update(bool is_block_move_stop)
 {
-	int block_type = current_block.get_block_type();
-	int angle = current_block.get_angle();
-	int x = current_block.get_x();
-	int y = current_block.get_y();
+	int block_type = current_block->get_block_type();
+	int angle = current_block->get_angle();
+	int x = current_block->get_x();
+	int y = current_block->get_y();
 	int plate_x = this->plate_x;
 	int plate_y = this->plate_y;
 
@@ -162,6 +168,7 @@ void board::update(bool is_block_move_stop)
 	switch (block_type)
 	{
 	case 1:
+	case 8:
 		if (angle == 0 || angle == 180)
 		{
 			plate[y][x] = block_type;
@@ -199,16 +206,19 @@ void board::line_delete()
 			line_cnt++;
 	}
 
-	for (int y = line_cnt; y < plate_y; ++y)
+	if (line_cnt > 0)
 	{
-		for (int x = 0; x < plate_x; ++x)
+		for (int y = line_cnt; y < plate_y; ++y)
 		{
-			plate[y - line_cnt][x] = plate[y][x];
-			plate[y][x] = 0;
+			for (int x = 0; x < plate_x; ++x)
+			{
+				plate[y - line_cnt][x] = plate[y][x];
+				plate[y][x] = 0;
+			}
 		}
-	}
 
-	deleted_line_count += line_cnt;
+		deleted_line_count += line_cnt;
+	}
 }
 
 int board::get_plate_x()

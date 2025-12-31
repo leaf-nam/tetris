@@ -10,4 +10,5 @@ public:
 	render(int start_y, int start_x);
 	void prompt(int x, int y);
 	void print_plate();
+	void sleep(int seconds);
 };

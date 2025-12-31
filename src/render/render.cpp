@@ -1,5 +1,7 @@
 #include <render/render.h>
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <windows.h>
 using namespace std;
 
@@ -35,4 +37,9 @@ void render::print_plate()
 	{
 		cout << '-';
 	}
+}
+
+void render::sleep(int seconds)
+{
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 }

@@ -6,7 +6,7 @@ int main()
 {
 	input i;
 	render r(5, 40);
-	block new_block;
+	block* new_block = new block();
 
 	i.set_current_block(new_block);
 	board::get_instance().set_current_block(new_block);
@@ -15,8 +15,9 @@ int main()
 	while (!is_gameover)
 	{
 		i.get_user_input();
-		i.activate_block();
+		is_gameover = i.activate_block();
 		r.print_plate();
+		r.sleep(1);
 	}
 
 	return 0;
