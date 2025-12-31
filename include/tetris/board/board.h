@@ -9,7 +9,7 @@ class board
 private:
 	int plate_y;
 	int plate_x;
-	int plate[20][20];
+	int plate[24][20];
 	array<array<array<array<int, 2>, 4>, 4>, 8> tetromio;
 	int deleted_line_count;
 	block* current_block;

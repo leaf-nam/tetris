@@ -88,6 +88,12 @@ bool input::activate_block()
 	else
 		current_block->y_move();
 
+	if (is_gameover)
+	{
+		y_move_num = current_board.get_collision_upper_y_move();
+		current_block->y_move(y_move_num);
+	}
+
 	current_board.update(is_block_move_stop);
 	current_board.line_delete();
 

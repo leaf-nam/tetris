@@ -1,6 +1,6 @@
 #include <board/board.h>
 
-board::board() :deleted_line_count(0), plate_y(20), plate_x(20)
+board::board() :deleted_line_count(0), plate_y(24), plate_x(20)
 {
 	for (int y = 0; y < plate_y; ++y)
 	{
@@ -92,10 +92,10 @@ bool board::upper_collision_check(int y_move, int x_move, int angle_move)
 	int x = current_block->get_x() + x_move;
 	int y = current_block->get_y() + y_move;
 
-	if (y + tetromio[block_type][angle][0][0] < 0 ||
-		y + tetromio[block_type][angle][1][0] < 0 ||
-		y + tetromio[block_type][angle][2][0] < 0 ||
-		y + tetromio[block_type][angle][3][0] < 0)
+	if (y + tetromio[block_type][angle][0][0] < 4 ||
+		y + tetromio[block_type][angle][1][0] < 4 ||
+		y + tetromio[block_type][angle][2][0] < 4 ||
+		y + tetromio[block_type][angle][3][0] < 4)
 		return true;
 	else
 		return false;
@@ -159,7 +159,7 @@ bool board::gameover_check(int y_move, int x_move, int angle_move)
 	int y = current_block->get_y();
 	if (upper_collision_check(y_move, x_move, angle_move))
 		return true;
-	else if ((x == 9 && y == -1) && block_collision_check(x_move, y_move, angle_move))
+	else if ((x == 9 && y == 3) && block_collision_check(y_move, x_move, angle_move))
 		return true;
 
 	return false;
@@ -178,7 +178,7 @@ void board::update(bool is_block_move_stop)
 	original_block_type = block_type;
 	block_type = (is_block_move_stop ? block_type : block_type + 7);
 
-	for (int j = 0; j < plate_y; ++j)
+	for (int j = 4; j < plate_y; ++j)
 	{
 		for (int i = 0; i < plate_x; ++i)
 		{
@@ -198,7 +198,7 @@ void board::line_delete()
 	int cnt = 0;
 	int line_cnt = 0;
 	int start_line_delete_y = 0;
-	for (int y = 0; y < plate_y; ++y)
+	for (int y = 4; y < plate_y; ++y)
 	{
 		cnt = 0;
 		for (int x = 0; x < plate_x; ++x)
@@ -216,12 +216,11 @@ void board::line_delete()
 
 	if (line_cnt > 0)
 	{
-		for (int y = start_line_delete_y; y >= start_line_delete_y - line_cnt; --y)
+		for (int y = start_line_delete_y; y >= 4; --y)
 		{
 			for (int x = 0; x < plate_x; ++x)
 			{
-				plate[y][x] = plate[y - line_cnt][x];
-				plate[y - line_cnt][x] = 0;
+				plate[y][x] = plate[y - 1][x];
 			}
 		}
 
@@ -238,7 +237,7 @@ int board::get_collision_upper_y_move()
 	int plate_y = this->plate_y;
 	int y_move;
 
-	for (y_move = 0; y_move < plate_y; ++y_move)
+	for (y_move = -3; y_move < plate_y - 4; ++y_move)
 	{
 		if (down_collision_check(y_move, 0, 0) || block_collision_check(y_move, 0, 0))
 			break;

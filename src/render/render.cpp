@@ -31,9 +31,9 @@ void render::print_plate()
 	int plate_x = current_board.get_plate_x();
 	int plate_y = current_board.get_plate_y();
 
-	for (int y = 0; y < plate_y; ++y)
+	for (int y = 4; y < plate_y; ++y)
 	{
-		prompt(start_y + y, start_x);
+		prompt(start_y + y - 4, start_x);
 		for (int x = 0; x < plate_x; ++x)
 		{
 			print_color_by_number(current_board.get_plate_num(y, x));
@@ -41,7 +41,7 @@ void render::print_plate()
 		cout << '\n';
 	}
 
-	prompt(start_y + plate_y, start_x);
+	prompt(start_y + plate_y - 4, start_x);
 	cout << "deleted line: " << current_board.get_deleted_line_count();
 }
 

@@ -1,13 +1,14 @@
 #include <block/block.h>
 #include <cstdlib> 
 
-block::block() :block_type(0), x(9), y(-1), angle(0)
+block::block() :block_type(0), x(9), y(3), angle(0)
 {
 	random_set_block_type();
 }
 
 void block::random_set_block_type()
 {
+	// 1 => I, 2 => L, 3 => J, 4 => T, 5 => O, 6 => Z, 7 => S;
 	block_type = rand() % 7 + 1;
 }
 
