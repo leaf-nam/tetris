@@ -17,7 +17,7 @@ int main()
 		i.get_user_input();
 		is_gameover = i.activate_block();
 		r.print_plate();
-		r.sleep(1);
+		r.sleep(250);
 	}
 
 	return 0;

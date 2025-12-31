@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 project(
   ModooCode
-  VERSION 0.1
+  VERSION 1
   DESCRIPTION "Tetris"
   LANGUAGES CXX
 )

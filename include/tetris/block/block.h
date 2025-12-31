@@ -17,6 +17,7 @@ public:
 	block();
 	void random_set_block_type();
 	void y_move();
+	void y_move(int move);
 	void rotate(int angle_num);
 	void x_move(int move_num);
 	int get_x();

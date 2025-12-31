@@ -31,8 +31,6 @@ void render::print_plate()
 	int plate_x = current_board.get_plate_x();
 	int plate_y = current_board.get_plate_y();
 
-	system("cls");
-
 	for (int y = 0; y < plate_y; ++y)
 	{
 		prompt(start_y + y, start_x);
@@ -49,11 +47,14 @@ void render::print_plate()
 	{
 		cout << '-';
 	}
+
+	prompt(start_y + plate_y + 1, start_x);
+	cout << "deleted line: " << current_board.get_deleted_line_count();
 }
 
-void render::sleep(int seconds)
+void render::sleep(int milliseconds)
 {
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 void render::set_color(WORD color)
@@ -64,45 +65,46 @@ void render::set_color(WORD color)
 
 void render::print_color_by_number(int num)
 {
+	
 	switch (num)
 	{
 	case 0:
-		cout << num;
+		cout << "бс";
 		break;
 	case 1:
 	case 8:
 		set_color(FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cout << num;
+		cout << "бс";
 		break;
 	case 2:
 	case 9:
 		set_color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		cout << num;
+		cout << "бс";
 		break;
 	case 3:
 	case 10:
 		set_color(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cout << num;
+		cout << "бс";
 		break;
 	case 4:
 	case 11:
 		set_color(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		cout << num;
+		cout << "бс";
 		break;
 	case 5:
 	case 12:
 		set_color(FOREGROUND_RED | FOREGROUND_INTENSITY);
-		cout << num;
+		cout << "бс";
 		break;
 	case 6:
 	case 13:
 		set_color(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cout << num;
+		cout << "бс";
 		break;
 	case 7:
 	case 14:
-		set_color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		cout << num;
+		set_color(FOREGROUND_RED | FOREGROUND_GREEN);
+		cout << "бс";
 		break;
 	}
 	set_color(default_console_color);

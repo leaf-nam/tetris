@@ -8,6 +8,7 @@ class input
 {
 private:
 	char current_order;
+	int operation[26][3];
 	block* current_block;
 	input();
 public:

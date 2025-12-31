@@ -1,4 +1,5 @@
 #include <block/block.h>
+#include <cstdlib> 
 
 block::block() :block_type(0), x(9), y(-1), angle(0)
 {
@@ -7,7 +8,7 @@ block::block() :block_type(0), x(9), y(-1), angle(0)
 
 void block::random_set_block_type()
 {
-	this->block_type = 1;
+	block_type = rand() % 7 + 1;
 }
 
 void block::y_move()
@@ -15,9 +16,14 @@ void block::y_move()
 	y++;
 }
 
+void block::y_move(int move)
+{
+	y += move;
+}
+
 void block::rotate(int angle_num)
 {
-	this->angle = (this->angle + angle_num) % 360;
+	this->angle = (this->angle + angle_num) % 4;
 }
 
 void block::x_move(int move_num)

@@ -15,7 +15,7 @@ public:
 	render& operator=(const render&) = delete;
 	void prompt(int x, int y);
 	void print_plate();
-	void sleep(int seconds);
+	void sleep(int milliseconds);
 	void set_color(WORD color);
 	void print_color_by_number(int num);
 };
