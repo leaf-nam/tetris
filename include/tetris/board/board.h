@@ -1,5 +1,5 @@
 #pragma once
-#include "block.h"
+#include <block/block.h>
 
 class board
 {
@@ -9,11 +9,12 @@ private:
 	int plate[50][21];
 	int deleted_line_count;
 	block current_block;
-	board_plate();
-	static board current_board;
+	board();
 public:
-	static board get_instance();
-	void set_block(block* current_block);
+	static board& get_instance();
+	board(const board&) = delete;
+	board& operator=(const board&) = delete;
+	void set_current_block(block current_block);
 	void update(bool is_block_move_stop);
 	bool upper_collision_check(int y_move, int x_move, int angle_move);
 	bool left_right_collision_check(int y_move, int x_move, int angle_move);

@@ -13,10 +13,8 @@ private:
 	int x;
 	int y;
 	int angle;
-	block();
-	static block current_block;
 public:
-	static block get_instance();
+	block();
 	void random_set_block_type();
 	void y_move();
 	void rotate(int angle_num);
@@ -25,5 +23,4 @@ public:
 	int get_y();
 	int get_angle();
 	int get_block_type();
-	void init_block();
 };

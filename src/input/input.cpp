@@ -1,17 +1,22 @@
-#include "input.h"
+#include <input/input.h>
 #include <iostream>
 #include <future>
 #include <thread>
 #include <chrono>
 using namespace std;
 
-input::input(block current_block, board current_board, char current_order) :current_block(current_block), current_board(current_board), current_order(current_order) {}
+input::input(char current_order) :current_order(current_order) {}
 
 char input::get_async_input()
 {
 	char input;
 	cin >> input;
 	return input;
+}
+
+void input::set_current_block(block current_block)
+{
+	this->current_block = current_block;
 }
 
 void input::get_user_input()
@@ -27,6 +32,7 @@ void input::get_user_input()
 
 bool input::activate_block()
 {
+	board& current_board = board::get_instance();
 	int x = current_block.get_x();
 	int y = current_block.get_y();
 	bool is_gameover = false;
@@ -57,7 +63,7 @@ bool input::activate_block()
 			break;
 		}
 		current_block.x_move(-1);
-		current_block.y_move(1);
+		current_block.y_move();
 		break;
 	case 'd':
 		if (current_board.gameover_check(1, 1, 0))
@@ -82,7 +88,7 @@ bool input::activate_block()
 			break;
 		}
 		current_block.x_move(1);
-		current_block.y_move(1);
+		current_block.y_move();
 		break;
 	case 's':
 		if (current_board.gameover_check(1, 0, 90))
@@ -107,7 +113,7 @@ bool input::activate_block()
 			break;
 		}
 		current_block.rotate(90);
-		current_block.y_move(1);
+		current_block.y_move();
 		break;
 	default:
 		if (current_board.gameover_check(1, 0, 0))
@@ -131,14 +137,16 @@ bool input::activate_block()
 			is_block_move_stop = true;
 			break;
 		}
-		current_block.y_move(1);
+		current_block.y_move();
 		break;
 	}
 
 	current_board.update(is_block_move_stop);
 	if (is_block_move_stop == true)
 	{
-		current_block.init_block();
+		block new_block;
+		current_board.set_current_block(new_block);
+		current_block = new_block;
 	}
 	return is_gameover;
 }

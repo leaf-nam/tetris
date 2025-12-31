@@ -1,13 +1,23 @@
-#include "board.h"
+#include <board/board.h>
 
-board::board_plate():deleted_line_count(0),current_block(nullptr),plate_x(21),plate_y(50) {}
-
-board board::get_instance()
+board::board() :deleted_line_count(0), plate_x(21), plate_y(50)
 {
-	return current_board;
+	for (int y = 0; y < plate_y; ++y)
+	{
+		for (int x = 0; x < plate_x; ++x)
+		{
+			plate[y][x] = 0;
+		}
+	}
 }
 
-void board::set_block(block* current_block)
+board& board::get_instance()
+{
+	static board instance;
+	return instance;
+}
+
+void board::set_current_block(block current_block)
 {
 	this->current_block = current_block;
 }

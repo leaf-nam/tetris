@@ -1,18 +1,19 @@
-#include "render.h"
+#include <render/render.h>
 #include <iostream>
-#include <window.h>
+#include <windows.h>
 using namespace std;
 
-render::render(int start_x, int start_y, board current_board) :start_x(start_x), start_y(start_y), current_board(current_board) {}
+render::render(int start_x, int start_y) :start_x(start_x), start_y(start_y) {}
 
 void render::prompt(int x, int y)
 {
-	COORD locate = { x - 1, y - 1 };
+	COORD locate = { x, y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), locate);
 }
 
 void render::print_plate()
 {
+	board& current_board = board::get_instance();
 	int plate_x = current_board.get_plate_x();
 	int plate_y = current_board.get_plate_y();
 

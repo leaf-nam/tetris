@@ -1,10 +1,8 @@
-#include "block.h"
+#include <block/block.h>
 
-block::block() :block_type(0), x(10), y(0), angle(0) {}
-
-block block::get_instance()
+block::block() :block_type(0), x(10), y(0), angle(0)
 {
-	return current_block;
+	random_set_block_type();
 }
 
 void block::random_set_block_type()
@@ -46,13 +44,3 @@ int block::get_angle()
 {
 	return angle;
 }
-
-void block::init_block()
-{
-	angle = 0;
-	x = 10;
-	y = 0;
-	random_set_block_type();
-}
-
-block block::current_block();

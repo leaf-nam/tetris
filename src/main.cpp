@@ -1,10 +1,14 @@
-#include "input.h"
-#include "render.h"
+#include <input/input.h>
+#include <render/render.h>
 
 int main()
 {
-	input i(block::get_instance(), board::get_instance(), 0);
-	render r(0, 0, board::get_instance());
+	input i(0);
+	render r(0, 0);
+	block new_block;
+
+	i.set_current_block(new_block);
+	board::get_instance().set_current_block(new_block);
 
 	bool is_gameover = false;
 	while (!is_gameover)
