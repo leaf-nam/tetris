@@ -35,7 +35,7 @@ bool input::activate_block()
 		}
 		if (current_board.left_right_collision_check(1, -1, 0))
 		{
-			is_block_move_stop = true;
+			current_block->y_move();
 			break;
 		}
 		if (current_board.down_collision_check(1, -1, 0))
@@ -60,7 +60,7 @@ bool input::activate_block()
 		}
 		if (current_board.left_right_collision_check(1, 1, 0))
 		{
-			is_block_move_stop = true;
+			current_block->y_move();
 			break;
 		}
 		if (current_board.down_collision_check(1, 1, 0))
@@ -85,7 +85,7 @@ bool input::activate_block()
 		}
 		if (current_board.left_right_collision_check(1, 0, 90))
 		{
-			is_block_move_stop = true;
+			current_block->y_move();
 			break;
 		}
 		if (current_board.down_collision_check(1, 0, 90))
@@ -110,7 +110,7 @@ bool input::activate_block()
 		}
 		if (current_board.left_right_collision_check(1, 0, 0))
 		{
-			is_block_move_stop = true;
+			current_block->y_move();
 			break;
 		}
 		if (current_board.down_collision_check(1, 0, 0))
