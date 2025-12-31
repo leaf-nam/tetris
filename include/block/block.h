@@ -18,5 +18,7 @@ struct BlockData {
     void print();
 
 private:
-    void render(uint8_t type);
+    void render_init(uint8_t type);
+    void render_turn();
+    static const uint16_t shapes[7][4];
 };

@@ -40,10 +40,17 @@ int main(void) {
 	cout << "turn : " << block.turn << endl;
 
 	for (int i = 0; i < 7; i++) {
-		cout << "==========" << endl;
+		cout << "==========[" << i << "]==========" << endl;
 		BlockData block(i);
-		block.print();
+		for (int j = 0; j < 4; j++) {
+			cout << "<<<<(turn left)<<<<" << endl;
+			block.print();
+			block.turn_left();
+		}
+		
 	}
+
+	getchar();
 
 	return 0;
 }
