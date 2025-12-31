@@ -197,6 +197,7 @@ void board::line_delete()
 {
 	int cnt = 0;
 	int line_cnt = 0;
+	int start_line_delete_y = 0;
 	for (int y = 0; y < plate_y; ++y)
 	{
 		cnt = 0;
@@ -207,12 +208,15 @@ void board::line_delete()
 		}
 
 		if (cnt == plate_x)
+		{
 			line_cnt++;
+			start_line_delete_y = y;
+		}
 	}
 
 	if (line_cnt > 0)
 	{
-		for (int y = plate_y - 1; y >= plate_y - 1 - line_cnt; --y)
+		for (int y = start_line_delete_y; y >= start_line_delete_y - line_cnt; --y)
 		{
 			for (int x = 0; x < plate_x; ++x)
 			{
