@@ -1,6 +1,6 @@
 #include <board/board.h>
 
-board::board() :deleted_line_count(0), plate_x(21), plate_y(50)
+board::board() :deleted_line_count(0), plate_y(20), plate_x(20)
 {
 	for (int y = 0; y < plate_y; ++y)
 	{
@@ -127,11 +127,11 @@ bool board::block_collision_check(int y_move, int x_move, int angle_move)
 	return false;
 }
 
-bool board::gameover_check(int x_move, int y_move, int angle_move)
+bool board::gameover_check(int y_move, int x_move, int angle_move)
 {
 	int x = current_block.get_x();
 	int y = current_block.get_y();
-	if (upper_collision_check(x_move, y_move, angle_move))
+	if (upper_collision_check(y_move, x_move, angle_move))
 		return true;
 	else if ((x == 10 && y == 0) && block_collision_check(0, 0, 0))
 		return true;

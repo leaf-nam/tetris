@@ -4,9 +4,9 @@
 class board
 {
 private:
-	int plate_x;
 	int plate_y;
-	int plate[50][21];
+	int plate_x;
+	int plate[20][20];
 	int deleted_line_count;
 	block current_block;
 	board();

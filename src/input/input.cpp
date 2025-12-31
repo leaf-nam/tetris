@@ -1,18 +1,7 @@
 #include <input/input.h>
 #include <iostream>
-#include <future>
-#include <thread>
-#include <chrono>
+#include <conio.h>
 using namespace std;
-
-input::input(char current_order) :current_order(current_order) {}
-
-char input::get_async_input()
-{
-	char input;
-	cin >> input;
-	return input;
-}
 
 void input::set_current_block(block current_block)
 {
@@ -21,13 +10,10 @@ void input::set_current_block(block current_block)
 
 void input::get_user_input()
 {
-	chrono::seconds timeout(0);
-	char input = 'x';
-	future<char> future = async(get_async_input);
-	if (future.wait_for(timeout) == future_status::ready)
-		input = future.get();
-
-	current_order = input;
+	if (_kbhit())
+		current_order = _getch();
+	else
+		current_order = 'x';
 }
 
 bool input::activate_block()
@@ -149,4 +135,9 @@ bool input::activate_block()
 		current_block = new_block;
 	}
 	return is_gameover;
+}
+
+char input::get_current_order()
+{
+	return current_order;
 }

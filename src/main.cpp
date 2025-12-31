@@ -1,10 +1,11 @@
 #include <input/input.h>
 #include <render/render.h>
+#include <iostream>
 
 int main()
 {
-	input i(0);
-	render r(0, 0);
+	input i;
+	render r(5, 40);
 	block new_block;
 
 	i.set_current_block(new_block);
