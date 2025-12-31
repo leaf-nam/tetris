@@ -34,21 +34,14 @@ void render::print_plate()
 	for (int y = 0; y < plate_y; ++y)
 	{
 		prompt(start_y + y, start_x);
-		cout << '|';
 		for (int x = 0; x < plate_x; ++x)
 		{
 			print_color_by_number(current_board.get_plate_num(y, x));
 		}
-		cout << "|\n";
+		cout << '\n';
 	}
 
 	prompt(start_y + plate_y, start_x);
-	for (int x = 0; x <= plate_x + 1; ++x)
-	{
-		cout << '-';
-	}
-
-	prompt(start_y + plate_y + 1, start_x);
 	cout << "deleted line: " << current_board.get_deleted_line_count();
 }
 
@@ -69,42 +62,42 @@ void render::print_color_by_number(int num)
 	switch (num)
 	{
 	case 0:
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 1:
 	case 8:
 		set_color(FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 2:
 	case 9:
 		set_color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 3:
 	case 10:
 		set_color(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 4:
 	case 11:
 		set_color(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 5:
 	case 12:
 		set_color(FOREGROUND_RED | FOREGROUND_INTENSITY);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 6:
 	case 13:
 		set_color(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	case 7:
 	case 14:
 		set_color(FOREGROUND_RED | FOREGROUND_GREEN);
-		cout << "¡á";
+		cout << "¡";
 		break;
 	}
 	set_color(default_console_color);
