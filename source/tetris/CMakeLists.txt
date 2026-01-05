@@ -7,4 +7,5 @@ target_link_libraries(tetris
 	PRIVATE console_input
 	PRIVATE board
 	PRIVATE tetromino
+    PRIVATE util
 )
