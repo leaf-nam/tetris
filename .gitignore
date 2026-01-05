@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+# ctags symbol data
+tags
+
+# cmake build folder
+build
