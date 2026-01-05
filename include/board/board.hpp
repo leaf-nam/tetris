@@ -15,7 +15,7 @@ class Board
     void update_board();
     void draw_board();
     void draw_mino();
-    int can_move_mino(int new_r, int new_c, int new_rot, int cmd);
+    bool can_place_mino(int new_r, int new_c, int new_rot);
 
     public:
     Board();
