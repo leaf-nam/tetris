@@ -52,9 +52,9 @@ void TRenderer::drawBoard(const uint16_t* game_board, bool is_active, int pos_r,
         }
 
         for (uint16_t mask = LEFT_EDGE; mask >= RIGHT_EDGE; mask >>= 1) {
-            if (game_board[r] & mask) std::cout << Color::YELLOW << "■ " << Color::RESET;
-            else if (mino_row_bits & mask) std::cout << Color::CYAN << "■ " << Color::RESET;
-            else std::cout << Color::GRAY << ". " << Color::RESET;
+            if (game_board[r] & mask) std::cout << Color::YELLOW << "██" << Color::RESET;
+            else if (mino_row_bits & mask) std::cout << Color::CYAN << "██" << Color::RESET;
+            else std::cout << Color::GRAY << "  " << Color::RESET;
         }
         std::cout << Color::BOLD << "┃" << Color::RESET;
     }
@@ -82,7 +82,7 @@ void TRenderer::renderMinoPattern(int x, int y, uint16_t shape, const char* colo
         setCursor(x, y + i);
         uint16_t row = (shape >> ((3 - i) * 4)) & 0xF;
         for (int j = 0; j < 4; j++) {
-            if (row & (0x8 >> j)) std::cout << color << "■ " << Color::RESET;
+            if (row & (0x8 >> j)) std::cout << color << "██" << Color::RESET;
             else std::cout << Color::GRAY << ". " << Color::RESET;
         }
     }
