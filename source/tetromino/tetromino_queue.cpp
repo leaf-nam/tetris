@@ -29,7 +29,7 @@ int TetrominoQueue::get_new_tetromino()
         tetrominos[i - 1] = tetrominos[i];
     }
 
-    tetrominos[size_of_tetrominos] = rand_gen.get_rand_int() % 7;
+    tetrominos[size_of_tetrominos - 1] = rand_gen.get_rand_int() % 7;
 
     return new_tetromino;
 }
