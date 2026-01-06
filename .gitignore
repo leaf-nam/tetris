@@ -36,6 +36,7 @@
 *.exe
 *.out
 *.app
+tetris
 
 # debug information files
 *.dwo
