@@ -53,11 +53,18 @@ int main(void) {
         }
         
         new_score = rule.update_score(board);
+        if(is_level_up)
+            if(!board.insert_line(3))
+            {
+                board.render();
+                break;
+            }
         if (new_score || is_level_up) 
         {
             score += new_score;
             board.render();
-            cout << "SCORE: " << score << " LEVEL: " << rule.get_level() << "\r";
+            cout << "SCORE: " << score << ", LEVEL: " << rule.get_level() << "\r";
+            is_level_up = false;
         }
     }
 

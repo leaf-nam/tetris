@@ -2,6 +2,7 @@
 
 RuleEngine::RuleEngine() : level_game_time(0), current_level(1)
 {
+    // 120 == 1 minute, when timer is 500ms
     time_for_level_up[0] = 0;
     time_for_level_up[1] = 0;
     time_for_level_up[2] = 120;
@@ -48,7 +49,7 @@ bool RuleEngine::is_game_over(const uint16_t *board)
 bool RuleEngine::time_and_level_update()
 {
     level_game_time++;
-    if((current_level < 10) && (time_for_level_up[current_level + 1] <= level_game_time))
+    if ((current_level < 10) && (time_for_level_up[current_level + 1] <= level_game_time))
     {
         level_game_time = 0;
         current_level++;

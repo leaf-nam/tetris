@@ -1,5 +1,6 @@
 #include "board/board.hpp"
 #include "input/action.hpp"
+#include "util/rand_gen.hpp"
 
 using namespace std;
 
@@ -231,6 +232,40 @@ void Board::delete_line(int del_row)
         game_board[r] = game_board[r - 1];
     }
     game_board[0] = 0u;
+}
+
+bool Board::insert_line(int ins_row)
+{
+    RandGen& rand_gen = RandGen::get_instance();
+    auto [curr_r, curr_c] = active_mino.get_pos();
+    int curr_rot = active_mino.get_rotation();
+    int new_r = curr_r;
+    int index = 0;
+
+    for (int r = ins_row; r < 22; ++r)
+    {
+        game_board[r - ins_row] = game_board[r];
+    }
+    for (int r = 21; r > 21-ins_row; --r)
+    {
+        game_board[r] = ~(1 << ((rand_gen.get_rand_int() % 10) + 3));
+    }
+
+    while (!can_place_mino(new_r, curr_c, curr_rot) && index < ins_row)
+    {
+        new_r--;
+        index++;
+    }
+
+    if(index == 0) return true;
+    else if(index >= ins_row) return false;
+    else
+    {
+        active_mino.set_pos(new_r, curr_c);
+        update_board();
+        is_mino_active = false;
+        return true;
+    }
 }
 
 bool Board::is_line_full(int row)
