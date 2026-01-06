@@ -1,4 +1,4 @@
-#include "terminal_renderer.h"
+#include "terminal_renderer.hpp"
 #include <cstdio>
 
 namespace Color {
