@@ -23,9 +23,10 @@ int main(void) {
     auto base_time = chrono::steady_clock::now();
     auto curr_time = chrono::steady_clock::now();
     auto diff = curr_time - base_time;
+    bool is_level_up = false;
 
     board.render();
-    cout << "SCORE: " << score << "\r";
+    cout << "SCORE: " << score << ", LEVEL: " << rule.get_level() << "\r";
 
     while (1)
     {
@@ -39,6 +40,7 @@ int main(void) {
             base_time = chrono::steady_clock::now();
             board.move_mino(Action::DROP);
             board.render();
+            is_level_up = rule.time_and_level_update();
         }
         
         action = input.console_input();
@@ -51,11 +53,11 @@ int main(void) {
         }
         
         new_score = rule.update_score(board);
-        if (new_score) 
+        if (new_score || is_level_up) 
         {
             score += new_score;
             board.render();
-            cout << "SCORE: " << score << "\r";
+            cout << "SCORE: " << score << " LEVEL: " << rule.get_level() << "\r";
         }
     }
 
