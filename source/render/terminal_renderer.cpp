@@ -64,13 +64,13 @@ void TRenderer::drawBoard(const uint16_t* game_board, bool is_active, int pos_r,
 
 void TRenderer::drawUIBox(std::string title, int x, int y, int w, int h, const char* color) {
     setCursor(x, y);
-    std::cout << color << "┌" << std::string(w * 2, '─') << "┐" << Color::RESET;
+    std::cout << color << "┌" << repeat("─", w * 2) << "┐" << Color::RESET;
     for (int i = 1; i <= h; i++) {
         setCursor(x, y + i);
         std::cout << color << "│" << std::string(w * 2, ' ') << "│" << Color::RESET;
     }
     setCursor(x, y + h + 1);
-    std::cout << color << "└" << std::string(w * 2, '─') << "┘" << Color::RESET;
+    std::cout << color << "└" << repeat("─", w * 2) << "┘" << Color::RESET;
     if (!title.empty()) {
         setCursor(x + (w * 2 - title.length()) / 2 , y);
         std::cout << color << Color::BOLD << "[" << title << "]" << Color::RESET;
