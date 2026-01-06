@@ -7,16 +7,6 @@ static const uint16_t left_edge = 1u << 12;
 static const uint16_t right_edge = 1u << 3;
 static const uint16_t full_line =  ((left_edge << 1) - 1) ^ (right_edge - 1);
 
-static const int dr[5] = {0, 0, 1, 0, 0};
-static const int dc[5] = {-1, 1, 0, 0, 0};
-
-enum Move_result
-{
-    BLOCKED_BY_WALL,
-    BLOCKED,
-    NON_BLOCKED
-};
-
 Board::Board()
 {
     is_mino_active = false;
@@ -38,9 +28,9 @@ bool Board::has_active_mino()
 
 /**
  * @brief 테트로미노가 새로운 위치와 회전 상태일 때 보드 상에서 충돌이 있는 지 판정
- * @return 0: 벽에 충돌 / 1: 바닥이나 벽에 충돌 / 2: 충돌 없음
+ * @return false: 충돌 / true: 충돌 없음
  */
-int Board::can_move_mino(int new_r, int new_c, int new_rot, int cmd)
+bool Board::can_place_mino(int new_r, int new_c, int new_rot)
 {
     int move_result;
     uint16_t mino_mask = 0b1111000000000000;
@@ -54,20 +44,16 @@ int Board::can_move_mino(int new_r, int new_c, int new_rot, int cmd)
         mino_row = mino_mask & mino_shape;
         mino_row >>= i * 4;
         mino_row <<= (9 - new_c);
-        if ((r >= 22 && mino_row) ) return BLOCKED;
-        if (r < 22 && game_board[r] & mino_row) 
-        {
-            if (cmd == Action::LEFT || cmd == Action::RIGHT) return BLOCKED_BY_WALL;
-            else return BLOCKED;
-        }
-        if ((mino_row & left_edge << 1) || (mino_row & right_edge >> 1)) return BLOCKED_BY_WALL;
+        if ((r >= 22 && mino_row) ) return false; // 보드 바깥으로 나가는지 판정
+        if (r < 22 && game_board[r] & mino_row) return false; // 보드 안에 쌓여있는 블록과 충돌하는지 확인
+        if ((mino_row & left_edge << 1) || (mino_row & right_edge >> 1)) return false; // 보드 벽과 충돌하는지 확인
     }
 
-    return NON_BLOCKED;
+    return true;
 }
 
 /**
- * @brief 테트로미노 이동. 벽에 막힌 경우 무시, 바닥이나 다른 블록에 닿은 경우 해당 위치에 고정됨
+ * @brief 테트로미노 이동. 회전 및 좌우 이동 시에 막히는 경우 명령 무시, 아래 이동 시에 막히는 경우 보드에 고정, 막히지 않는 경우 테트로미노 위치 이동
  */
 void Board::move_mino(int cmd)
 {   
@@ -78,26 +64,54 @@ void Board::move_mino(int cmd)
     int new_r, new_c, new_rot;
     int move_result;
 
-    new_r = curr_r + dr[cmd], new_c = curr_c + dc[cmd];
-
-    if (cmd == Action::ROTATE_CW) new_rot = curr_rot + 1;
-    else if (cmd == Action::ROTATE_CCW) new_rot = curr_rot - 1;
-    else new_rot = curr_rot;
-
-    if (new_rot == -1) new_rot = 3;
-    else if (new_rot == 4) new_rot = 0;
-
-    move_result = can_move_mino(new_r, new_c, new_rot, cmd);
-
-    if (move_result == NON_BLOCKED) 
+    if (curr_rot == 4) curr_rot = 0;
+    else if (curr_rot == -1) curr_rot = 3;  
+        
+    if (cmd == Action::LEFT || cmd == Action::RIGHT)
     {
-        active_mino.set_pos(new_r, new_c);
-        active_mino.set_rotation(new_rot);
+        new_r = curr_r;
+        new_c = cmd == Action::LEFT ? curr_c - 1 : curr_c + 1;
+        new_rot = curr_rot;
+
+        if (can_place_mino(new_r, new_c, new_rot))
+        {
+            active_mino.set_pos(new_r, new_c);
+        }
+        else return;
     }
-    else if (move_result == BLOCKED)
+
+    if (cmd == Action::DROP)
     {
-        update_board();
-        is_mino_active = false;
+        new_r = curr_r + 1;
+        new_c = curr_c;
+        new_rot = curr_rot;
+
+        if (can_place_mino(new_r, new_c, new_rot))
+        {
+            active_mino.set_pos(new_r, new_c);
+        }
+        else
+        {
+            update_board();
+            is_mino_active = false;
+        }
+    }
+
+    if (cmd == Action::ROTATE_CCW || cmd == Action::ROTATE_CW)
+    {
+        new_r = curr_r;
+        new_c = curr_c;
+        new_rot = cmd == Action::ROTATE_CW ? curr_rot + 1 : curr_rot - 1;
+
+        if (new_rot == -1) new_rot = 3;
+        else if (new_rot == 4) new_rot = 0;
+
+        if (can_place_mino(new_r, new_c, new_rot))
+        {
+            active_mino.set_pos(new_r, new_c);
+            active_mino.set_rotation(new_rot);
+        }
+        else return;
     }
 }
 
@@ -110,9 +124,7 @@ bool Board::spawn_mino(int type)
 {
     active_mino.init_mino(type);
 
-    is_mino_active = (can_move_mino(0, 3, 0 , Action::DROP) == NON_BLOCKED);
-    return is_mino_active;
-
+    is_mino_active = can_place_mino(0, 3, 0);
     return is_mino_active;
 }
 
