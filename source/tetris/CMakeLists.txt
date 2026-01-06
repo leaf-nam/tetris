@@ -3,6 +3,7 @@ add_executable(tetris
 )
 
 target_link_libraries(tetris
+	PRIVATE render
 	PRIVATE game_rule
 	PRIVATE console_input
 	PRIVATE board
