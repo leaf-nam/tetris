@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\include",
+    "\\include\\board",
+    "\\source",
+    "\\source\\board",
+    "\\source\\game_rule",
+    "\\source\\input",
+    "\\source\\render",
+    "\\source\\tetris",
+    "\\source\\tetromino"
+  ],
+  "PreviewInSolutionExplorer": false
+}
