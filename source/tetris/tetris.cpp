@@ -2,6 +2,7 @@
 #include "input/action.hpp"
 #include "input/console_input.hpp"
 #include "game_rule/game_rule.hpp"
+#include "tetromino/tetromino_queue.hpp"
 
 #include <thread>
 #include <chrono>
@@ -14,8 +15,8 @@ int main(void) {
     Board board;
     Input input;
     RuleEngine rule;
+    TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
 
-    vector<int> mino_set = {0, 1, 2, 3, 4, 5, 6};
     int curr_mino = 0;
     int action;
     int score = 0, new_score;
@@ -28,15 +29,8 @@ int main(void) {
 
     while (1)
     {
-        if(!board.has_active_mino()) 
-        {
-            if (curr_mino >= 7)
-            {
-                std::shuffle(mino_set.begin(), mino_set.end(), std::mt19937(std::random_device{}()));
-                curr_mino = 0;
-            }
-            if (!board.spawn_mino(mino_set[curr_mino++])) break;
-        }
+        if(!board.has_active_mino())
+            if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
 
         curr_time = chrono::steady_clock::now();
         diff = curr_time - base_time;
