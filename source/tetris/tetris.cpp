@@ -19,14 +19,55 @@ int main(void)
     RuleEngine rule;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     TRenderer renderer;
+    int score = 0;
+    int new_score = 0;
     
+    int curr_mino = 0;
+    int action;
+    int score = 0, new_score;
+    auto base_time = chrono::steady_clock::now();
+    auto curr_time = chrono::steady_clock::now();
+    auto diff = curr_time - base_time;
+    bool is_level_up = false;
     renderer.clear();
 
     renderer.display();
     while (1)
     {
-        renderer.draw(&board, tetromino_queue);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if(!board.has_active_mino())
+            if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
+
+        curr_time = chrono::steady_clock::now();
+        diff = curr_time - base_time;
+        if (diff >= chrono::milliseconds(500))
+        {
+            base_time = chrono::steady_clock::now();
+            board.move_mino(Action::DROP);
+            renderer.draw(&board, tetromino_queue);
+            is_level_up = rule.time_and_level_update();
+        }
+        
+        action = input.console_input();
+
+        if (action != -1) 
+        {
+            if (action == Action::HARD_DROP) while (board.has_active_mino()) board.move_mino(Action::DROP);
+            else board.move_mino(action);
+            renderer.draw(&board, tetromino_queue);
+        }
+        
+        new_score = rule.update_score(board);
+        if(is_level_up)
+            if(!board.insert_line(3))
+            {
+                renderer.draw(&board, tetromino_queue);
+                break;
+            }
+        if (new_score || is_level_up) 
+        {
+            score += new_score;
+            renderer.draw(&board, tetromino_queue);
+        }
     }
     return 0;
 }
