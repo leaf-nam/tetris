@@ -1,9 +1,7 @@
 #include "render/terminal_renderer.hpp"
 #include <cstdio>
 
-// --- 상수 정의 ---
-static const uint16_t LEFT_EDGE = 1u << 12;
-static const uint16_t RIGHT_EDGE = 1u << 3;
+
 
 namespace Color {
     const char* RESET = "\x1b[0m";
