@@ -52,6 +52,7 @@ int main(void) {
         {
             if (action == Action::HARD_DROP) while (board.has_active_mino()) board.move_mino(Action::DROP);
             else board.move_mino(action);
+            tetromino_queue.draw_tetromino_queue();
             board.render();
         }
         
