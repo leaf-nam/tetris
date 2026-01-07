@@ -39,7 +39,7 @@ private:
     //draw
     void renderMinoPattern(int x, int y, uint16_t shape, const char* color);
     void drawHold(uint16_t hold_shape);
-    void drawNext(const std::vector<uint16_t>& next_shapes);
+    void drawNext(const TetrominoQueue& tetromino_queue);
 };
 
 #endif
