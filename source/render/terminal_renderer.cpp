@@ -34,7 +34,7 @@ void TRenderer::drawLogo() {
     const char* S[] = {" ████", "█    ", " ███ ", "    █", "████ "};
     const char* N[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
 
-    int x = 16; // 시작 X 좌표
+    int x = 20; // 시작 X 좌표
     int y = 1;  // 시작 Y 좌표
 
     for (int i = 0; i < 5; i++) {
@@ -53,7 +53,7 @@ void TRenderer::drawLogo() {
     }
 
     // v1 출력 (N 글자 아래쪽 끝에 배치)
-    setCursor(x + 48, y + 4);
+    setCursor(x + 52, y + 4);
     printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
 }
 void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
