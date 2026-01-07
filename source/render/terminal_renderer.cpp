@@ -26,19 +26,41 @@ void TRenderer::clear() {
 }
 
 void TRenderer::drawLogo() {
-    const char* logo[] = {
-        "TTTTT EEEEE TTTTT RRRR  III  SSSS  SSSS  EEEE N   N",
-        "  T   E       T   R   R  I  S     S      E    NN  N",
-        "  T   EEE     T   RRRR   I   SSS   SSS   EEE  N N N",
-        "  T   E       T   R  R   I      S     S  E    N  NN",
-        "  T   EEEEE   T   R   R III SSSS  SSSS   EEEE N   N"
-    };
-    for (int i = 0; i < 5; i++) {
-        setCursor(3, 1 + i);
-        printf("%s%s%s", Color::RED, logo[i], Color::RESET);
-    }
-}
+    // 풀 블록(█)을 사용한 로고 디자인
+    // T, E, T, R, I, S, S, E, N 순서
+    const char* l1 = "█████ █████ █████ ████  ███  ████  ████  █████ ██  █";
+    const char* l2 = "  █   █       █   █   █  █  █     █      █     █ █ █";
+    const char* l3 = "  █   ███     █   ████   █   ███   ███   ███   █  ██";
+    const char* l4 = "  █   █       █   █  █   █      █     █  █     █   █";
+    const char* l5 = "  █   █████   █   █   █ ███ ████  ████  █████ █   █";
 
+    const int startX = 5;
+    const int startY = 1;
+
+    // 각 줄을 출력하면서 글자 섹션마다 색상을 변경
+    const char* lines[] = {l1, l2, l3, l4, l5};
+    
+    for (int i = 0; i < 5; i++) {
+        setCursor(startX, startY + i);
+        
+        // 글자별 색상 적용 (바이트 오프셋 기준으로 대략적 분리)
+        printf("%s%.6s", Color::RED,    lines[i]);      // T
+        printf("%s%.6s", Color::YELLOW, lines[i] + 6);  // E
+        printf("%s%.6s", Color::GREEN,  lines[i] + 12); // T
+        printf("%s%.6s", Color::CYAN,   lines[i] + 18); // R
+        printf("%s%.5s", Color::PURPLE, lines[i] + 24); // I
+        printf("%s%.6s", Color::RED,    lines[i] + 29); // S
+        printf("%s%.6s", Color::YELLOW, lines[i] + 35); // S
+        printf("%s%.6s", Color::GREEN,  lines[i] + 41); // E
+        printf("%s%s",   Color::CYAN,   lines[i] + 47); // N
+        
+        printf("%s", Color::RESET);
+    }
+
+    // 버전 정보 출력
+    setCursor(startX + 48, startY + 4);
+    printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
+}
 void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     int startX = 35, startY = 7;
     const uint16_t* game_board = board->get_board();
@@ -94,7 +116,7 @@ void TRenderer::drawUIBox(std::string title, int x, int y, int w, int h, const c
     setCursor(x, y + h + 1);
     std::cout << color << "└" << std::string(w * 2, ' ') << "┘" << Color::RESET;
     if (!title.empty()) {
-        setCursor(x + (w * 2 - title.length()) / 2 , y);
+        setCursor(x + (w * 2 - title.length()) / 2 +1 , y);
         std::cout << color << Color::BOLD << "[" << title << "]" << Color::RESET;
     }
 }
