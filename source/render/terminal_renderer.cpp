@@ -79,8 +79,8 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     std::string time = "02:15";
 
 
-    setCursor(16, 11); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
-    setCursor(18, 16); printf("%s%02d%s", Color::BOLD, lv, Color::RESET);
+    setCursor(7, 18); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
+    setCursor(9, 23); printf("%s%02d%s", Color::BOLD, lv, Color::RESET);
     setCursor(84, 4); std::cout << Color::BOLD << time << Color::RESET;
 }
 
@@ -112,10 +112,10 @@ void TRenderer::renderMinoPattern(int x, int y, uint16_t shape, const char* colo
 void TRenderer::display() {
     fflush(stdout);
     drawLogo();
-    drawUIBox("HOLD", 4, 11, 6, 4, Color::GREEN);
+    drawUIBox("HOLD", 4, 9, 6, 4, Color::GREEN);
     drawUIBox("NEXT", 80, 7, 6, 17, Color::PURPLE);
-    drawUIBox("SCORE", 4, 18, 6, 3, Color::CYAN);
-    drawUIBox("LEVEL", 4, 23, 6, 3, Color::CYAN);
+    drawUIBox("SCORE", 4, 16, 6, 3, Color::CYAN);
+    drawUIBox("LEVEL", 4, 21, 6, 3, Color::CYAN);
     drawUIBox("TIME", 80, 2, 6, 2, Color::RESET);
 
 
