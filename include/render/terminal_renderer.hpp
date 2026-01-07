@@ -25,16 +25,21 @@ namespace Color {
 class TRenderer {
 public:
     void clear();
-    void drawLogo();
-    void drawBoard(const uint16_t* game_board, bool is_active, int pos_r, int pos_c, uint16_t mino_shape);
-    void drawHold(uint16_t hold_shape);
-    void drawNext(const std::vector<uint16_t>& next_shapes);
-    void drawStats(int score, int lv, std::string time);
+    void draw(const Board* board, const TetrominoQueue& queue);
+    void display();
 
 private:
     void setCursor(int x, int y);
     void drawUIBox(std::string title, int x, int y, int w, int h, const char* color);
     void renderMinoPattern(int x, int y, uint16_t shape, const char* color);
+    //display
+    void drawLogo();
+    void drawUIBox(std::string title, int x, int y, int w, int h, const char* color);
+
+    //draw
+    void renderMinoPattern(int x, int y, uint16_t shape, const char* color);
+    void drawHold(uint16_t hold_shape);
+    void drawNext(const std::vector<uint16_t>& next_shapes);
 };
 
 #endif
