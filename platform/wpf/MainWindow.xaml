@@ -27,7 +27,7 @@
             <ColumnDefinition Width="10*" />
             <ColumnDefinition Width="5*" />
         </Grid.ColumnDefinitions>
-    
+
         <!-- 중앙 타이틀 -->
         <Border Grid.Row="0"
                 Grid.Column="0"
@@ -56,7 +56,7 @@
 
             <!-- Hold -->
             <Grid Grid.Row="0" Grid.Column="0" Margin="5">
-                
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*" />
                     <RowDefinition Height="6*" />
@@ -73,7 +73,7 @@
                     <Canvas x:Name="CanvasHold"/>
                 </Border>
             </Grid>
-            
+
             <!-- Score -->
             <Border Grid.Row="1"
                     CornerRadius="12"
