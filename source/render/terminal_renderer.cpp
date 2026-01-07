@@ -70,7 +70,7 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
     //최적화 필요
-    drawNext(std::vector<uint16_t>(queue.get_tetrominos()));
+    drawNext((queue.get_tetrominos()));
     
     //drawHold(board->get_hold_shape());
 
@@ -124,7 +124,7 @@ void TRenderer::drawHold(uint16_t hold_shape) {
     renderMinoPattern(7, 3, hold_shape, Color::YELLOW);
 }
 
-void TRenderer::drawNext(const TetrominoQueue& tetromino_queue) {
+void TRenderer::drawNext(TetrominoQueue& tetromino_queue) {
     for (size_t i = 0; i < 3; ++i) {
         renderMinoPattern(83, 9 + (i * 5), (tetromino_queue.get_tetrominos()[i]), Color::CYAN);
     }
