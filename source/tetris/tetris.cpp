@@ -19,8 +19,7 @@ int main(void)
     RuleEngine rule;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     TRenderer renderer;
-    int score = 0;
-    int new_score = 0;
+    
     
     int curr_mino = 0;
     int action;
@@ -29,6 +28,7 @@ int main(void)
     auto curr_time = chrono::steady_clock::now();
     auto diff = curr_time - base_time;
     bool is_level_up = false;
+
     renderer.clear();
 
     renderer.display();
@@ -44,7 +44,7 @@ int main(void)
             base_time = chrono::steady_clock::now();
             board.move_mino(Action::DROP);
             renderer.draw(&board, tetromino_queue);
-            is_level_up = rule.time_and_level_update();
+            is_level_up = false;
         }
         
         action = input.console_input();
@@ -58,11 +58,9 @@ int main(void)
         
         new_score = rule.update_score(board);
         if(is_level_up)
-            if(!board.insert_line(3))
-            {
-                renderer.draw(&board, tetromino_queue);
-                break;
-            }
+            
+            renderer.draw(&board, tetromino_queue);
+              
         if (new_score || is_level_up) 
         {
             score += new_score;
