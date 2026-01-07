@@ -34,7 +34,7 @@ void TRenderer::drawLogo() {
     const char* S[] = {" ████", "█    ", " ███ ", "    █", "████ "};
     const char* N[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
 
-    int x = 22; // 시작 X 좌표
+    int x = 16; // 시작 X 좌표
     int y = 1;  // 시작 Y 좌표
 
     for (int i = 0; i < 5; i++) {
