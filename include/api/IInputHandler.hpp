@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __I_INPUT_HANDLER_HPP__
+#define __I_INPUT_HANDLER_HPP__
 
 #include <string>
 
@@ -19,3 +20,4 @@ public:
     virtual ~IInputHandler();
 
 };
+#endif

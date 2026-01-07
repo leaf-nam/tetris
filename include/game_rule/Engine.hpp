@@ -1,5 +1,9 @@
+#ifndef __ENGINE_HPP__
+#define __ENGINE_HPP__
+
 #include "api/IInputHandler.hpp"
 #include "api/IRenderer.hpp"
+
 class Engine {
 private:
     IInputHandler inputHandler;
@@ -35,3 +39,4 @@ public:
      */
     ~Engine();
 };
+#endif

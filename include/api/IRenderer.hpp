@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __I_RENDERER_HPP__
+#define __I_RENDERER_HPP__
 
 #include <string>
 #include "tetromino/tetromino.hpp"
@@ -55,3 +56,4 @@ public:
      */
     virtual ~IRenderer();
 };
+#endif
