@@ -11,6 +11,7 @@ enum Action
     ROTATE_CW,
     ROTATE_CCW,
     HARD_DROP,
+    SWAP,
 };
 
 #endif

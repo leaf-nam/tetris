@@ -38,6 +38,18 @@ int TetrominoQueue::get_new_tetromino()
     return new_tetromino;
 }
 
+void TetrominoQueue::set_new_tetromino(int new_tetromino)
+{
+    int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
+
+    for(int i = 0; i < size_of_tetrominos - 1; ++i)
+    {
+        tetrominos[i + 1] = tetrominos[i];
+    }
+
+    tetrominos[0] = new_tetromino;
+}
+
 const int* TetrominoQueue::get_tetrominos()
 {
     return tetrominos;
@@ -52,7 +64,7 @@ void TetrominoQueue::draw_tetromino_queue()
     static const uint16_t right_edge = 1u << 3;
     uint16_t mino_row;
 
-    std::cout << "\x1b[20A";
+    std::cout << "\x1b[15A";
     std::cout << "\x1b[11C";
     std::cout << "NEXT\n";
     for (int tetromino_num = 0; tetromino_num < 3; ++tetromino_num)
