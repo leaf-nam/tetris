@@ -13,6 +13,7 @@ class TetrominoQueue
 	TetrominoQueue& operator=(const TetrominoQueue&) = delete;
     int get_new_tetromino();
     const int* get_tetrominos();
+    void draw_tetromino_queue();
 };
 
 #endif
