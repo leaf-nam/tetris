@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include "board/board.hpp"
+#include "tetromino/tetromino_queue.hpp"
 
 // --- 상수 정의 ---
 static const uint16_t LEFT_EDGE = 1u << 12;
