@@ -34,7 +34,7 @@ void TRenderer::drawLogo() {
         "  T   EEEEE   T   R   R III SSSS  SSSS   EEEE N   N"
     };
     for (int i = 0; i < 5; i++) {
-        setCursor(22, 1 + i);
+        setCursor(1, 1 + i);
         printf("%s%s%s", Color::RED, logo[i], Color::RESET);
     }
 }
@@ -112,16 +112,16 @@ void TRenderer::renderMinoPattern(int x, int y, uint16_t shape, const char* colo
 void TRenderer::display() {
     fflush(stdout);
     drawLogo();
-    drawUIBox("HOLD", 4, 2, 6, 4, Color::GREEN);
+    drawUIBox("HOLD", 4, 11, 6, 4, Color::GREEN);
     drawUIBox("NEXT", 80, 7, 6, 17, Color::PURPLE);
-    drawUIBox("SCORE", 4, 9, 6, 3, Color::CYAN);
-    drawUIBox("LEVEL", 4, 14, 6, 3, Color::CYAN);
+    drawUIBox("SCORE", 4, 18, 6, 3, Color::CYAN);
+    drawUIBox("LEVEL", 4, 23, 6, 3, Color::CYAN);
     drawUIBox("TIME", 80, 2, 6, 2, Color::RESET);
 
 
 }
 void TRenderer::drawHold(uint16_t hold_shape) {
-    renderMinoPattern(7, 3, hold_shape, Color::YELLOW);
+    renderMinoPattern(16, 3, hold_shape, Color::YELLOW);
 }
 
 void TRenderer::drawNext(const int* tetromino_queue) {
