@@ -70,7 +70,7 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
     //최적화 필요
-    drawNext((queue.get_tetrominos()));
+    //drawNext((queue.get_tetrominos()));
     
     //drawHold(board->get_hold_shape());
 
