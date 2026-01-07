@@ -14,6 +14,7 @@ namespace Color {
     const char* BOLD = "\x1b[1m";
 }
 
+
 void TRenderer::setCursor(int x, int y) {
     printf("\033[%d;%dH", y + 1, x + 1);
 }
@@ -48,17 +49,17 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     for (int r = 2; r < 22; ++r) {
         setCursor(startX, startY + (r - 1));
         std::cout << Color::BOLD << "┃ " << Color::RESET;
-        /*
+        
         uint16_t mino_row_bits = 0;
         if (is_active && r >= pos_r && r < pos_r + 4) {
             int shift = (3 - (r - pos_r)) * 4;
             mino_row_bits = (mino_shape >> shift) & 0xF;
             mino_row_bits <<= (12 - 3 - pos_c + 3);
         }
-        */
+        
         for (uint16_t mask = LEFT_EDGE; mask >= RIGHT_EDGE; mask >>= 1) {
             if (game_board[r] & mask) std::cout << Color::YELLOW << "██" << Color::RESET;
-            //else if (mino_row_bits & mask) std::cout << Color::CYAN << "██" << Color::RESET;
+            else if (mino_row_bits & mask) std::cout << Color::CYAN << "██" << Color::RESET;
             else std::cout << Color::GRAY << ". " << Color::RESET;
         }
             
