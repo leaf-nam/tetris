@@ -66,3 +66,13 @@ int Tetromino::get_rotation()
 {
     return rotation;
 }
+
+int Tetromino::get_mino_type()
+{
+    return mino_type;
+}
+
+void Tetromino::set_mino_type(int type)
+{
+    mino_type = type;
+}

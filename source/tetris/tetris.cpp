@@ -31,7 +31,10 @@ int main(void) {
     while (1)
     {
         if(!board.has_active_mino())
+        {
             if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
+            tetromino_queue.draw_tetromino_queue();
+        }
 
         curr_time = chrono::steady_clock::now();
         diff = curr_time - base_time;
