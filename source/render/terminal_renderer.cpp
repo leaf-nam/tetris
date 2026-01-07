@@ -124,8 +124,8 @@ void TRenderer::drawHold(uint16_t hold_shape) {
     renderMinoPattern(7, 3, hold_shape, Color::YELLOW);
 }
 
-void TRenderer::drawNext(TetrominoQueue& tetromino_queue) {
+void TRenderer::drawNext(const int* tetromino_queue) {
     for (size_t i = 0; i < 3; ++i) {
-        renderMinoPattern(83, 9 + (i * 5), (tetromino_queue.get_tetrominos()[i]), Color::CYAN);
+        renderMinoPattern(83, 9 + (i * 5), (tetromino_queue[i]), Color::CYAN);
     }
 }
