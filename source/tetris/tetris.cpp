@@ -14,7 +14,7 @@ using namespace std;
 
 int main(void)
 {
-   Board board;
+    Board board;
     Input input;
     RuleEngine rule;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
@@ -42,7 +42,7 @@ int main(void)
         {
             base_time = chrono::steady_clock::now();
             board.move_mino(Action::DROP);
-            board.render();
+            renderer.draw();
             is_level_up = rule.time_and_level_update();
         }
         
