@@ -34,7 +34,7 @@ void TRenderer::drawLogo() {
         "  T   EEEEE   T   R   R III SSSS  SSSS   EEEE N   N"
     };
     for (int i = 0; i < 5; i++) {
-        setCursor(1, 1 + i);
+        setCursor(3, 1 + i);
         printf("%s%s%s", Color::RED, logo[i], Color::RESET);
     }
 }
@@ -79,8 +79,8 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     std::string time = "02:15";
 
 
-    setCursor(7, 11); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
-    setCursor(9, 16); printf("%s%02d%s", Color::BOLD, lv, Color::RESET);
+    setCursor(16, 11); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
+    setCursor(18, 16); printf("%s%02d%s", Color::BOLD, lv, Color::RESET);
     setCursor(84, 4); std::cout << Color::BOLD << time << Color::RESET;
 }
 
