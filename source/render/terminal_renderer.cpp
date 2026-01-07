@@ -66,14 +66,14 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
     //최적화 가능
-    drawNext(std::vector<uint16_t>(queue.get_tetrominos(), queue.get_tetrominos() + 3));
+    //drawNext(std::vector<uint16_t>(queue.get_tetrominos(), queue.get_tetrominos() + 3));
     
     //drawHold(board->get_hold_shape());
 
     int score = 3000;
     int lv = 5;
     std::string time = "02:15";
-    
+
 
     setCursor(7, 11); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
     setCursor(9, 16); printf("%s%02d%s", Color::BOLD, lv, Color::RESET);

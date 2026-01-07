@@ -32,8 +32,6 @@ public:
 
 private:
     void setCursor(int x, int y);
-    void drawUIBox(std::string title, int x, int y, int w, int h, const char* color);
-    void renderMinoPattern(int x, int y, uint16_t shape, const char* color);
     //display
     void drawLogo();
     void drawUIBox(std::string title, int x, int y, int w, int h, const char* color);
