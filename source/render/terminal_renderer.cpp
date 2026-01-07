@@ -126,6 +126,6 @@ void TRenderer::drawHold(uint16_t hold_shape) {
 
 void TRenderer::drawNext(const TetrominoQueue& tetromino_queue) {
     for (size_t i = 0; i < 3; ++i) {
-        renderMinoPattern(83, 9 + (i * 5), (tetromino_queue.get_tetrominos()+i)[], Color::CYAN);
+        renderMinoPattern(83, 9 + (i * 5), (tetromino_queue.get_tetrominos()[i]), Color::CYAN);
     }
 }
