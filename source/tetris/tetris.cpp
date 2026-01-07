@@ -30,7 +30,6 @@ int main(void)
     bool is_level_up = false;
 
     renderer.clear();
-
     renderer.display();
     while (1)
     {
@@ -43,8 +42,8 @@ int main(void)
         {
             base_time = chrono::steady_clock::now();
             board.move_mino(Action::DROP);
-            renderer.draw(&board, tetromino_queue);
-            is_level_up = false;
+            board.render();
+            is_level_up = rule.time_and_level_update();
         }
         
         action = input.console_input();

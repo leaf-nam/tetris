@@ -25,6 +25,7 @@ class Board
     bool is_line_full(int row);
     const uint16_t* get_board() const;
     void delete_line(int del_row);
+    bool insert_line(int ins_row);
     void render(); // 추후 UI 전용 객체로 이전
 };
 

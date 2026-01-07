@@ -22,6 +22,7 @@ void TRenderer::setCursor(int x, int y) {
 void TRenderer::clear() {
     printf("\033[2J\033[1;1H");
     fflush(stdout);
+    printf("\e[?25l");
 }
 
 void TRenderer::drawLogo() {
@@ -68,8 +69,8 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     setCursor(startX, startY + 21);
     std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
-    //최적화 가능
-    //drawNext(std::vector<uint16_t>(queue.get_tetrominos(), queue.get_tetrominos() + 3));
+    //최적화 필요
+    drawNext(std::vector<uint16_t>(queue.get_tetrominos(), queue.get_tetrominos() + 3));
     
     //drawHold(board->get_hold_shape());
 
@@ -123,8 +124,8 @@ void TRenderer::drawHold(uint16_t hold_shape) {
     renderMinoPattern(7, 3, hold_shape, Color::YELLOW);
 }
 
-void TRenderer::drawNext(const std::vector<uint16_t>& next_shapes) {
-    for (size_t i = 0; i < next_shapes.size() && i < 3; ++i) {
-        renderMinoPattern(83, 9 + (i * 5), next_shapes[i], Color::CYAN);
+void TRenderer::drawNext(const TetrominoQueue& tetromino_queue) {
+    for (size_t i = 0; i < 3; ++i) {
+        renderMinoPattern(83, 9 + (i * 5), *(tetromino_queue.get_tetromino()+i), Color::CYAN);
     }
 }
