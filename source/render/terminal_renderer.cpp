@@ -1,6 +1,10 @@
 #include "render/terminal_renderer.hpp"
 #include <cstdio>
 
+// --- 상수 정의 ---
+static const uint16_t LEFT_EDGE = 1u << 12;
+static const uint16_t RIGHT_EDGE = 1u << 3;
+
 namespace Color {
     const char* RESET = "\x1b[0m";
     const char* RED = "\x1b[31m";
@@ -57,7 +61,7 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
         for (uint16_t mask = LEFT_EDGE; mask >= RIGHT_EDGE; mask >>= 1) {
             if (game_board[r] & mask) std::cout << Color::YELLOW << "██" << Color::RESET;
             //else if (mino_row_bits & mask) std::cout << Color::CYAN << "██" << Color::RESET;
-            else std::cout << Color::GRAY << "  " << Color::RESET;
+            else std::cout << Color::GRAY << ". " << Color::RESET;
         }
             
         std::cout << Color::BOLD << "┃" << Color::RESET;
@@ -107,6 +111,7 @@ void TRenderer::renderMinoPattern(int x, int y, uint16_t shape, const char* colo
 }
 void TRenderer::display() {
     fflush(stdout);
+    drawLogo();
     drawUIBox("HOLD", 4, 2, 6, 4, Color::GREEN);
     drawUIBox("NEXT", 80, 7, 6, 17, Color::PURPLE);
     drawUIBox("SCORE", 4, 9, 6, 3, Color::CYAN);
