@@ -42,7 +42,7 @@ int main(void)
         {
             base_time = chrono::steady_clock::now();
             board.move_mino(Action::DROP);
-            renderer.draw();
+            renderer.draw(&board, tetromino_queue);
             is_level_up = rule.time_and_level_update();
         }
         
