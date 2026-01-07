@@ -26,39 +26,34 @@ void TRenderer::clear() {
 }
 
 void TRenderer::drawLogo() {
-    // 풀 블록(█)을 사용한 로고 디자인
-    // T, E, T, R, I, S, S, E, N 순서
-    const char* l1 = "█████ █████ █████ ████  ███  ████  ████  █████ ██  █";
-    const char* l2 = "  █   █       █   █   █  █  █     █      █     █ █ █";
-    const char* l3 = "  █   ███     █   ████   █   ███   ███   ███   █  ██";
-    const char* l4 = "  █   █       █   █  █   █      █     █  █     █   █";
-    const char* l5 = "  █   █████   █   █   █ ███ ████  ████  █████ █   █";
+    // 각 글자를 배열로 분리 (█ 문자가 포함되어 있어도 안전하게 출력 가능)
+    const char* T[] = {"█████", "  █  ", "  █  ", "  █  ", "  █  "};
+    const char* E[] = {"█████", "█    ", "███  ", "█    ", "█████"};
+    const char* R[] = {"████ ", "█   █", "████ ", "█  █ ", "█   █"};
+    const char* I[] = {"███", " █ ", " █ ", " █ ", "███"};
+    const char* S[] = {" ████", "█    ", " ███ ", "    █", "████ "};
+    const char* N[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
 
-    const int startX = 5;
-    const int startY = 1;
+    int x = 22; // 시작 X 좌표
+    int y = 1;  // 시작 Y 좌표
 
-    // 각 줄을 출력하면서 글자 섹션마다 색상을 변경
-    const char* lines[] = {l1, l2, l3, l4, l5};
-    
     for (int i = 0; i < 5; i++) {
-        setCursor(startX, startY + i);
-        
-        // 글자별 색상 적용 (바이트 오프셋 기준으로 대략적 분리)
-        printf("%s%.6s", Color::RED,    lines[i]);      // T
-        printf("%s%.6s", Color::YELLOW, lines[i] + 6);  // E
-        printf("%s%.6s", Color::GREEN,  lines[i] + 12); // T
-        printf("%s%.6s", Color::CYAN,   lines[i] + 18); // R
-        printf("%s%.5s", Color::PURPLE, lines[i] + 24); // I
-        printf("%s%.6s", Color::RED,    lines[i] + 29); // S
-        printf("%s%.6s", Color::YELLOW, lines[i] + 35); // S
-        printf("%s%.6s", Color::GREEN,  lines[i] + 41); // E
-        printf("%s%s",   Color::CYAN,   lines[i] + 47); // N
-        
+        setCursor(x, y + i);
+        // 순서대로 색상과 함께 출력
+        printf("%s%s ", Color::RED,    T[i]); // T
+        printf("%s%s ", Color::YELLOW, E[i]); // E
+        printf("%s%s ", Color::GREEN,  T[i]); // T
+        printf("%s%s ", Color::CYAN,   R[i]); // R
+        printf("%s%s ", Color::PURPLE, I[i]); // I
+        printf("%s%s ", Color::RED,    S[i]); // S
+        printf("%s%s ", Color::YELLOW, S[i]); // S
+        printf("%s%s ", Color::GREEN,  E[i]); // E
+        printf("%s%s",  Color::CYAN,   N[i]); // N
         printf("%s", Color::RESET);
     }
 
-    // 버전 정보 출력
-    setCursor(startX + 48, startY + 4);
+    // v1 출력 (N 글자 아래쪽 끝에 배치)
+    setCursor(x + 48, y + 4);
     printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
 }
 void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
