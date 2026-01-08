@@ -22,12 +22,58 @@ Board::Board()
 }
 
 /**
+ * @brief active tetromino의 위치 반환
+ * @return pair<int, int> 순서대로 row, col
+ */
+pair<int, int> Board::get_active_mino_pos()
+{
+    return active_mino.get_pos();
+}
+
+/**
+ * @brief active tetromino의 회전 반환
+ * @return 회전 (0 ~ 3)
+ */
+int Board::get_active_mino_rotation()
+{
+    return active_mino.get_rotation();
+}
+
+/**
+ * @brief active tetromino의 위치를 수정
+ * @param new_r 새로운 row 위치
+ * @param new_c 새로운 col 위치
+ */
+void Board::set_active_mino_pos(int new_r, int new_c)
+{
+    active_mino.set_pos(new_r, new_c);
+}
+
+/**
+ * @brief active tetromino의 회전을 수정
+ * @param new_rot 새로운 회전 방향
+ */
+void Board::set_active_mino_rotation(int new_rot)
+{
+    active_mino.set_rotation(new_rot);
+}
+
+/**
  * @brief board 상의 mino가 active 상태인지 반환
  * @return mino가 active이면 true 반환
  */
 bool Board::has_active_mino()
 {
     return is_mino_active;
+}
+
+/**
+ * @brief swap된 mino가 있는지 반환
+ * @return swap된 mino가 있으면 true 반환
+ */
+bool Board::has_swaped_mino()
+{
+    return is_mino_swaped;
 }
 
 /**
@@ -54,76 +100,6 @@ bool Board::can_place_mino(int new_r, int new_c, int new_rot)
     }
 
     return true;
-}
-
-/**
- * @brief 테트로미노 이동. 회전 및 좌우 이동 시에 막히는 경우 명령 무시, 아래 이동 시에 막히는 경우 보드에 고정, 막히지 않는 경우 테트로미노 위치 이동
- */
-void Board::move_mino(int cmd)
-{   
-    if (!is_mino_active) return;
-
-    auto [curr_r, curr_c] = active_mino.get_pos();
-    int curr_rot = active_mino.get_rotation();
-    int new_r, new_c, new_rot;
-    int move_result;
-
-    if (curr_rot == 4) curr_rot = 0;
-    else if (curr_rot == -1) curr_rot = 3;  
-
-    if (cmd == Action::SWAP)
-    {
-        if (is_mino_swaped == false)
-            swap_mino();
-        else return;
-    }
-
-    if (cmd == Action::LEFT || cmd == Action::RIGHT)
-    {
-        new_r = curr_r;
-        new_c = cmd == Action::LEFT ? curr_c - 1 : curr_c + 1;
-        new_rot = curr_rot;
-
-        if (can_place_mino(new_r, new_c, new_rot))
-        {
-            active_mino.set_pos(new_r, new_c);
-        }
-        else return;
-    }
-
-    if (cmd == Action::DROP)
-    {
-        new_r = curr_r + 1;
-        new_c = curr_c;
-        new_rot = curr_rot;
-
-        if (can_place_mino(new_r, new_c, new_rot))
-        {
-            active_mino.set_pos(new_r, new_c);
-        }
-        else
-        {
-            update_board();
-            is_mino_active = false;
-        }
-    }
-
-    if (cmd == Action::ROTATE_CCW || cmd == Action::ROTATE_CW)
-    {
-        new_r = curr_r;
-        new_c = curr_c;
-        new_rot = cmd == Action::ROTATE_CW ? curr_rot + 1 : curr_rot - 1;
-
-        if (new_rot == -1) new_rot = 3;
-        else if (new_rot == 4) new_rot = 0;
-
-        if (can_place_mino(new_r, new_c, new_rot))
-        {
-            active_mino.set_pos(new_r, new_c);
-            active_mino.set_rotation(new_rot);
-        }
-        else return;
-    }
 }
 
 /**
@@ -160,6 +136,8 @@ void Board::update_board()
         mino_row <<= (9 - pos_c);
         game_board[pos_r] |= mino_row;
     }
+
+    is_mino_active = false;
 }
 
 /**
