@@ -49,25 +49,6 @@ int Board::get_active_mino_type()
 }
 
 /**
- * @brief active tetromino의 위치를 수정
- * @param new_r 새로운 row 위치
- * @param new_c 새로운 col 위치
- */
-void Board::set_active_mino_pos(int new_r, int new_c)
-{
-    active_mino.set_pos(new_r, new_c);
-}
-
-/**
- * @brief active tetromino의 회전을 수정
- * @param new_rot 새로운 회전 방향
- */
-void Board::set_active_mino_rotation(int new_rot)
-{
-    active_mino.set_rotation(new_rot);
-}
-
-/**
  * @brief board 상의 mino가 active 상태인지 반환
  * @return mino가 active이면 true 반환
  */
@@ -89,7 +70,7 @@ bool Board::has_swaped_mino()
  * @brief 테트로미노가 새로운 위치와 회전 상태일 때 보드 상에서 충돌이 있는 지 판정
  * @return false: 충돌 / true: 충돌 없음
  */
-bool Board::can_place_mino(int new_r, int new_c, int new_rot)
+bool Board::can_move_mino(int new_r, int new_c, int new_rot)
 {
     int move_result;
     uint16_t mino_mask = 0b1111000000000000;
@@ -112,6 +93,32 @@ bool Board::can_place_mino(int new_r, int new_c, int new_rot)
 }
 
 /**
+ * @brief 테트로미노를 지정한 위치로 이동
+ * @param new_r
+ * @param new_c
+ * @param new_rot
+ * @param move_option DISMISS_IF_FAIL: 충돌 발생하면 무시 / FIX_IF_FAIL: 충돌 발생하면 board에 고정
+ * @return false: 이동 중 충돌 발생 / true: 이동 성공
+ */
+bool Board::move_active_mino(int new_r, int new_c, int new_rot, int move_option)
+{
+    bool res = false;
+    
+    if (can_move_mino(new_r, new_c, new_rot) && is_mino_active)
+    {
+        active_mino.set_pos(new_r, new_c);
+        active_mino.set_rotation(new_rot);
+        res = true;
+    }
+    else if (move_option == MoveOption::FIX_IF_FAIL)
+    {
+        update_board();
+    }
+
+    return res;
+}
+
+/**
  * @brief 새 테트로미노를 스폰
  * @param type 테트로미노의 타입
  * @return 테트토미노의 스폰 위치에 장애물이 있는 경우 false 반환
@@ -121,7 +128,7 @@ bool Board::spawn_mino(int type)
     is_mino_swaped = false;
     active_mino.init_mino(type);
 
-    is_mino_active = can_place_mino(0, 3, 0);
+    is_mino_active = can_move_mino(0, 3, 0);
     return is_mino_active;
 }
 
@@ -297,7 +304,7 @@ bool Board::insert_line(int ins_row)
         game_board[r] = ~(1 << ((rand_gen.get_rand_int() % 10) + 3));
     }
 
-    while (!can_place_mino(new_r, curr_c, curr_rot) && new_r > 0)
+    while (!can_move_mino(new_r, curr_c, curr_rot) && new_r > 0)
     {
         new_r--;
         index++;
@@ -336,7 +343,7 @@ void Board::swap_mino()
         saved_mino.init_mino(active_mino.get_mino_type());
         active_mino.init_mino(tetromino_queue.get_new_tetromino());
         active_mino.set_pos(curr_r, curr_c);
-        if (can_place_mino(curr_r, curr_c, 0) == false)
+        if (can_move_mino(curr_r, curr_c, 0) == false)
         {
             tetromino_queue.set_new_tetromino(active_mino.get_mino_type());
             active_mino.set_mino_type(saved_mino.get_mino_type());
@@ -352,7 +359,7 @@ void Board::swap_mino()
         saved_mino.init_mino(active_mino.get_mino_type());
         active_mino.init_mino(temp_mino_type);
         active_mino.set_pos(curr_r, curr_c);
-        if (can_place_mino(curr_r, curr_c, 0) == false)
+        if (can_move_mino(curr_r, curr_c, 0) == false)
         {
             temp_mino_type = saved_mino.get_mino_type();
             saved_mino.set_mino_type(active_mino.get_mino_type());

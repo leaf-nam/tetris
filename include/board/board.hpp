@@ -3,7 +3,14 @@
 
 #include <chrono>
 #include <iostream>
+#include <tuple>
 #include "tetromino/tetromino.hpp"
+
+enum MoveOption
+{
+    DISMISS_IF_FAIL = 0,
+    FIX_IF_FAIL = 1
+};
 
 class Board
 {
@@ -17,6 +24,7 @@ class Board
     void draw_board();
     void draw_mino();
     void draw_saved_mino();
+    bool can_move_mino(int new_r, int new_c, int new_rot);
 
     public:
     Board();
@@ -24,14 +32,11 @@ class Board
     std::pair<int, int> get_active_mino_pos();
     int get_active_mino_rotation();
     int get_active_mino_type();
-    
-    void set_active_mino_pos(int new_r, int new_c);
-    void set_active_mino_rotation(int new_rot);
 
     bool has_active_mino();
     bool has_swaped_mino();
 
-    bool can_place_mino(int new_r, int new_c, int new_rot);
+    bool move_active_mino(int new_r, int new_c, int new_rot, int move_option);
     void update_board();
 
     bool spawn_mino(int type);

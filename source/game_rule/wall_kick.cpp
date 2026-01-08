@@ -1,4 +1,4 @@
-#include "game_rule/wall_kick.hpp"
+#include "game_rule/action_resolver.hpp"
 
 using namespace std;
 
