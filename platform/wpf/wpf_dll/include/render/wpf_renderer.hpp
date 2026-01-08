@@ -22,7 +22,7 @@ public:
 	void render_background() override;
 	void render_board(const Board&, const Tetromino&) override;
 	void render_timer(const int) override;
-	void render_next_block(const Tetromino*) override;
+	void render_next_block(const int*) override;
 	void render_hold(const Tetromino&) override;
 	void render_score(const int) override;
 	void render_level(const int) override;

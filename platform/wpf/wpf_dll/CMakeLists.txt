@@ -8,10 +8,13 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 
 add_subdirectory(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../
+    ${CMAKE_BINARY_DIR}/tetris_build
 )
 
 # 라이브러리 추가
 add_library(wpf_dll SHARED ${SOURCES})
+
+target_link_libraries(wpf_dll PRIVATE tetris_game)
 
 # include 경로 지정
 target_include_directories(wpf_dll 
