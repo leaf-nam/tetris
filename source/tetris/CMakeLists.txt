@@ -3,5 +3,5 @@ add_executable(tetris
 )
 
 target_link_libraries(tetris
-	PRIVATE Engine
+	PRIVATE engine
 )

@@ -1,3 +1,3 @@
-add_library(console_input console_input.cpp)
+add_library(input linux_input.cpp)
 
-target_include_directories(console_input PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(input PUBLIC ${PROJECT_SOURCE_DIR}/include)

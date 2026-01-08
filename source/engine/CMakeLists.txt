@@ -1,11 +1,12 @@
-add_library(Engine Engine.cpp)
+add_library(engine engine.cpp)
 
-target_link_libraries(Engine
+target_link_libraries(engine
 	PRIVATE game_rule
-	PRIVATE console_input
+	PRIVATE input
 	PRIVATE board
 	PRIVATE tetromino
     PRIVATE util
+    PRIVATE render
 )
 
-target_include_directories(Engine PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(engine PUBLIC ${PROJECT_SOURCE_DIR}/include)

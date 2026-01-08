@@ -62,7 +62,7 @@ void Board::set_active_mino_rotation(int new_rot)
  * @brief board 상의 mino가 active 상태인지 반환
  * @return mino가 active이면 true 반환
  */
-bool Board::has_active_mino()
+const bool Board::has_active_mino() const
 {
     return is_mino_active;
 }
@@ -71,7 +71,7 @@ bool Board::has_active_mino()
  * @brief swap된 mino가 있는지 반환
  * @return swap된 mino가 있으면 true 반환
  */
-bool Board::has_swaped_mino()
+const bool Board::has_swaped_mino() const
 {
     return is_mino_swaped;
 }
@@ -140,114 +140,19 @@ void Board::update_board()
     is_mino_active = false;
 }
 
-/**
- * @brief 게임 보드 출력
- */
-void Board::draw_board()
+Tetromino& Board::get_active_mino()
 {
-    static bool called = false;
-
-    if (called) std::cout << "\x1b[20A";
-    else called = true;
-
-    for (int r = 2; r < 22; ++r) 
-    {
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-        {
-            cout << ((game_board[r] & mask) ? "■" : "□");
-        }
-        cout << endl;
-    }
-    cout << flush;
+    return active_mino;
 }
 
-/**
- * @brief 게임 보드 위에 테트로미노를 출력 
- */
-void Board::draw_mino() 
+Tetromino& Board::get_saved_mino()
 {
-    if (is_mino_active)
-    {
-        std::cout << "\x1b[20A";
-        auto [pos_r, pos_c] = active_mino.get_pos();
-        mino mino_mask = 0b1111000000000000;
-        mino mino_shape = active_mino.get_shape();
-        uint16_t mino_row;
-
-        for (int r = 2; r < 22; ++r) 
-        {
-            if (r >= pos_r && r < pos_r + 4)
-            {
-                mino_row = (mino_mask >> (r - pos_r) * 4) & mino_shape;
-                mino_row >>= (3 - (r - pos_r)) * 4;
-                mino_row <<= (9 - pos_c);
-
-                for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-                {
-                    cout << ((mino_row & mask) ? "■" : "\x1b[C");
-                }
-            }
-            cout << endl;
-        }
-        cout << flush;
-    }
+    return saved_mino;
 }
 
-void Board::draw_saved_mino()
+bool Board::get_is_mino_swaped()
 {
-    static bool called = false;
-    mino mino_mask = 0b1111000000000000;
-    mino mino_shape;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    uint16_t mino_row;
-    int saved_mino_type = saved_mino.get_mino_type();
-
-    std::cout << "\x1b[20A";
-    std::cout << "\x1b[11C";
-    std::cout << "SAVE\n";
-
-    if (saved_mino_type == -1)
-    {
-        std::cout << "\x1b[20B";
-        std::cout << "\x1b[11D";
-        cout << flush;
-        return;
-    }
-
-    mino_shape = TETROMINO[saved_mino_type][0];
-    for (int r = 0; r < 4; ++r)
-    {
-        std::cout << "\x1b[11C";
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-        {
-            cout << " ";
-        }
-
-        mino_row = (mino_mask >> r * 4) & mino_shape;
-        mino_row >>= (3 - r) * 4;
-        mino_row <<= (9);
-
-        std::cout << "\x1b[10D";
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-        {
-            cout << ((mino_row & mask) ? "■" : "\x1b[C");
-        }
-        cout << endl;
-    }
-    std::cout << "\x1b[20B";
-    std::cout << "\x1b[11D";
-    cout << flush;
-}
-
-/**
- * @brief 게임 화면 렌더링
- */
-void Board::render()
-{
-    draw_board();
-    draw_mino();
-    draw_saved_mino();
+    return is_mino_swaped;
 }
 
 /**
