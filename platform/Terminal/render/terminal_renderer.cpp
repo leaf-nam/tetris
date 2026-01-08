@@ -1,6 +1,4 @@
 #include "render/terminal_renderer.hpp"
-#include <cstdio>
-
 
 
 namespace Color {
@@ -57,28 +55,30 @@ void TRenderer::drawLogo() {
     setCursor(x + 52, y + 4);
     printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
 }
-void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
+//void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
+    void TRenderer::renderBoard(Board & board, Tetromino & tetromino){
     int startX = 35, startY = 7;
-    const uint16_t* game_board = board->get_board();
-    //bool is_active = board->has_active_mino();
-    //auto [pos_r, pos_c] = active_mino.get_pos();
+    int pos_r, pos_c;
+    const uint16_t* game_board = board.get_board();
+    auto [pos_r, pos_c] = tetromino.get_pos();
+    uint16_t mino_shape = tetromino.get_shape(tetromino.get_rotation());
     setCursor(startX, startY);
     std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
 
     for (int r = 2; r < 22; ++r) {
         setCursor(startX, startY + (r - 1));
         std::cout << Color::BOLD << "┃ " << Color::RESET;
-        /*
+        
         uint16_t mino_row_bits = 0;
-        if (is_active && r >= pos_r && r < pos_r + 4) {
+        if ( r >= pos_r && r < pos_r + 4) {
             int shift = (3 - (r - pos_r)) * 4;
             mino_row_bits = (mino_shape >> shift) & 0xF;
             mino_row_bits <<= (12 - 3 - pos_c + 3);
         }
-        */
+        
         for (uint16_t mask = LEFT_EDGE; mask >= RIGHT_EDGE; mask >>= 1) {
             if (game_board[r] & mask) std::cout << Color::YELLOW << "██" << Color::RESET;
-            //else if (mino_row_bits & mask) std::cout << Color::CYAN << "██" << Color::RESET;
+            else if (mino_row_bits & mask) std::cout << Color::CYAN << "██" << Color::RESET;
             else std::cout << Color::GRAY << ". " << Color::RESET;
         }
             
@@ -87,20 +87,28 @@ void TRenderer::draw(const Board* board, const TetrominoQueue& queue) {
     setCursor(startX, startY + 21);
     std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
-    //최적화 필요
-    //drawNext((queue.get_tetrominos()));
-    
-    //drawHold(board->get_hold_shape());
-
-    int score = 3000;
-    int lv = 5;
-    std::string time = "02:15";
-
-
-    setCursor(7, 18); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
-    setCursor(9, 23); printf("%s%02d%s", Color::BOLD, lv, Color::RESET);
-    setCursor(84, 4); std::cout << Color::BOLD << time << Color::RESET;
 }
+    void TRenderer::renderTimer(int totalSec) {
+        int min = totalSec / 60;
+        int sec = totalSec % 60;
+
+        setCursor(84, 4);
+
+        std::cout << Color::BOLD;
+        // 두 자리(setw(2))를 잡고, 빈 곳은 '0'으로 채움(setfill('0'))
+        std::cout << std::setfill('0') << std::setw(2) << min
+            << ":"
+            << std::setw(2) << sec;
+        std::cout << Color::RESET;
+    }
+    void TRenderer::renderNextBlock(Tetromino* tetrominoArray) {
+        for (size_t i = 0; i < 3; ++i) {
+            renderMinoPattern(83, 9 + (i * 5), tetrominoArray[i].get_shape(), Color::CYAN);
+        }
+    }
+    void TRenderer::renderHold(Tetromino& tetromino) {
+        renderMinoPattern(16, 3, tetromino.get_shape(), Color::YELLOW);
+    }
 
 void TRenderer::drawUIBox(std::string title, int x, int y, int w, int h, const char* color) {
     setCursor(x, y);
@@ -127,7 +135,10 @@ void TRenderer::renderMinoPattern(int x, int y, uint16_t shape, const char* colo
         }
     }
 }
-void TRenderer::display() {
+
+
+
+void TRenderer::renderBackground() {
     fflush(stdout);
     drawLogo();
     drawUIBox("HOLD", 4, 9, 6, 4, Color::GREEN);
@@ -141,9 +152,13 @@ void TRenderer::display() {
 void TRenderer::drawHold(uint16_t hold_shape) {
     renderMinoPattern(16, 3, hold_shape, Color::YELLOW);
 }
-
-void TRenderer::drawNext(const int* tetromino_queue) {
-    for (size_t i = 0; i < 3; ++i) {
-        renderMinoPattern(83, 9 + (i * 5), (tetromino_queue[i]), Color::CYAN);
-    }
+void TRenderer::renderScore(int score) {
+    setCursor(7, 18); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
 }
+void TRenderer::renderLevel(int level) {
+    setCursor(9, 23); printf("%s%02d%s", Color::BOLD, level, Color::RESET);
+}
+void TRenderer::~TRenderer() {
+
+}
+

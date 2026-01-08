@@ -5,8 +5,11 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <iomanip>
+#include <cstdio>
+
 #include "board/board.hpp"
-#include "tetromino/tetromino_queue.hpp"
+#include "tetromino/tetromino.hpp"
 #include "api/IRenderer.hpp"
 // --- 상수 정의 ---
 static const uint16_t LEFT_EDGE = 1u << 12;
@@ -25,14 +28,57 @@ namespace Color
     extern const char* BOLD;
 }
 
-class TRenderer :IRenderer
+class TRenderer : public IRenderer
 {
 public:
-    void clear();
-    void draw(const Board* board, const TetrominoQueue& queue);
-    void display();
+     /**
+     * @brief 게임 로직과 무관한 배경 렌더링
+     */
+    void renderBackground();
+
+    /**
+     * @brief 게임판 렌더링
+     * @param 보드 현상태 + 현재 테트로미노 렌더링
+     */
+    void renderBoard(Board& board, Tetromino& tetromino);
+
+    /**
+     * @brief 타이머에 현재 시간 렌더링
+     * @param 현재시간(초)
+     */
+    void renderTimer(int sec);
+
+    /**
+     * @brief 다음 블럭 3개 렌더링
+     * @param 다음 블럭 3개를 가진 배열 포인터(순서 중요)
+     */
+    void renderNextBlock(Tetromino* tetrominoArray);
+
+    /**
+     * @brief 홀드할 블럭 렌더링
+     * @param 홀드할 블럭
+     */
+    void renderHold(Tetromino& tetromino);
+
+    /**
+     * @brief 점수판 렌더링
+     * @param 현재 점수
+     */
+    void renderScore(int score);
+
+    /**
+     * @brief 레벨 렌더링
+     * @param 현재 레벨
+     */
+    void renderLevel(int level);
+    
+    /**
+     * @brief 소멸자
+     */
+    virtual ~IRenderer();
 
 private:
+    void clear();
     void setCursor(int x, int y);
     //display
     void drawLogo();
@@ -41,7 +87,6 @@ private:
     //draw
     void renderMinoPattern(int x, int y, uint16_t shape, const char* color);
     void drawHold(uint16_t hold_shape);
-    void drawNext(const int* tetromino_queue);
 };
 
 #endif
