@@ -1,6 +1,8 @@
 #include "engine/engine.hpp"
-#include "render/linux_render.hpp"
-#include "input/linux_input.hpp"
+#if defined(__linux__)
+    #include "render/linux_render.hpp"
+    #include "input/linux_input.hpp"
+#endif
 
 int main()
 {

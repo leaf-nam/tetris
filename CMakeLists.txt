@@ -9,9 +9,11 @@ project(
 
 add_subdirectory(source/board)
 add_subdirectory(source/game_rule)
-add_subdirectory(source/input)
 add_subdirectory(source/tetris)
 add_subdirectory(source/tetromino)
 add_subdirectory(source/util)
 add_subdirectory(source/engine)
-add_subdirectory(source/render)
+if (UNIX)
+    add_subdirectory(platform/linux/source/input)
+    add_subdirectory(platform/linux/source/render)
+endif()

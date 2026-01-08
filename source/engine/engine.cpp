@@ -1,9 +1,9 @@
 #include "engine/engine.hpp"
 #include "board/board.hpp"
-#include "input/action.hpp"
 #include "game_rule/game_rule.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/timer.hpp"
+#include "util/action.hpp"
 
 #include <thread>
 #include <chrono>

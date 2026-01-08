@@ -1,5 +1,5 @@
 #include "board/board.hpp"
-#include "input/action.hpp"
+#include "util/action.hpp"
 #include "util/rand_gen.hpp"
 #include "tetromino/tetromino_queue.hpp"
 

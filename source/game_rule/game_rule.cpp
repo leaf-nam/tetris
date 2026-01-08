@@ -1,5 +1,5 @@
 #include "game_rule/game_rule.hpp"
-#include "input/action.hpp"
+#include "util/action.hpp"
 
 RuleEngine::RuleEngine(Board& board) : level_game_time(0), current_level(1), board(board), enable_kick(false)
 {
