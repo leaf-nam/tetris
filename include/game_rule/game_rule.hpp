@@ -1,7 +1,6 @@
 #ifndef __GAME_RULE_HPP__
 #define __GAME_RULE_HPP__
 
-#include <unordered_map>
 #include "board/board.hpp"
 #include "game_rule/wall_kick.hpp"
 #include "input/action.hpp"
