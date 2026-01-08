@@ -1,12 +1,12 @@
 #ifndef __ACTION__RESOLVER_HPP__
 #define __ACTION__RESOLVER_HPP__
 
-#define KICK_TEST 5
-
 #include <vector>
 #include "input/action.hpp"
 
 typedef std::tuple<int, int, int> Pose;
+
+inline constexpr int KICK_TEST = 5;
 
 extern const std::pair<int, int> KICK_TABLE_I[4][2][KICK_TEST];
 extern const std::pair<int, int> KICK_TABLE_JLSTZ[4][2][KICK_TEST];
