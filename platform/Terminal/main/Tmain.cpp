@@ -3,6 +3,7 @@
 #include "render/terminal_renderer.hpp"
 
 int main() {
+
     TRenderer* renderer = new TRenderer();
     ConsoleInput* input = new ConsoleInput(); 
 
