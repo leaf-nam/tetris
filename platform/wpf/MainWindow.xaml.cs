@@ -9,23 +9,28 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WpfApp1.render;
+using render;
 
 namespace wpf
 {
     public partial class MainWindow : Window
     {
 
-        [DllImport("DllTest2.dll")]
-        static extern void RegisterCallback(Callback cb);
+        [DllImport("wpf_dll.dll")]
+        static extern void register_callback(Callbacks cb);
 
-        [DllImport("DllTest2.dll")]
-        static extern void StartLoop();
+        [DllImport("wpf_dll.dll")]
+        static extern void init_engine();
 
-        [DllImport("DllTest2.dll")]
-        static extern void StopLoop();
+        [DllImport("wpf_dll.dll")]
+        static extern void run_engine();
 
-        private BlockRenderer rendererTimer;
+        [DllImport("wpf_dll.dll")]
+        static extern void stop_engine();
+
+        [DllImport("wpf_dll.dll")]
+        static extern void finish_engine();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -79,7 +84,7 @@ namespace wpf
                 MessageBox.Show($"{e.Key} released");
         }
 
-        delegate void Callback(int value);
+        
 
         private Callback _callbackDelegate;
 

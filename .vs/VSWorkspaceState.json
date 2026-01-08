@@ -4,5 +4,19 @@
       "out\\build\\x64-Debug",
       "out\\install\\x64-Debug"
     ]
-  }
+  },
+  "ExpandedNodes": [
+    "",
+    "\\include",
+    "\\platform",
+    "\\platform\\wpf",
+    "\\platform\\WpfApp1",
+    "\\platform\\wpf\\wpf_dll",
+    "\\platform\\wpf\\wpf_dll\\include",
+    "\\platform\\wpf\\wpf_dll\\include\\input",
+    "\\platform\\wpf\\wpf_dll\\include\\render",
+    "\\platform\\wpf\\wpf_dll\\source"
+  ],
+  "SelectedNode": "\\platform",
+  "PreviewInSolutionExplorer": false
 }

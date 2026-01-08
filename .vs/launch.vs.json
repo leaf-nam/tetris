@@ -1,0 +1,12 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "tetris.exe (source\\tetris\\tetris.exe)",
+      "name": "tetris.exe (source\\tetris\\tetris.exe)"
+    }
+  ]
+}

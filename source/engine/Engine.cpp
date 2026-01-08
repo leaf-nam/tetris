@@ -14,6 +14,8 @@ using namespace std;
 
 Engine::Engine(int argc, const char* argv[]) {} 
 
+Engine::Engine(IInputHandler*, IRenderer*) {}
+
 void Engine::run()
 {
     Board board;
