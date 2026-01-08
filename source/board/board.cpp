@@ -1,6 +1,7 @@
 #include "board/board.hpp"
 #include "input/action.hpp"
 #include "util/rand_gen.hpp"
+#include "tetromino/tetromino_queue.hpp"
 
 using namespace std;
 
@@ -16,6 +17,8 @@ Board::Board()
     {
         game_board[i] = 0u;
     }
+
+    saved_mino.set_mino_type(-1);
 }
 
 /**
@@ -25,6 +28,15 @@ Board::Board()
 bool Board::has_active_mino()
 {
     return is_mino_active;
+}
+
+/**
+ * @brief swap된 mino가 있는지 반환
+ * @return swap된 mino가 있으면 true 반환
+ */
+bool Board::has_swaped_mino()
+{
+    return is_mino_swaped;
 }
 
 /**
@@ -54,75 +66,13 @@ bool Board::can_place_mino(int new_r, int new_c, int new_rot)
 }
 
 /**
- * @brief 테트로미노 이동. 회전 및 좌우 이동 시에 막히는 경우 명령 무시, 아래 이동 시에 막히는 경우 보드에 고정, 막히지 않는 경우 테트로미노 위치 이동
- */
-void Board::move_mino(int cmd)
-{   
-    if (!is_mino_active) return;
-
-    auto [curr_r, curr_c] = active_mino.get_pos();
-    int curr_rot = active_mino.get_rotation();
-    int new_r, new_c, new_rot;
-    int move_result;
-
-    if (curr_rot == 4) curr_rot = 0;
-    else if (curr_rot == -1) curr_rot = 3;  
-        
-    if (cmd == Action::LEFT || cmd == Action::RIGHT)
-    {
-        new_r = curr_r;
-        new_c = cmd == Action::LEFT ? curr_c - 1 : curr_c + 1;
-        new_rot = curr_rot;
-
-        if (can_place_mino(new_r, new_c, new_rot))
-        {
-            active_mino.set_pos(new_r, new_c);
-        }
-        else return;
-    }
-
-    if (cmd == Action::DROP)
-    {
-        new_r = curr_r + 1;
-        new_c = curr_c;
-        new_rot = curr_rot;
-
-        if (can_place_mino(new_r, new_c, new_rot))
-        {
-            active_mino.set_pos(new_r, new_c);
-        }
-        else
-        {
-            update_board();
-            is_mino_active = false;
-        }
-    }
-
-    if (cmd == Action::ROTATE_CCW || cmd == Action::ROTATE_CW)
-    {
-        new_r = curr_r;
-        new_c = curr_c;
-        new_rot = cmd == Action::ROTATE_CW ? curr_rot + 1 : curr_rot - 1;
-
-        if (new_rot == -1) new_rot = 3;
-        else if (new_rot == 4) new_rot = 0;
-
-        if (can_place_mino(new_r, new_c, new_rot))
-        {
-            active_mino.set_pos(new_r, new_c);
-            active_mino.set_rotation(new_rot);
-        }
-        else return;
-    }
-}
-
-/**
  * @brief 새 테트로미노를 스폰
  * @param type 테트로미노의 타입
  * @return 테트토미노의 스폰 위치에 장애물이 있는 경우 false 반환
  */
 bool Board::spawn_mino(int type)
 {
+    is_mino_swaped = false;
     active_mino.init_mino(type);
 
     is_mino_active = can_place_mino(0, 3, 0);
@@ -149,6 +99,8 @@ void Board::update_board()
         mino_row <<= (9 - pos_c);
         game_board[pos_r] |= mino_row;
     }
+
+    is_mino_active = false;
 }
 
 /**
@@ -204,6 +156,53 @@ void Board::draw_mino()
     }
 }
 
+void Board::draw_saved_mino()
+{
+    static bool called = false;
+    mino mino_mask = 0b1111000000000000;
+    mino mino_shape;
+    static const uint16_t left_edge = 1u << 12;
+    static const uint16_t right_edge = 1u << 3;
+    uint16_t mino_row;
+    int saved_mino_type = saved_mino.get_mino_type();
+
+    std::cout << "\x1b[20A";
+    std::cout << "\x1b[11C";
+    std::cout << "SAVE\n";
+
+    if (saved_mino_type == -1)
+    {
+        std::cout << "\x1b[20B";
+        std::cout << "\x1b[11D";
+        cout << flush;
+        return;
+    }
+
+    mino_shape = TETROMINO[saved_mino_type][0];
+    for (int r = 0; r < 4; ++r)
+    {
+        std::cout << "\x1b[11C";
+        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
+        {
+            cout << " ";
+        }
+
+        mino_row = (mino_mask >> r * 4) & mino_shape;
+        mino_row >>= (3 - r) * 4;
+        mino_row <<= (9);
+
+        std::cout << "\x1b[10D";
+        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
+        {
+            cout << ((mino_row & mask) ? "■" : "\x1b[C");
+        }
+        cout << endl;
+    }
+    std::cout << "\x1b[20B";
+    std::cout << "\x1b[11D";
+    cout << flush;
+}
+
 /**
  * @brief 게임 화면 렌더링
  */
@@ -211,6 +210,7 @@ void Board::render()
 {
     draw_board();
     draw_mino();
+    draw_saved_mino();
 }
 
 /**
@@ -251,14 +251,18 @@ bool Board::insert_line(int ins_row)
         game_board[r] = ~(1 << ((rand_gen.get_rand_int() % 10) + 3));
     }
 
-    while (!can_place_mino(new_r, curr_c, curr_rot) && index < ins_row)
+    while (!can_place_mino(new_r, curr_c, curr_rot) && new_r > 0)
     {
         new_r--;
         index++;
     }
 
     if(index == 0) return true;
-    else if(index >= ins_row) return false;
+    else if(new_r < 2)
+    {
+        active_mino.set_pos(new_r, curr_c);
+        return false;
+    }
     else
     {
         active_mino.set_pos(new_r, curr_c);
@@ -272,4 +276,44 @@ bool Board::is_line_full(int row)
 {
     if (row >= 22 || row < 0) return false;
     return (full_line == game_board[row]);
+}
+
+void Board::swap_mino()
+{
+    auto [curr_r, curr_c] = active_mino.get_pos();
+    int curr_rot = active_mino.get_rotation();
+    int temp_mino_type;
+    TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
+
+    if (saved_mino.get_mino_type() == -1)
+    {
+        saved_mino.init_mino(active_mino.get_mino_type());
+        active_mino.init_mino(tetromino_queue.get_new_tetromino());
+        active_mino.set_pos(curr_r, curr_c);
+        if (can_place_mino(curr_r, curr_c, 0) == false)
+        {
+            tetromino_queue.set_new_tetromino(active_mino.get_mino_type());
+            active_mino.set_mino_type(saved_mino.get_mino_type());
+            active_mino.set_rotation(curr_rot);
+            saved_mino.set_mino_type(-1);
+        }
+        else
+            is_mino_swaped = true;
+    }
+    else
+    {
+        temp_mino_type = saved_mino.get_mino_type();
+        saved_mino.init_mino(active_mino.get_mino_type());
+        active_mino.init_mino(temp_mino_type);
+        active_mino.set_pos(curr_r, curr_c);
+        if (can_place_mino(curr_r, curr_c, 0) == false)
+        {
+            temp_mino_type = saved_mino.get_mino_type();
+            saved_mino.set_mino_type(active_mino.get_mino_type());
+            active_mino.set_mino_type(temp_mino_type);
+            active_mino.set_rotation(curr_rot);
+        }
+        else
+            is_mino_swaped = true;
+    }
 }

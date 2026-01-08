@@ -10,7 +10,8 @@
         KeyDown="Window_KeyDown"
         KeyUp="Window_KeyUp"
         Background="{StaticResource Background}"
-        Focusable="True">
+        Focusable="True"
+        >
 
     <Grid Margin="10">
 

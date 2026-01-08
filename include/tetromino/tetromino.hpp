@@ -25,6 +25,8 @@ class Tetromino
     mino get_shape();
     mino get_shape(int rot);
     int get_rotation();
+    void set_mino_type(int type);
+    int get_mino_type();
 };
 
 #endif

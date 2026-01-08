@@ -46,6 +46,7 @@ int Input::console_input()
             case 'q': return Action::ROTATE_CCW;
             case 'e': return Action::ROTATE_CW;
             case 'f': return Action::HARD_DROP;
+            case 'w': return Action::SWAP;
         }
     }
 
