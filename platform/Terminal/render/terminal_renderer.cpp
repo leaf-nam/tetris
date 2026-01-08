@@ -18,6 +18,8 @@ void TRenderer::setCursor(int x, int y) {
     
 }
 
+
+
 void TRenderer::clear() {
     printf("\033[2J\033[1;1H");
     fflush(stdout);
@@ -158,7 +160,7 @@ void TRenderer::renderScore(int score) {
 void TRenderer::renderLevel(int level) {
     setCursor(9, 23); printf("%s%02d%s", Color::BOLD, level, Color::RESET);
 }
-void TRenderer::~TRenderer() {
+TRenderer::~TRenderer() {
 
 }
 

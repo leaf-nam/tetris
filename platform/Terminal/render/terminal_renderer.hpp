@@ -34,48 +34,48 @@ public:
      /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
-    void renderBackground();
+    void renderBackground() override;
 
     /**
      * @brief 게임판 렌더링
      * @param 보드 현상태 + 현재 테트로미노 렌더링
      */
-    void renderBoard(Board& board, Tetromino& tetromino);
+    void renderBoard(Board& board, Tetromino& tetromino) override;
 
     /**
      * @brief 타이머에 현재 시간 렌더링
      * @param 현재시간(초)
      */
-    void renderTimer(int sec);
+    void renderTimer(int sec) override;
 
     /**
      * @brief 다음 블럭 3개 렌더링
      * @param 다음 블럭 3개를 가진 배열 포인터(순서 중요)
      */
-    void renderNextBlock(Tetromino* tetrominoArray);
+    void renderNextBlock(Tetromino* tetrominoArray) override;
 
     /**
      * @brief 홀드할 블럭 렌더링
      * @param 홀드할 블럭
      */
-    void renderHold(Tetromino& tetromino);
+    void renderHold(Tetromino& tetromino) override;
 
     /**
      * @brief 점수판 렌더링
      * @param 현재 점수
      */
-    void renderScore(int score);
+    void renderScore(int score) override;
 
     /**
      * @brief 레벨 렌더링
      * @param 현재 레벨
      */
-    void renderLevel(int level);
+    void renderLevel(int level) override;
     
     /**
      * @brief 소멸자
      */
-    virtual ~IRenderer();
+    virtual ~TRenderer() override;
 
 private:
     void clear();
