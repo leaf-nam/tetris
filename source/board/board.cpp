@@ -310,14 +310,18 @@ bool Board::insert_line(int ins_row)
         game_board[r] = ~(1 << ((rand_gen.get_rand_int() % 10) + 3));
     }
 
-    while (!can_place_mino(new_r, curr_c, curr_rot) && index < ins_row)
+    while (!can_place_mino(new_r, curr_c, curr_rot) && new_r > 0)
     {
         new_r--;
         index++;
     }
 
     if(index == 0) return true;
-    else if(index >= ins_row) return false;
+    else if(new_r < 2)
+    {
+        active_mino.set_pos(new_r, curr_c);
+        return false;
+    }
     else
     {
         active_mino.set_pos(new_r, curr_c);
