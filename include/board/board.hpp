@@ -3,7 +3,6 @@
 
 #include <chrono>
 #include <iostream>
-#include <tuple>
 #include "tetromino/tetromino.hpp"
 
 enum MoveOption
