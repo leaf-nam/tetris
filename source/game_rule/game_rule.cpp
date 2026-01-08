@@ -1,7 +1,7 @@
 #include "game_rule/game_rule.hpp"
 #include "input/action.hpp"
 
-RuleEngine::RuleEngine(Board& board) : level_game_time(0), current_level(1), board(board), enable_kick(true)
+RuleEngine::RuleEngine(Board& board) : level_game_time(0), current_level(1), board(board), enable_kick(false)
 {
     // 120 == 1 minute, when timer is 500ms
     time_for_level_up[0] = 0;
@@ -53,21 +53,33 @@ void RuleEngine::process(int user_input)
         if (new_rot == -1) new_rot = 3;
         else if (new_rot == 4) new_rot = 0;
 
-        if (board.can_place_mino(new_r, new_c, new_rot))
+        if (enable_kick)
         {
-            board.set_active_mino_pos(new_r, new_c);
-            board.set_active_mino_rotation(new_rot);
+            /**
+             * According to Standard Rotation System, tetromino's rotaion is defined as below:
+             * 0: Spawn
+             * R: Right turn from spawn
+             * L: Left turn from spawn
+             * 2: opposite direction from spawn
+             */
+        }
+        else
+        {
+            if (board.can_place_mino(new_r, new_c, new_rot))
+            {
+                board.set_active_mino_pos(new_r, new_c);
+                board.set_active_mino_rotation(new_rot);
+            }
         }
     }
     else if (user_input == Action::HARD_DROP)
     {
+        new_r = curr_r;
+        new_c = curr_c;
+        new_rot = curr_rot;
         while (board.has_active_mino())
         {
-            new_r = curr_r + 1;
-            new_c = curr_c;
-            new_rot = curr_rot;
-
-            if (board.can_place_mino(new_r, new_c, new_rot)) board.set_active_mino_pos(new_r, new_c);
+            if (board.can_place_mino(++new_r, new_c, new_rot)) board.set_active_mino_pos(new_r, new_c);
             else board.update_board();
         }
     }
