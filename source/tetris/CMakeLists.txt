@@ -3,9 +3,5 @@ add_executable(tetris
 )
 
 target_link_libraries(tetris
-	PRIVATE game_rule
-	PRIVATE console_input
-	PRIVATE board
-	PRIVATE tetromino
-    PRIVATE util
+	PRIVATE Engine
 )
