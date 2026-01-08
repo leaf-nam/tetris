@@ -35,7 +35,7 @@ class Board
     bool has_active_mino();
     bool has_swaped_mino();
 
-    bool move_active_mino(int new_r, int new_c, int new_rot, int move_option);
+    bool move_active_mino(int new_r, int new_c, int new_rot, MoveOption move_option);
     void update_board();
 
     bool spawn_mino(int type);

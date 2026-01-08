@@ -100,7 +100,7 @@ bool Board::can_move_mino(int new_r, int new_c, int new_rot)
  * @param move_option DISMISS_IF_FAIL: 충돌 발생하면 무시 / FIX_IF_FAIL: 충돌 발생하면 board에 고정
  * @return false: 이동 중 충돌 발생 / true: 이동 성공
  */
-bool Board::move_active_mino(int new_r, int new_c, int new_rot, int move_option)
+bool Board::move_active_mino(int new_r, int new_c, int new_rot, MoveOption move_option)
 {
     bool res = false;
     
