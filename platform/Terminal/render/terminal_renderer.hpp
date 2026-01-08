@@ -7,13 +7,14 @@
 #include <cstdint>
 #include "board/board.hpp"
 #include "tetromino/tetromino_queue.hpp"
-
+#include "api/IRenderer.hpp"
 // --- 상수 정의 ---
 static const uint16_t LEFT_EDGE = 1u << 12;
 static const uint16_t RIGHT_EDGE = 1u << 3;
 
 // --- 색상 네임스페이스 ---
-namespace Color {
+namespace Color
+{
     extern const char* RESET;
     extern const char* RED;
     extern const char* GREEN;
@@ -24,7 +25,8 @@ namespace Color {
     extern const char* BOLD;
 }
 
-class TRenderer {
+class TRenderer :IRenderer
+{
 public:
     void clear();
     void draw(const Board* board, const TetrominoQueue& queue);
