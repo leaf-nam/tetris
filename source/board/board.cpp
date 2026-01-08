@@ -22,6 +22,43 @@ Board::Board()
 }
 
 /**
+ * @brief active tetromino의 위치 반환
+ * @return pair<int, int> 순서대로 row, col
+ */
+pair<int, int> Board::get_active_mino_pos()
+{
+    return active_mino.get_pos();
+}
+
+/**
+ * @brief active tetromino의 회전 반환
+ * @return 회전 (0 ~ 3)
+ */
+int Board::get_active_mino_rotation()
+{
+    return active_mino.get_rotation();
+}
+
+/**
+ * @brief active tetromino의 위치를 수정
+ * @param new_r 새로운 row 위치
+ * @param new_c 새로운 col 위치
+ */
+void Board::set_active_mino_pos(int new_r, int new_c)
+{
+    active_mino.set_pos(new_r, new_c);
+}
+
+/**
+ * @brief active tetromino의 회전을 수정
+ * @param new_rot 새로운 회전 방향
+ */
+void Board::set_active_mino_rotation(int new_rot)
+{
+    active_mino.set_rotation(new_rot);
+}
+
+/**
  * @brief board 상의 mino가 active 상태인지 반환
  * @return mino가 active이면 true 반환
  */
