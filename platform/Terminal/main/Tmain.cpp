@@ -1,10 +1,16 @@
-#include "Tmain.hpp"
 #include "platform/Terminal/terminal_intput.hpp"
-#include "engine/GameEngine.hpp"
-int main(){
-    Engine.run();
-    
-    Engine.finish();
-    return 0;
+#include "engine/Engine.hpp"
+#include "render/terminal_renderer.hpp"
 
+int main() {
+    TRenderer* renderer = new TRenderer();
+    ConsoleInput* input = new ConsoleInput(); 
+
+    Engine engine(input, renderer);
+
+    engine.run();
+
+    engine.finish(); 
+
+    return 0;
 }
