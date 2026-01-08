@@ -14,22 +14,35 @@ class Board
     mino game_board[22];
     bool is_mino_active;
 
-    void update_board();
     void draw_board();
     void draw_mino();
     void draw_saved_mino();
-    bool can_place_mino(int new_r, int new_c, int new_rot);
 
     public:
     Board();
+
+    std::pair<int, int> get_active_mino_pos();
+    int get_active_mino_rotation();
+    
+    void set_active_mino_pos(int new_r, int new_c);
+    void set_active_mino_rotation(int new_rot);
+
     bool has_active_mino();
-    void move_mino(int cmd);
+    bool has_swaped_mino();
+
+    bool can_place_mino(int new_r, int new_c, int new_rot);
+    void update_board();
+
     bool spawn_mino(int type);
     void swap_mino();
+
     bool is_line_full(int row);
+
     const uint16_t* get_board() const;
+
     void delete_line(int del_row);
     bool insert_line(int ins_row);
+
     void render(); // 추후 UI 전용 객체로 이전
 };
 

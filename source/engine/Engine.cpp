@@ -18,7 +18,7 @@ void Engine::run()
 {
     Board board;
     Input input;
-    RuleEngine rule;
+    RuleEngine rule(board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
 
     int curr_mino = 0;
@@ -45,7 +45,7 @@ void Engine::run()
         if (diff >= chrono::milliseconds(500))
         {
             base_time = chrono::steady_clock::now();
-            board.move_mino(Action::DROP);
+            rule.process(Action::DROP);
             board.render();
             is_level_up = rule.time_and_level_update();
         }
@@ -54,8 +54,7 @@ void Engine::run()
 
         if (action != -1) 
         {
-            if (action == Action::HARD_DROP) while (board.has_active_mino()) board.move_mino(Action::DROP);
-            else board.move_mino(action);
+            rule.process(action);
             tetromino_queue.draw_tetromino_queue();
             board.render();
         }
