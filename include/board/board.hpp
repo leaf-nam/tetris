@@ -23,6 +23,7 @@ class Board
 
     std::pair<int, int> get_active_mino_pos();
     int get_active_mino_rotation();
+    int get_active_mino_type();
     
     void set_active_mino_pos(int new_r, int new_c);
     void set_active_mino_rotation(int new_rot);

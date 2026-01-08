@@ -40,6 +40,15 @@ int Board::get_active_mino_rotation()
 }
 
 /**
+ * @brief active tetromino의 타입 반환
+ * @return 타입 (0 ~ 6)
+ */
+int Board::get_active_mino_type()
+{
+    return active_mino.get_mino_type();
+}
+
+/**
  * @brief active tetromino의 위치를 수정
  * @param new_r 새로운 row 위치
  * @param new_c 새로운 col 위치

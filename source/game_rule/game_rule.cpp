@@ -1,7 +1,8 @@
 #include "game_rule/game_rule.hpp"
-#include "input/action.hpp"
 
-RuleEngine::RuleEngine(Board& board) : level_game_time(0), current_level(1), board(board), enable_kick(false)
+using namespace std;
+
+RuleEngine::RuleEngine(Board& board) : level_game_time(0), current_level(1), board(board), enable_kick(true)
 {
     // 120 == 1 minute, when timer is 500ms
     time_for_level_up[0] = 0;
@@ -18,6 +19,30 @@ RuleEngine::RuleEngine(Board& board) : level_game_time(0), current_level(1), boa
 }
 
 /**
+ * @brief 테트로미노의 원래 회전과 회전 방향에 따른 wall kick 테이블을 반환함
+ * @param mino_type
+ * @param curr_rot
+ * @param rot_dir 반드시 0 (CW), 1(CCW) 중에 하나
+ * @note
+ * - O형 테트로미노는 kick table이 없으므로 입력하면 안됨
+ * - 좌표계는 (row, col)이며, row 증가하면 downward, col 증가하면 rightward임
+ */
+const std::pair<int, int>* RuleEngine::get_kick_table(int mino_type, int curr_rot, int rot_dir)
+{
+    switch (mino_type)
+    {
+        case MinoType::I: return KICK_TABLE_I[curr_rot][rot_dir];
+        case MinoType::J:
+        case MinoType::L:
+        case MinoType::S:
+        case MinoType::T:
+        case MinoType::Z: return KICK_TABLE_JLSTZ[curr_rot][rot_dir];
+        default: return nullptr;
+    }
+}
+
+
+/**
  * @brief 유저 인풋을 처리하여 board에 지시
  * @param user_input
  */
@@ -26,6 +51,8 @@ void RuleEngine::process(int user_input)
     auto [curr_r, curr_c] = board.get_active_mino_pos();
     int curr_rot = board.get_active_mino_rotation();
     int new_r, new_c, new_rot;
+    int mino_type, rot_dir;
+    const pair<int, int>* kick_table;
 
     if (user_input == Action::DROP)
     {
@@ -46,25 +73,35 @@ void RuleEngine::process(int user_input)
     }
     else if (user_input == Action::ROTATE_CCW || user_input == Action::ROTATE_CW)
     {
-        new_r = curr_r;
-        new_c = curr_c;
+        mino_type = board.get_active_mino_type();
         new_rot = (user_input == Action::ROTATE_CW ? curr_rot + 1 : curr_rot - 1);
 
         if (new_rot == -1) new_rot = 3;
         else if (new_rot == 4) new_rot = 0;
 
-        if (enable_kick)
+        if (enable_kick && mino_type != MinoType::O)
         {
-            /**
-             * According to Standard Rotation System, tetromino's rotaion is defined as below:
-             * 0: Spawn
-             * R: Right turn from spawn
-             * L: Left turn from spawn
-             * 2: opposite direction from spawn
-             */
+            rot_dir = (user_input == Action::ROTATE_CW ? 0 : 1);
+            kick_table = get_kick_table(mino_type, curr_rot, rot_dir);
+            if (kick_table == nullptr) return;
+
+            for (int i = 0; i < KICK_TEST; ++i)
+            {
+                new_r = curr_r + kick_table[i].first;
+                new_c = curr_c + kick_table[i].second;
+                if (board.can_place_mino(new_r, new_c, new_rot))
+                {
+                    board.set_active_mino_pos(new_r, new_c);
+                    board.set_active_mino_rotation(new_rot);
+                    break;
+                }
+            }
         }
         else
         {
+            new_r = curr_r;
+            new_c = curr_c;
+
             if (board.can_place_mino(new_r, new_c, new_rot))
             {
                 board.set_active_mino_pos(new_r, new_c);
