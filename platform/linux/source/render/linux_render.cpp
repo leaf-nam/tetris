@@ -1,14 +1,166 @@
-#include <iostream>
 #include "tetromino/tetromino.hpp"
 #include "board/board.hpp"
 #include "render/linux_render.hpp"
 
 using namespace std;
 
+static const string title = "TETRISSEN";
+
+static const unordered_map<char, string> ascii_art = {
+{
+    'T',
+    R"(
+████████╗
+╚══██╔══╝
+   ██║   
+   ██║   
+   ██║   
+   ╚═╝   
+    )"
+},
+{
+    'E',
+    R"(
+███████╗
+██╔════╝
+█████╗  
+██╔══╝  
+███████╗
+╚══════╝
+    )"
+},
+{
+    'R',
+    R"(
+██████╗ 
+██╔══██╗
+██████╔╝
+██╔══██╗
+██║  ██║
+╚═╝  ╚═╝
+    )"
+},
+{
+    'I',
+    R"(
+██╗
+██║
+██║
+██║
+██║
+╚═╝
+    )"
+},
+{
+    'S',
+    R"(
+███████╗
+██╔════╝
+███████╗
+╚════██║
+███████║
+╚══════╝
+    )"
+},
+{
+    'N',
+    R"(
+███╗   ██╗
+████╗  ██║
+██╔██╗ ██║
+██║╚██╗██║
+██║ ╚████║
+╚═╝  ╚═══╝
+    )"
+}
+};
+
+static const char* ANSI_RESET = "\x1b[0m";
+
+static unordered_map<int, string> color_map = {
+    {MinoType::I,           "\x1b[38;2;139;233;253m"},
+    {MinoType::O,           "\x1b[38;2;80;250;123m"},
+    {MinoType::Z,           "\x1b[38;2;255;184;108m"},
+    {MinoType::S,           "\x1b[38;2;255;121;198m"},
+    {MinoType::J,           "\x1b[38;2;189;147;249m"},
+    {MinoType::L,           "\x1b[38;2;255;85;85m"},
+    {MinoType::T,           "\x1b[38;2;241;250;140m"},
+    {MinoType::OBSTACLE,    "\x1b[38;2;98;114;164m"},
+};
+
+LinuxRender::LinuxRender()
+{
+    std::cout << "\x1b[?1049h";
+    std::cout << "\x1b[2J\x1b[H";
+    std::cout << "\x1b[?25l";
+    std::cout << std::flush;
+}
+
+void LinuxRender::restoreTerminal()
+{
+    std::cout << "\x1b[?25h";
+    std::cout << "\x1b[2J";
+    std::cout << "\x1b[H";
+    std::cout << "\x1b[?1049l";
+    std::cout << std::flush;
+}
+
+LinuxRender::~LinuxRender()
+{
+    restoreTerminal();
+}
+
+void LinuxRender::go(int row, int col)
+{
+    cout << "\x1b[" << row + 1 << ";" << col + 1 << "H";
+}
+
+void LinuxRender::renderMino(int row, int col, const mino& tetromino, int type)
+{
+    int wr = row, wc = col;
+    string color = color_map[type];
+
+    go(wr, wc);
+    for (int r = 0; r < MINO_SIZE; ++r) 
+    {
+        go(wr + r, wc);
+        for (int c = 0; c < MINO_SIZE; ++c)
+        {
+            cout << (tetromino[r][c] ? color + "[]" : "  ") << ANSI_RESET;
+        }
+    }
+}
+
 /**
  * @brief 게임 로직과 무관한 배경 렌더링
  */
-void LinuxRender::renderBackground() {}
+void LinuxRender::renderBackground() {
+    int wr = 0, wc = 0;
+    vector<vector<string>> lines;
+
+    for (char c : title) 
+    {
+        string art = ascii_art.at(c);
+        stringstream ss(art);
+        string line;
+        vector<string> v;
+        while (getline(ss, line)) v.push_back(line);
+        lines.push_back(v);
+    }
+
+    for (size_t row = 0; row < lines[0].size(); ++row) {
+        go(wr + row, wc);
+        for (size_t i = 0; i < title.size(); ++i) {
+            const string& s = lines[i][row];
+            if (!s.empty() && s.back() == '\n') cout << color_map[i % 7] << s.substr(0, s.size() - 1) << ANSI_RESET;
+            else cout << color_map[i % 7] << s << ANSI_RESET;
+
+            cout << "  ";
+        }
+    }
+
+    cout << flush;
+}
     
 /**
  * @brief 게임판 렌더링
@@ -16,51 +168,57 @@ void LinuxRender::renderBackground() {}
  */
 void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
 {
+    string color;
+    int wr = 7, wc = 10; // board 테두리 기준
+    int br = wr + 1, bc = wc + 1; // board 내부 기준
+
     // board
-    static bool called = false;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    const uint16_t* game_board = board.get_board();
+    go(wr, wc);
+    cout << "┌";
+    for (int i = 0; i < BOARD_COL; ++i) cout << "──";
+    cout << "┐";
 
-    if (called) std::cout << "\x1b[20A";
-    else called = true;
-
-    for (int r = 2; r < 22; ++r) 
+    for (int r = BOARD_UPPER; r < BOARD_ROW; ++r) 
     {
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
+        go(wr + 1 + r - BOARD_UPPER, wc);
+        cout << "│";
+        for (int c = 0; c < BOARD_COL; ++c)
         {
-            cout << ((game_board[r] & mask) ? "■" : "□");
+            color = color_map[board.at(r, c)];
+            cout << (board.is_filled(r, c) ? color + "[]" : "  ") << ANSI_RESET;
         }
-        cout << endl;
+        cout << "│";
     }
-    cout << flush;
+
+    go(wr + 1 + (BOARD_ROW - BOARD_UPPER), wc);
+    cout << "└";
+    for (int i = 0; i < BOARD_COL; ++i) cout << "──";
+    cout << "┘";
 
     // mino
     if (board.has_active_mino())
     {
-        std::cout << "\x1b[20A";
         const auto [pos_r, pos_c] = tetromino.get_pos();
-        mino mino_mask = 0b1111000000000000;
-        const mino mino_shape = tetromino.get_shape();
-        uint16_t mino_row;
+        const mino& m = tetromino.get_shape();
+        int mino_type = tetromino.get_mino_type();
+        const string color = color_map[mino_type];
+        int mino_r, mino_c;
 
-        for (int r = 2; r < 22; ++r) 
+        go(br, bc);
+        for (int r = BOARD_UPPER; r < BOARD_ROW; ++r) 
         {
-            if (r >= pos_r && r < pos_r + 4)
+            go(br + r - BOARD_UPPER, bc);
+            mino_r = r - pos_r;
+            for (int c = 0; c < BOARD_COL; ++c)
             {
-                mino_row = (mino_mask >> (r - pos_r) * 4) & mino_shape;
-                mino_row >>= (3 - (r - pos_r)) * 4;
-                mino_row <<= (9 - pos_c);
-
-                for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-                {
-                    cout << ((mino_row & mask) ? "■" : "\x1b[C");
-                }
+                mino_c = c - pos_c;
+                if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << (m[mino_r][mino_c] ? color + "[]" : "\x1b[2C") << ANSI_RESET;
+                else cout << "\x1b[2C";
             }
-            cout << endl;
-        }
-        cout << flush;
-    } 
+        }       
+    }
+
+    cout << flush;
 }
 
 /**
@@ -69,7 +227,18 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
  */
 void LinuxRender::renderTimer(const int sec)
 {
-    cout << "seconds: " << sec << "\r";
+    int wr = 19, wc = 32;
+
+    int m = sec / 60, s = sec % 60;
+    
+    go(wr, wc);
+    cout << "TIME";
+
+    go(wr + 1, wc);
+    cout << "     " << setw(2) << setfill('0') << m << ":" << setw(2) << setfill('0') << s;
+
+    go(wr + 2, wc);
+    cout << "──────────";
 }
 
 /**
@@ -78,41 +247,31 @@ void LinuxRender::renderTimer(const int sec)
  */
 void LinuxRender::renderNextBlock(const int* tetrominoArray)
 {
-    static bool called = false;
-    mino mino_mask = 0b1111000000000000;
-    mino mino_shape;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    uint16_t mino_row;
+    int wr = 7, wc = 0;
+    const mino& m1 = TETROMINO[tetrominoArray[0]][0];
+    const mino& m2 = TETROMINO[tetrominoArray[1]][0];
+    const mino& m3 = TETROMINO[tetrominoArray[2]][0];
 
-    std::cout << "\x1b[15A";
-    std::cout << "\x1b[11C";
-    std::cout << "NEXT\n";
-    for (int tetromino_num = 0; tetromino_num < 3; ++tetromino_num)
+    // border
+    go(wr, wc);
+    cout << "┌──NEXT──┐";
+
+    for (int r = 0; r < 14; ++r)
     {
-        mino_shape = TETROMINO[tetrominoArray[tetromino_num]][0];
-        for (int r = 0; r < 4; ++r)
-        {
-            std::cout << "\x1b[11C";
-            for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-            {
-                cout << " ";
-            }
-
-            mino_row = (mino_mask >> r * 4) & mino_shape;
-            mino_row >>= (3 - r) * 4;
-            mino_row <<= (9);
-
-            std::cout << "\x1b[10D";
-            for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-            {
-                cout << ((mino_row & mask) ? "■" : "\x1b[C");
-            }
-            cout << endl;
-        }
+        go(wr + 1 + r, wc);
+        cout << "│        │";
     }
-    std::cout << "\x1b[16B";
-    std::cout << "\x1b[11D";
+
+    go (wr + 14, wc);
+    cout << "└────────┘";
+
+    // next mino
+    renderMino(wr + 1, wc + 1, m1, tetrominoArray[0]);
+
+    renderMino(wr + 5, wc + 1, m2, tetrominoArray[1]);
+
+    renderMino(wr + 9, wc + 1, m3, tetrominoArray[2]);
+
     cout << flush;
 }
 
@@ -122,48 +281,28 @@ void LinuxRender::renderNextBlock(const int* tetrominoArray)
  */
 void LinuxRender::renderHold(const Tetromino& tetromino)
 {
-    static bool called = false;
-    mino mino_mask = 0b1111000000000000;
-    mino mino_shape;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    uint16_t mino_row;
+    int wr = 7, wc = 32;
     int saved_mino_type = tetromino.get_mino_type();
 
-    std::cout << "\x1b[20A";
-    std::cout << "\x1b[11C";
-    std::cout << "SAVE\n";
+    // border
+    go(wr, wc);
+    cout << "┌──HOLD──┐";
 
-    if (saved_mino_type == -1)
+    for (int r = 0; r < 5; ++r)
     {
-        std::cout << "\x1b[20B";
-        std::cout << "\x1b[11D";
-        cout << flush;
-        return;
+        go(wr + 1 + r, wc);
+        cout << "│        │";
     }
 
-    mino_shape = TETROMINO[saved_mino_type][0];
-    for (int r = 0; r < 4; ++r)
+    go (wr + 5, wc);
+    cout << "└────────┘";
+
+    if (saved_mino_type != -1)
     {
-        std::cout << "\x1b[11C";
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-        {
-            cout << " ";
-        }
-
-        mino_row = (mino_mask >> r * 4) & mino_shape;
-        mino_row >>= (3 - r) * 4;
-        mino_row <<= (9);
-
-        std::cout << "\x1b[10D";
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-        {
-            cout << ((mino_row & mask) ? "■" : "\x1b[C");
-        }
-        cout << endl;
+        const mino& m = TETROMINO[saved_mino_type][0];
+        renderMino(wr + 1, wc + 1, m, saved_mino_type);
     }
-    std::cout << "\x1b[20B";
-    std::cout << "\x1b[11D";
+
     cout << flush;
 }
 
@@ -173,7 +312,16 @@ void LinuxRender::renderHold(const Tetromino& tetromino)
  */
 void LinuxRender::renderScore(const int score)
 {
-    cout << "score: " << score << " ";
+    int wr = 13, wc = 32;
+    
+    go(wr, wc);
+    cout << "SCORE";
+
+    go(wr + 1, wc);
+    cout << setw(10) << setfill(' ') << score;
+
+    go(wr + 2, wc);
+    cout << "──────────";
 }
 
 /**
@@ -182,5 +330,14 @@ void LinuxRender::renderScore(const int score)
  */
 void LinuxRender::renderLevel(const int level)
 {
-    cout << "level: " << level << " ";
+    int wr = 16, wc = 32;
+    
+    go(wr, wc);
+    cout << "LEVEL";
+
+    go(wr + 1, wc);
+    cout << "       " << setw(3) << setfill('0') << level;
+
+    go(wr + 2, wc);
+    cout << "──────────";
 }
