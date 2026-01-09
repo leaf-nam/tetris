@@ -1,13 +1,23 @@
 #ifndef __LINUX_RENDERER_HPP__
 #define __LINUX_RENDERER_HPP__
 
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+#include <sstream>
 #include <unordered_map>
+#include <csignal>
 #include "tetromino/tetromino.hpp"
 #include "api/i_renderer.hpp"
 
 class LinuxRender : public IRenderer
 {
 public:
+    LinuxRender();
+
+    void go(int row, int col);
+
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
@@ -48,6 +58,12 @@ public:
      * @param 현재 레벨
      */
     void renderLevel(const int level) override;
+
+    void renderMino(int row, int col, const mino& tetromino, int type);
+
+    void restoreTerminal();
+
+    ~LinuxRender();
 };
 
 #endif
