@@ -2,17 +2,17 @@
 #include "api/IInputHandler.hpp"
 #include <conio.h>
 #include <stdio.h>
-char TInput::scan()
+char TerminalInput::scan()
 {
-	//버퍼에 값이 있으면 char 로 넘겨주고 없으면 -1 반환
+	char c = '\0';
+	
+		while (_kbhit()) { 
+			c =_getch();//입력버퍼를 지우며 마지막 값만 반환
+		}
+		return c;
 
-	if (_kbhit()) 
-	{
-		return _getch();
-	}
-	return -1;
 }
 
-TInput::~TInput()
+TerminalInput::~TInput()
 {
 }
