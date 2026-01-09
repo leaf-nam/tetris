@@ -47,5 +47,5 @@ tags
 # cmake build folder
 build
 
+# visual studio 
 .vs
-.vscode
