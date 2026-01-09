@@ -13,11 +13,7 @@ class Board
     bool is_mino_swaped;
     mino game_board[22];
     bool is_mino_active;
-
-    void draw_board();
-    void draw_mino();
-    void draw_saved_mino();
-
+    
     public:
     Board();
 
@@ -27,8 +23,8 @@ class Board
     void set_active_mino_pos(int new_r, int new_c);
     void set_active_mino_rotation(int new_rot);
 
-    bool has_active_mino();
-    bool has_swaped_mino();
+    const bool has_active_mino() const;
+    const bool has_swaped_mino() const;
 
     bool can_place_mino(int new_r, int new_c, int new_rot);
     void update_board();
@@ -37,13 +33,14 @@ class Board
     void swap_mino();
 
     bool is_line_full(int row);
-
+    
+    Tetromino& get_active_mino();
+    Tetromino& get_saved_mino();
+    bool get_is_mino_swaped();
     const uint16_t* get_board() const;
 
     void delete_line(int del_row);
     bool insert_line(int ins_row);
-
-    void render(); // 추후 UI 전용 객체로 이전
 };
 
 #endif
