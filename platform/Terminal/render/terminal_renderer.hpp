@@ -28,7 +28,7 @@ namespace Color
     extern const char* BOLD;
 }
 
-class TRenderer : public IRenderer
+class TerminalRenderer : public IRenderer
 {
 public:
      /**
@@ -75,7 +75,7 @@ public:
     /**
      * @brief 소멸자
      */
-    virtual ~TRenderer() override;
+    virtual ~TerminalRenderer() override;
 
 private:
     void clear();
