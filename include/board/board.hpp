@@ -7,6 +7,7 @@
 
 inline constexpr int BOARD_ROW = 22;
 inline constexpr int BOARD_COL = 10;
+inline constexpr int BOARD_UPPER = 2;
 
 typedef int board_row[BOARD_COL];
 typedef board_row board_t[BOARD_ROW];
@@ -47,7 +48,7 @@ class Board
     const board_t& get_board() const;
     const bool is_filled(int r, int c) const;
     const int at(int r, int c) const;
-    void fill(int r, int c, int type);
+    bool fill(int r, int c, int type);
 
     void delete_line(int del_row);
     bool insert_line(int ins_row);

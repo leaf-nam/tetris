@@ -189,4 +189,4 @@ static mino_shapes T_MINO = {
     }
 };
 
-mino * TETROMINO[7] = { I_MINO, O_MINO, Z_MINO, S_MINO, J_MINO, L_MINO, T_MINO };
+mino* TETROMINO[7] = { I_MINO, O_MINO, Z_MINO, S_MINO, J_MINO, L_MINO, T_MINO };

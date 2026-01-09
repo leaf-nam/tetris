@@ -81,7 +81,7 @@ const bool Board::has_swaped_mino() const
  */
 bool Board::can_place_mino(int new_r, int new_c, int new_rot)
 {
-    const mino* m = active_mino.get_shape(new_rot);
+    const mino& m = active_mino.get_shape(new_rot);
 
     for (int r = 0; r < MINO_SIZE; ++r)
     {
@@ -91,6 +91,18 @@ bool Board::can_place_mino(int new_r, int new_c, int new_rot)
         }
     }
 
+    return true;
+}
+
+/**
+ * @brief 게임 보드에 블록을 채움
+ * @return false: 해당 위치에 이미 블록이 있음 / true: 블록을 보드에 채워넣음
+ * @note 범위 밖인 경우 false 반환
+ */
+bool Board::fill(int r, int c, int type)
+{
+    if (r < 0 || r >= BOARD_ROW || c < 0 || c >= BOARD_COL) return false;
+    game_board[r][c] = type;
     return true;
 }
 
@@ -117,7 +129,7 @@ void Board::update_board()
 
     int mino_type = active_mino.get_mino_type();
     auto [pos_r, pos_c] = active_mino.get_pos();
-    const mino* m = active_mino.get_shape();
+    const mino& m = active_mino.get_shape();
 
     for (int r = pos_r; r < MINO_SIZE; ++r)
     {
@@ -162,7 +174,7 @@ const board_t& Board::get_board() const
 const bool Board::is_filled(int r, int c) const
 {
     if (r < 0 || r >= BOARD_ROW || c < 0 || c >= BOARD_COL) return true;
-    else return game_board[r][c] != MinoType::NONE;
+    return game_board[r][c] != MinoType::NONE;
 }
 
 /**
@@ -174,7 +186,7 @@ const bool Board::is_filled(int r, int c) const
 const int Board::at(int r, int c) const
 {
     if (r < 0 || r >= BOARD_ROW || c < 0 || c >= BOARD_COL) return MinoType::OBSTACLE;
-    else return game_board[r][c];
+    return game_board[r][c];
 }
 
 /**
