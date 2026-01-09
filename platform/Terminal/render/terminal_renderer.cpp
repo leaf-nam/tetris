@@ -59,7 +59,6 @@ void TerminalRenderer::drawLogo() {
 
 void TerminalRenderer::renderBoard(const Board & board, const Tetromino & tetromino){
     int startX = 35, startY = 7;
-    int pos_r, pos_c;
     const uint16_t* game_board = board.get_board();
     auto [pos_r, pos_c] = tetromino.get_pos();
     uint16_t mino_shape = tetromino.get_shape(tetromino.get_rotation());

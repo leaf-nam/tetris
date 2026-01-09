@@ -1,11 +1,11 @@
-#include "platform/Terminal/terminal_intput.hpp"
 #include "engine/Engine.hpp"
 #include "render/terminal_renderer.hpp"
+#include "input/terminal_input.hpp"
 
 int main() {
 
-    TRenderer* renderer = new TRenderer();
-    ConsoleInput* input = new ConsoleInput(); 
+    IRenderer* renderer = new TerminalRenderer();
+    IInputHandler* input = new TerminalInput(); 
 
     Engine engine(input, renderer);
 
