@@ -91,14 +91,14 @@ void TerminalRenderer::drawLogo() {
 
 }
     void TerminalRenderer::renderTimer(int totalSec) {
-        int min = totalSec / 60;
+        int min = (totalSec / 60);
         int sec = totalSec % 60;
 
         setCursor(84, 4);
 
         std::cout << Color::BOLD;
         // 두 자리(setw(2))를 잡고, 빈 곳은 '0'으로 채움
-        std::cout << std::setfill('0') << std::setw(2) << min
+        std::cout << std::setfill('0') << std::setw(2) << min%100
             << ":"
             << std::setw(2) << sec;
         std::cout << Color::RESET;
