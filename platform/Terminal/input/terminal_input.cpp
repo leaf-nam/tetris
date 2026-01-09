@@ -1,5 +1,5 @@
 #include "terminal_input.hpp"
-#include "api/IInputHandler.hpp"
+
 #include <conio.h>
 #include <stdio.h>
 char TerminalInput::scan()
@@ -13,6 +13,6 @@ char TerminalInput::scan()
 
 }
 
-TerminalInput::~TInput()
+TerminalInput::~TerminalInput()
 {
 }

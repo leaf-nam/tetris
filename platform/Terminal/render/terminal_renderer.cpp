@@ -1,4 +1,4 @@
-#include "render/terminal_renderer.hpp"
+#include "terminal_renderer.hpp"
 
 
 namespace Color {
@@ -18,8 +18,6 @@ void TerminalRenderer::setCursor(int x, int y) {
     
 }
 
-
-
 void TerminalRenderer::clear() {
     printf("\033[2J\033[1;1H");
     fflush(stdout);
@@ -28,6 +26,7 @@ void TerminalRenderer::clear() {
 
 void TerminalRenderer::drawLogo() {
     // 각 글자를 배열로 분리
+
     const char* T[] = {"█████", "  █  ", "  █  ", "  █  ", "  █  "};
     const char* E[] = {"█████", "█    ", "███  ", "█    ", "█████"};
     const char* R[] = {"████ ", "█   █", "████ ", "█  █ ", "█   █"};
@@ -57,8 +56,8 @@ void TerminalRenderer::drawLogo() {
     setCursor(x + 52, y + 4);
     printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
 }
-//void TerminalRenderer::draw(const Board* board, const TetrominoQueue& queue) {
-    void TerminalRenderer::renderBoard(Board & board, Tetromino & tetromino){
+
+void TerminalRenderer::renderBoard(const Board & board, const Tetromino & tetromino){
     int startX = 35, startY = 7;
     int pos_r, pos_c;
     const uint16_t* game_board = board.get_board();
@@ -90,27 +89,30 @@ void TerminalRenderer::drawLogo() {
     std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
 }
-    void TerminalRenderer::renderTimer(int totalSec) {
-        int min = (totalSec / 60);
-        int sec = totalSec % 60;
 
-        setCursor(84, 4);
+void TerminalRenderer::renderTimer(const int totalSec) {
+    int min = (totalSec / 60);
+    int sec = totalSec % 60;
 
-        std::cout << Color::BOLD;
-        // 두 자리(setw(2))를 잡고, 빈 곳은 '0'으로 채움
-        std::cout << std::setfill('0') << std::setw(2) << min%100
-            << ":"
-            << std::setw(2) << sec;
-        std::cout << Color::RESET;
+    setCursor(84, 4);
+
+    std::cout << Color::BOLD;
+    // 두 자리(setw(2))를 잡고, 빈 곳은 '0'으로 채움
+    std::cout << std::setfill('0') << std::setw(2) << min%100
+        << ":"
+        << std::setw(2) << sec;
+    std::cout << Color::RESET;
+}
+
+void TerminalRenderer::renderNextBlock(const int* tetrominoArray) {
+    for (size_t i = 0; i < 3; ++i) {
+        renderMinoPattern(83, 9 + (i * 5), TETROMINO[tetrominoArray[i]][0], Color::CYAN);
     }
-    void TerminalRenderer::renderNextBlock(Tetromino* tetrominoArray) {
-        for (size_t i = 0; i < 3; ++i) {
-            renderMinoPattern(83, 9 + (i * 5), tetrominoArray[i].get_shape(), Color::CYAN);
-        }
-    }
-    void TerminalRenderer::renderHold(Tetromino& tetromino) {
-        renderMinoPattern(16, 3, tetromino.get_shape(), Color::YELLOW);
-    }
+}
+
+void TerminalRenderer::renderHold(const Tetromino& tetromino) {
+    renderMinoPattern(16, 3, tetromino.get_shape(), Color::YELLOW);
+}
 
 void TerminalRenderer::drawUIBox(std::string title, int x, int y, int w, int h, const char* color) {
     setCursor(x, y);

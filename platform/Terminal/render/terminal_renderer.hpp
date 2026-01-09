@@ -10,7 +10,8 @@
 
 #include "board/board.hpp"
 #include "tetromino/tetromino.hpp"
-#include "api/IRenderer.hpp"
+#include "api/i_renderer.hpp"
+
 // --- 상수 정의 ---
 static const uint16_t LEFT_EDGE = 1u << 12;
 static const uint16_t RIGHT_EDGE = 1u << 3;
@@ -40,37 +41,37 @@ public:
      * @brief 게임판 렌더링
      * @param 보드 현상태 + 현재 테트로미노 렌더링
      */
-    void renderBoard(Board& board, Tetromino& tetromino) override;
+    void renderBoard(const Board& board, const Tetromino& tetromino) override;
 
     /**
      * @brief 타이머에 현재 시간 렌더링
      * @param 현재시간(초)
      */
-    void renderTimer(int sec) override;
+    void renderTimer(const int sec) override;
 
     /**
      * @brief 다음 블럭 3개 렌더링
      * @param 다음 블럭 3개를 가진 배열 포인터(순서 중요)
      */
-    void renderNextBlock(Tetromino* tetrominoArray) override;
+    void renderNextBlock(const int* tetrominoArray) override;
 
     /**
      * @brief 홀드할 블럭 렌더링
      * @param 홀드할 블럭
      */
-    void renderHold(Tetromino& tetromino) override;
+    void renderHold(const Tetromino& tetromino) override;
 
     /**
      * @brief 점수판 렌더링
      * @param 현재 점수
      */
-    void renderScore(int score) override;
+    void renderScore(const int score) override;
 
     /**
      * @brief 레벨 렌더링
      * @param 현재 레벨
      */
-    void renderLevel(int level) override;
+    void renderLevel(const int level) override;
     
     /**
      * @brief 소멸자

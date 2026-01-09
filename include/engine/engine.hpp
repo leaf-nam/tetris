@@ -15,8 +15,7 @@ class Engine {
      * @param 프로그램 실행 인자(개수, 문자열)
      * @return 게임엔진
      */
-    Engine(IInputHandler* input_handler, IRenderer* renderer);
-
+    //Engine(IInputHandler* input_handler, IRenderer* renderer);
     Engine(IInputHandler*, IRenderer*);
 
     /**
