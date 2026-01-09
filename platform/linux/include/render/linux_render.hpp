@@ -1,11 +1,13 @@
 #ifndef __LINUX_RENDERER_HPP__
 #define __LINUX_RENDERER_HPP__
 
+#include <unordered_map>
+#include "tetromino/tetromino.hpp"
 #include "api/i_renderer.hpp"
 
 class LinuxRender : public IRenderer
 {
-    public:
+public:
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
