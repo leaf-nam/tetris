@@ -1,4 +1,5 @@
 #include "terminal_renderer.hpp"
+#include <wtypes.h>
 
 
 namespace Color {
@@ -19,6 +20,7 @@ void TerminalRenderer::setCursor(int x, int y) {
 }
 
 void TerminalRenderer::clear() {
+    
     printf("\033[2J\033[1;1H");
     fflush(stdout);
     printf("\e[?25l");
@@ -26,7 +28,7 @@ void TerminalRenderer::clear() {
 
 void TerminalRenderer::drawLogo() {
     // 각 글자를 배열로 분리
-
+    hideCursor();
     const char* T[] = {"█████", "  █  ", "  █  ", "  █  ", "  █  "};
     const char* E[] = {"█████", "█    ", "███  ", "█    ", "█████"};
     const char* R[] = {"████ ", "█   █", "████ ", "█  █ ", "█   █"};
@@ -64,7 +66,7 @@ void TerminalRenderer::renderBoard(const Board & board, const Tetromino & tetrom
     uint16_t mino_shape = tetromino.get_shape(tetromino.get_rotation());
     setCursor(startX, startY);
     pos_c += 3;
-    std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
+    std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
 
     for (int r = 2; r < 22; ++r) {
         setCursor(startX, startY + (r - 1));
@@ -83,10 +85,10 @@ void TerminalRenderer::renderBoard(const Board & board, const Tetromino & tetrom
             else std::cout << Color::GRAY << ". " << Color::RESET;
         }
             
-        std::cout << Color::BOLD << "┃" << Color::RESET;
+        std::cout  <<Color::BOLD << " ┃" << Color::RESET;
     }
     setCursor(startX, startY + 21);
-    std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
+    std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 
 }
 
@@ -112,7 +114,7 @@ void TerminalRenderer::renderNextBlock(const int* tetrominoArray) {
 
 void TerminalRenderer::renderHold(const Tetromino& tetromino) {
     if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
-    renderMinoPattern(16, 3, tetromino.get_shape(), Color::YELLOW);
+    renderMinoPattern(7, 11, tetromino.get_shape(), Color::YELLOW);
 }
 
 void TerminalRenderer::drawUIBox(std::string title, int x, int y, int w, int h, const char* color) {
@@ -125,7 +127,7 @@ void TerminalRenderer::drawUIBox(std::string title, int x, int y, int w, int h, 
     setCursor(x, y + h + 1);
     std::cout << color << "└" << std::string(w * 2, ' ') << "┘" << Color::RESET;
     if (!title.empty()) {
-        setCursor(x + (w * 2 - title.length()) / 2 +1 , y);
+        setCursor(x + (w * 2 - title.length()) / 2  , y);
         std::cout << color << Color::BOLD << "[" << title << "]" << Color::RESET;
     }
 }
@@ -136,7 +138,7 @@ void TerminalRenderer::renderMinoPattern(int x, int y, uint16_t shape, const cha
         uint16_t row = (shape >> ((3 - i) * 4)) & 0xF;
         for (int j = 0; j < 4; j++) {
             if (row & (0x8 >> j)) std::cout << color << "██" << Color::RESET;
-            else std::cout << Color::GRAY << ". " << Color::RESET;
+            else std::cout << Color::GRAY << "  " << Color::RESET;
         }
     }
 }
@@ -148,8 +150,8 @@ void TerminalRenderer::renderBackground() {
     drawLogo();
     drawUIBox("HOLD", 4, 9, 6, 4, Color::GREEN);
     drawUIBox("NEXT", 80, 7, 6, 17, Color::PURPLE);
-    drawUIBox("SCORE", 4, 16, 6, 3, Color::CYAN);
-    drawUIBox("LEVEL", 4, 21, 6, 3, Color::CYAN);
+    drawUIBox("#SCORE", 4, 16, 6, 3, Color::CYAN);
+    drawUIBox("LV", 4, 21, 6, 3, Color::CYAN);
     drawUIBox("TIME", 80, 2, 6, 2, Color::RESET);
 
 
@@ -158,12 +160,29 @@ void TerminalRenderer::drawHold(uint16_t hold_shape) {
     renderMinoPattern(16, 3, hold_shape, Color::YELLOW);
 }
 void TerminalRenderer::renderScore(int score) {
-    setCursor(7, 18); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
+    setCursor(8, 18); printf("%s%06d%s", Color::BOLD, score, Color::RESET);
 }
 void TerminalRenderer::renderLevel(int level) {
-    setCursor(9, 23); printf("%s%02d%s", Color::BOLD, level, Color::RESET);
+    setCursor(10, 23); printf("%s%02d%s", Color::BOLD, level, Color::RESET);
 }
 TerminalRenderer::~TerminalRenderer() {
 
 }
 
+void TerminalRenderer::hideCursor() {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = FALSE; // FALSE로 설정하여 숨김
+    SetConsoleCursorInfo(consoleHandle, &info);
+
+}
+
+void TerminalRenderer::showCursor() {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = TRUE; // 다시 보이게 설정
+    SetConsoleCursorInfo(consoleHandle, &info);
+
+}

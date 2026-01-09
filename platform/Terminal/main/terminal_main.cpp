@@ -12,7 +12,7 @@ int main() {
 
     IRenderer* renderer = new TerminalRenderer();
     IInputHandler* input = new TerminalInput(); 
-
+    
     Engine engine(input, renderer);
 
     engine.run();
