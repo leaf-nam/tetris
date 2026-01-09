@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+
+﻿using System;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -46,9 +48,8 @@ namespace wpf.render
             canvas.Children.Add(rect);
         }
 
-        private void DrawBlockOffset(int x, int y, double offsetX, double offsetY, Brush color)
-        {
-            double blockSize = Math.Max(canvas.ActualWidth / 4, canvas.ActualHeight / 4);
+        private void DrawBlockAbsolute(double x, double y, double blockSize, Brush color)
+        { 
 
             Rectangle rect = new Rectangle
             {
@@ -57,8 +58,8 @@ namespace wpf.render
                 Fill = color
             };
 
-            Canvas.SetLeft(rect, x * blockSize + offsetX);
-            Canvas.SetTop(rect, y * blockSize + offsetY);
+            Canvas.SetLeft(rect, x);
+            Canvas.SetTop(rect, y);
 
             canvas.Children.Add(rect);
         }
@@ -112,6 +113,25 @@ namespace wpf.render
             }
         }
 
+        // 문자열 가운데 정렬해서 그리기(점수판, 레벨)
+        public void DrawStringCenter(string s)
+        {
+            int textBlockWidth = s.Length * 5;
+            int textBlockHeight = 7;
+
+            double textPixelWidth = textBlockWidth * blockSize;
+            double textPixelHeight = textBlockHeight * blockSize;
+
+            double startXpx = (canvas.ActualWidth - textPixelWidth) / 2;
+            double startYpx = (canvas.ActualHeight - textPixelHeight) / 2;
+
+            int startX = (int)Math.Round(startXpx / blockSize);
+            int startY = (int)Math.Round(startYpx / blockSize);
+
+            DrawString(s, startX, startY);
+        }
+
+        // 지정된 색깔로 문자 그리기
         private void DrawChar(char c, int offsetX, int offsetY, Brush color)
         {
             ulong charHex = Font5x7.Get(c);
@@ -198,36 +218,41 @@ namespace wpf.render
 
         private void DrawTetrominoCenter(ushort tetromino, Brush color)
         {
-            double blockSize = Math.Max(canvas.ActualWidth / 4, canvas.ActualHeight / 4);
+            double blockSize = Math.Min(canvas.ActualWidth / 4, canvas.ActualHeight / 4);
 
-            Tuple<double, double> realSize = calculateRealSize(tetromino);
-            double rw = realSize.Item1 * blockSize, rh = realSize.Item2 * blockSize;
-            double cw = canvas.ActualWidth, ch = canvas.ActualHeight;
-            
-            double offsetX = (cw - rw) / 2;
-            double offsetY = (ch - rh) / 2;
+            var realSize = calculateRealSize(tetromino);
+            int realRows = (int)realSize.Item1;
+            int realCols = (int)realSize.Item2;
 
+            double realWidth = realCols * blockSize;
+            double realHeight = realRows * blockSize;
 
-            MessageBox.Show(
-                "real : " + rh+ " | " + rw + "\n" +
-                "canvas: " + ch + " | " + cw + "\n" +
-                "==============================\n" + 
-                "offset : " + offsetY + " | " + offsetX + "\n"
-                );
+            // ⭐ 핵심: 실제 블록 기준 중앙
+            double startX = (canvas.ActualWidth - realWidth) / 2;
+            double startY = (canvas.ActualHeight - realHeight) / 2;
+
+            // minRow / minCol 다시 계산
+            int minRow = 4, minCol = 4;
+
+            for (int r = 0; r < 4; r++)
+                for (int c = 0; c < 4; c++)
+                    if (((tetromino >> (r * 4 + c)) & 1) == 1)
+                    {
+                        minRow = Math.Min(minRow, r);
+                        minCol = Math.Min(minCol, c);
+                    }
 
             for (int y = 0; y < 4; y++)
             {
                 for (int x = 0; x < 4; x++)
                 {
                     int bit = y * 4 + x;
-
-                    if ((tetromino & (1UL << bit)) != 0)
+                    if ((tetromino & (1 << bit)) != 0)
                     {
-                        DrawBlockOffset(
-                            3 - x,
-                            3 - y,
-                            offsetX,
-                            offsetY,
+                        DrawBlockAbsolute(
+                            startX + (x - minCol) * blockSize,
+                            startY + (y - minRow) * blockSize,
+                            blockSize,
                             color
                         );
                     }
