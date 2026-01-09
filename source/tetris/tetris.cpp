@@ -1,11 +1,15 @@
-#include "engine/Engine.hpp"
+#include "engine/engine.hpp"
+#if defined(__linux__)
+    #include "render/linux_render.hpp"
+    #include "input/linux_input.hpp"
+#endif
 
 int main()
 {
-    const char* argv[] = {"tetris"};
-    int argc = sizeof(argv) / sizeof(argv[0]);
+    IInputHandler* input_handler = new LinuxInput();
+    IRenderer* renderer = new LinuxRender;    
 
-    Engine engine(argc, argv);
+    Engine engine(input_handler, renderer);
 
     engine.run();
 

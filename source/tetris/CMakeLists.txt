@@ -8,6 +8,10 @@ target_link_libraries(tetris
 	PRIVATE console_input
 	PRIVATE board
 	PRIVATE tetromino
-    PRIVATE util
-	PRIVATE Engine
+  PRIVATE util
+	PRIVATE ngine
 )
+
+if (UNIX)
+    target_include_directories(tetris PUBLIC ${PROJECT_SOURCE_DIR}/platform/linux/include)
+endif()
