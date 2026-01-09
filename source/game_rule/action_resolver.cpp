@@ -12,7 +12,7 @@ using namespace std;
  * - O형 테트로미노는 kick table이 없으므로 입력하면 안됨
  * - 좌표계는 (row, col)이며, row 증가하면 downward, col 증가하면 rightward임
  */
-const std::pair<int, int>* ActionResolver::get_kick_table(int mino_type, int curr_rot, int rot_dir)
+const std::pair<int, int>* ActionResolver::get_kick_table(int mino_type, int curr_rot, int rot_dir) const
 {
     switch (mino_type)
     {
