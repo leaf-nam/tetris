@@ -39,7 +39,7 @@ void Tetromino::set_pos(int new_r, int new_c)
  * @brief 테트로미노 위치 (기준: 좌상단)
  * @return 테트로미노 위치
  */
-pair<int, int> Tetromino::get_pos()
+const pair<int, int> Tetromino::get_pos() const
 {
     return pos;
 }
@@ -48,7 +48,7 @@ pair<int, int> Tetromino::get_pos()
  * @brief 테트로미노 모양
  * @return 테트로미노 모양
  */
-mino Tetromino::get_shape()
+const mino Tetromino::get_shape() const
 {
     return TETROMINO[mino_type][rotation];
 }
@@ -57,17 +57,17 @@ mino Tetromino::get_shape()
  * @brief 회전한 테트로미노 모양을 반환하는 함수. 회전 상태가 반영되진 않음
  * @return 테트로미노 모양
  */
-mino Tetromino::get_shape(int rot)
+const mino Tetromino::get_shape(int rot) const
 {
     return TETROMINO[mino_type][rot];
 }
 
-int Tetromino::get_rotation()
+const int Tetromino::get_rotation() const
 {
     return rotation;
 }
 
-int Tetromino::get_mino_type()
+const int Tetromino::get_mino_type() const
 {
     return mino_type;
 }

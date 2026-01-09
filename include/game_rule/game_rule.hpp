@@ -2,7 +2,6 @@
 #define __GAME_RULE_HPP__
 
 #include "board/board.hpp"
-#include "input/action.hpp"
 #include "game_rule/action_resolver.hpp"
 
 class RuleEngine

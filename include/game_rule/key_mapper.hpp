@@ -2,7 +2,7 @@
 #define __KEY_MAPPER_HPP__
 
 #include <unordered_map>
-#include "input/action.hpp"
+#include "util/action.hpp"
 
 class KeyMapper
 {
