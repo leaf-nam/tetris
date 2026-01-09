@@ -5,13 +5,17 @@
 #include "api/i_renderer.hpp"
 
 class Engine {
+    private:
+    IInputHandler* input_handler;
+    IRenderer* renderer;    
+
     public:
     /**
      * @brief 게임 수행 전 필드 초기화(생성자)
      * @param 프로그램 실행 인자(개수, 문자열)
      * @return 게임엔진
      */
-    Engine(int argc, const char* argv[]);
+    Engine(IInputHandler* input_handler, IRenderer* renderer);
 
     Engine(IInputHandler*, IRenderer*);
 
