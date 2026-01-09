@@ -16,6 +16,7 @@ void LinuxRender::renderBackground() {}
  */
 void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
 {
+    cout << "\x1b[s"; // save current cursor position
     // board
     const board_t& game_board = board.get_board();
 
@@ -28,28 +29,28 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
         cout << "\n";
     }
 
-    cout << "\x1b[20A"; // return to left-top side
+    cout << "\x1b[u" << flush; // return to origin
 
     // mino
     if (board.has_active_mino())
     {
-        
         const auto [pos_r, pos_c] = tetromino.get_pos();
         const mino& m = tetromino.get_shape();
+        int mino_r, mino_c;
 
-        cout << "\x1b[" << pos_r << "B";
-
-        for (int r = 0; r < MINO_SIZE; ++r) 
+        for (int r = BOARD_UPPER; r < BOARD_ROW; ++r) 
         {
-            cout << "\x1b[" << pos_c << "C";
-            for (int c = 0; c < MINO_SIZE; ++c) 
+            mino_r = r - pos_r;
+            for (int c = 0; c < BOARD_COL; ++c)
             {
-                cout << (m[r][c] ? "■" : "\x1b[C");
+                mino_c = c - pos_c;
+                if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << (m[mino_r][mino_c] ? "■" : "\x1b[C");
+                else cout << "\x1b[C";
             }
             cout << "\n";
-        }
+        }       
 
-        cout << "\x1b[" << pos_r + MINO_SIZE << "A" << flush; // return to left-top side
+        cout << "\x1b[u" << flush; // return to origin
     } 
 }
 
@@ -59,9 +60,10 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
  */
 void LinuxRender::renderTimer(const int sec)
 {
+    cout << "\x1b[s"; // save current cursor position
     cout << "\x1b[20B";
     cout << "seconds: " << sec << "\r";
-    cout << "\x1b[20A" << flush;
+    cout << "\x1b[u" << flush; // return to origin
 }
 
 /**
@@ -70,24 +72,26 @@ void LinuxRender::renderTimer(const int sec)
  */
 void LinuxRender::renderNextBlock(const int* tetrominoArray)
 {
+    cout << "\x1b[s"; // save current cursor position
     cout << "\x1b[11C";
-    cout << "NEXT\n"; // row : 1
+    cout << "NEXT\n";
 
     for (int tetromino_num = 0; tetromino_num < 3; ++tetromino_num)
     {
         const mino& m = TETROMINO[tetrominoArray[tetromino_num]][0];
-        cout << "\n\x1b[11C"; // row : 2 / 7 / 12
+
         for (int r = 0; r < MINO_SIZE; ++r)
         {
+            cout << "\x1b[11C";
             for (int c = 0; c < MINO_SIZE; ++c)
             {
-                cout << (m[r][c] ? "■" : "\x1b[C");
+                cout << (m[r][c] ? "■" : "□");
             }
             cout << "\n";
         }
-        // row: 16
     }
-    cout << "\x1b[16A" << flush;
+
+    cout << "\x1b[u" << flush; // return to origin
 }
 
 /**
@@ -97,28 +101,27 @@ void LinuxRender::renderNextBlock(const int* tetrominoArray)
 void LinuxRender::renderHold(const Tetromino& tetromino)
 {
     int saved_mino_type = tetromino.get_mino_type();
-    const mino& m = TETROMINO[saved_mino_type][0];;
+    const mino& m = TETROMINO[saved_mino_type][0];
+
+    cout << "\x1b[s"; // save current cursor position
+    cout << "\x1b[16B";
+    cout << "\x1b[11C";
+    cout << "SAVE\n";
 
     if (saved_mino_type != -1)
     {
-        std::cout << "\x1b[16B";
-        std::cout << "\x1b[11C";
-        std::cout << "SAVE\n";
-
-        for (int r = 0; r < 4; ++r)
+        for (int r = 0; r < MINO_SIZE; ++r)
         {
-            std::cout << "\x1b[11C";
-            for (int r = 0; r < MINO_SIZE; ++r)
+            cout << "\x1b[11C";
+            for (int c = 0; c < MINO_SIZE; ++c)
             {
-                for (int c = 0; c < MINO_SIZE; ++c)
-                {
-                    cout << (m[r][c] ? "■" : "\x1b[C");
-                }
-                cout << "\n";
+                cout << (m[r][c] ? "■" : "□");
             }
+            cout << "\n";
         }
-        std::cout << "\x1b[20A" << flush;
     }
+
+    cout << "\x1b[u" << flush; // return to origin
 }
 
 /**
@@ -127,9 +130,10 @@ void LinuxRender::renderHold(const Tetromino& tetromino)
  */
 void LinuxRender::renderScore(const int score)
 {
+    cout << "\x1b[s"; // save current cursor position
     cout << "\x1b[21B";
     cout << "score: " << score << "\r";
-    cout << "\x1b[21A";
+    cout << "\x1b[u" << flush; // return to origin
 }
 
 /**
@@ -138,7 +142,8 @@ void LinuxRender::renderScore(const int score)
  */
 void LinuxRender::renderLevel(const int level)
 {
+    cout << "\x1b[s"; // save current cursor position
     cout << "\x1b[22B";
     cout << "level: " << level << "\r";
-    cout << "\x1b[22A";
+    cout << "\x1b[u" << flush; // return to origin
 }

@@ -131,11 +131,11 @@ void Board::update_board()
     auto [pos_r, pos_c] = active_mino.get_pos();
     const mino& m = active_mino.get_shape();
 
-    for (int r = pos_r; r < MINO_SIZE; ++r)
+    for (int r = 0; r < MINO_SIZE; ++r)
     {
-        for (int c = pos_c; c < MINO_SIZE; ++c)
+        for (int c = 0; c < MINO_SIZE; ++c)
         {
-            fill(r, c, mino_type);
+            if (m[r][c]) fill(pos_r + r , pos_c + c, mino_type);
         }
     }
 
