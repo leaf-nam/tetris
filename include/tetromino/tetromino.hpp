@@ -9,6 +9,17 @@ typedef std::uint16_t mino;
 
 extern mino *TETROMINO[7];
 
+enum MinoType
+{
+    I = 0,
+    O,
+    Z,
+    S,
+    J,
+    L,
+    T
+};
+
 class Tetromino
 {
     private:

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libconsole_input.a CMakeFiles/console_input.dir/console_input.cpp.o
-/usr/bin/ranlib libconsole_input.a
