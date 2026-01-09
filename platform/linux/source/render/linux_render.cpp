@@ -17,49 +17,39 @@ void LinuxRender::renderBackground() {}
 void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
 {
     // board
-    static bool called = false;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    const uint16_t* game_board = board.get_board();
+    const board_t& game_board = board.get_board();
 
-    if (called) std::cout << "\x1b[20A";
-    else called = true;
-
-    for (int r = 2; r < 22; ++r) 
+    for (int r = BOARD_UPPER; r < BOARD_ROW; ++r) 
     {
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
+        for (int c = 0; c < BOARD_COL; ++c)
         {
-            cout << ((game_board[r] & mask) ? "■" : "□");
+            cout << (board.is_filled(r, c) ? "■" : "□");
         }
-        cout << endl;
+        cout << "\n";
     }
-    cout << flush;
+
+    cout << "\x1b[20A"; // return to left-top side
 
     // mino
     if (board.has_active_mino())
     {
-        std::cout << "\x1b[20A";
+        
         const auto [pos_r, pos_c] = tetromino.get_pos();
-        mino mino_mask = 0b1111000000000000;
-        const mino mino_shape = tetromino.get_shape();
-        uint16_t mino_row;
+        const mino& m = tetromino.get_shape();
 
-        for (int r = 2; r < 22; ++r) 
+        cout << "\x1b[" << pos_r << "B";
+
+        for (int r = 0; r < MINO_SIZE; ++r) 
         {
-            if (r >= pos_r && r < pos_r + 4)
+            cout << "\x1b[" << pos_c << "C";
+            for (int c = 0; c < MINO_SIZE; ++c) 
             {
-                mino_row = (mino_mask >> (r - pos_r) * 4) & mino_shape;
-                mino_row >>= (3 - (r - pos_r)) * 4;
-                mino_row <<= (9 - pos_c);
-
-                for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-                {
-                    cout << ((mino_row & mask) ? "■" : "\x1b[C");
-                }
+                cout << (m[r][c] ? "■" : "\x1b[C");
             }
-            cout << endl;
+            cout << "\n";
         }
-        cout << flush;
+
+        cout << "\x1b[" << pos_r + MINO_SIZE << "A" << flush; // return to left-top side
     } 
 }
 
@@ -69,7 +59,9 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
  */
 void LinuxRender::renderTimer(const int sec)
 {
+    cout << "\x1b[20B";
     cout << "seconds: " << sec << "\r";
+    cout << "\x1b[20A" << flush;
 }
 
 /**
@@ -78,42 +70,24 @@ void LinuxRender::renderTimer(const int sec)
  */
 void LinuxRender::renderNextBlock(const int* tetrominoArray)
 {
-    static bool called = false;
-    mino mino_mask = 0b1111000000000000;
-    mino mino_shape;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    uint16_t mino_row;
+    cout << "\x1b[11C";
+    cout << "NEXT\n"; // row : 1
 
-    std::cout << "\x1b[15A";
-    std::cout << "\x1b[11C";
-    std::cout << "NEXT\n";
     for (int tetromino_num = 0; tetromino_num < 3; ++tetromino_num)
     {
-        mino_shape = TETROMINO[tetrominoArray[tetromino_num]][0];
-        for (int r = 0; r < 4; ++r)
+        const mino& m = TETROMINO[tetrominoArray[tetromino_num]][0];
+        cout << "\n\x1b[11C"; // row : 2 / 7 / 12
+        for (int r = 0; r < MINO_SIZE; ++r)
         {
-            std::cout << "\x1b[11C";
-            for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
+            for (int c = 0; c < MINO_SIZE; ++c)
             {
-                cout << " ";
+                cout << (m[r][c] ? "■" : "\x1b[C");
             }
-
-            mino_row = (mino_mask >> r * 4) & mino_shape;
-            mino_row >>= (3 - r) * 4;
-            mino_row <<= (9);
-
-            std::cout << "\x1b[10D";
-            for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-            {
-                cout << ((mino_row & mask) ? "■" : "\x1b[C");
-            }
-            cout << endl;
+            cout << "\n";
         }
+        // row: 16
     }
-    std::cout << "\x1b[16B";
-    std::cout << "\x1b[11D";
-    cout << flush;
+    cout << "\x1b[16A" << flush;
 }
 
 /**
@@ -122,49 +96,29 @@ void LinuxRender::renderNextBlock(const int* tetrominoArray)
  */
 void LinuxRender::renderHold(const Tetromino& tetromino)
 {
-    static bool called = false;
-    mino mino_mask = 0b1111000000000000;
-    mino mino_shape;
-    static const uint16_t left_edge = 1u << 12;
-    static const uint16_t right_edge = 1u << 3;
-    uint16_t mino_row;
     int saved_mino_type = tetromino.get_mino_type();
+    const mino& m = TETROMINO[saved_mino_type][0];;
 
-    std::cout << "\x1b[20A";
-    std::cout << "\x1b[11C";
-    std::cout << "SAVE\n";
-
-    if (saved_mino_type == -1)
+    if (saved_mino_type != -1)
     {
-        std::cout << "\x1b[20B";
-        std::cout << "\x1b[11D";
-        cout << flush;
-        return;
-    }
-
-    mino_shape = TETROMINO[saved_mino_type][0];
-    for (int r = 0; r < 4; ++r)
-    {
+        std::cout << "\x1b[16B";
         std::cout << "\x1b[11C";
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
-        {
-            cout << " ";
-        }
+        std::cout << "SAVE\n";
 
-        mino_row = (mino_mask >> r * 4) & mino_shape;
-        mino_row >>= (3 - r) * 4;
-        mino_row <<= (9);
-
-        std::cout << "\x1b[10D";
-        for (uint16_t mask = left_edge; mask >= right_edge; mask >>= 1)
+        for (int r = 0; r < 4; ++r)
         {
-            cout << ((mino_row & mask) ? "■" : "\x1b[C");
+            std::cout << "\x1b[11C";
+            for (int r = 0; r < MINO_SIZE; ++r)
+            {
+                for (int c = 0; c < MINO_SIZE; ++c)
+                {
+                    cout << (m[r][c] ? "■" : "\x1b[C");
+                }
+                cout << "\n";
+            }
         }
-        cout << endl;
+        std::cout << "\x1b[20A" << flush;
     }
-    std::cout << "\x1b[20B";
-    std::cout << "\x1b[11D";
-    cout << flush;
 }
 
 /**
@@ -173,7 +127,9 @@ void LinuxRender::renderHold(const Tetromino& tetromino)
  */
 void LinuxRender::renderScore(const int score)
 {
-    cout << "score: " << score << " ";
+    cout << "\x1b[21B";
+    cout << "score: " << score << "\r";
+    cout << "\x1b[21A";
 }
 
 /**
@@ -182,5 +138,7 @@ void LinuxRender::renderScore(const int score)
  */
 void LinuxRender::renderLevel(const int level)
 {
-    cout << "level: " << level << " ";
+    cout << "\x1b[22B";
+    cout << "level: " << level << "\r";
+    cout << "\x1b[22A";
 }
