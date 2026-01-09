@@ -9,7 +9,7 @@ inline constexpr int BOARD_ROW = 22;
 inline constexpr int BOARD_COL = 10;
 
 typedef int board_row[BOARD_COL];
-typedef board_row board[BOARD_ROW];
+typedef board_row board_t[BOARD_ROW];
 
 
 class Board
@@ -18,7 +18,7 @@ class Board
     Tetromino active_mino;
     Tetromino saved_mino;
     bool is_mino_swaped;
-    board game_board;
+    board_t game_board;
     bool is_mino_active;
     
     public:
@@ -44,7 +44,7 @@ class Board
     Tetromino& get_active_mino();
     Tetromino& get_saved_mino();
     bool get_is_mino_swaped();
-    const board& get_board() const;
+    const board_t& get_board() const;
     const bool is_filled(int r, int c) const;
     const int at(int r, int c) const;
     void fill(int r, int c, int type);

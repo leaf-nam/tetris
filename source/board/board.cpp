@@ -148,7 +148,7 @@ bool Board::get_is_mino_swaped()
 /**
  * @brief 게임 보드를 반환
  */
-const board& Board::get_board() const
+const board_t& Board::get_board() const
 {
     return game_board;
 }
