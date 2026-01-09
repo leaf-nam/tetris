@@ -63,6 +63,7 @@ void TerminalRenderer::renderBoard(const Board & board, const Tetromino & tetrom
     auto [pos_r, pos_c] = tetromino.get_pos();
     uint16_t mino_shape = tetromino.get_shape(tetromino.get_rotation());
     setCursor(startX, startY);
+    pos_c += 3;
     std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
 
     for (int r = 2; r < 22; ++r) {
@@ -110,6 +111,7 @@ void TerminalRenderer::renderNextBlock(const int* tetrominoArray) {
 }
 
 void TerminalRenderer::renderHold(const Tetromino& tetromino) {
+    if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
     renderMinoPattern(16, 3, tetromino.get_shape(), Color::YELLOW);
 }
 
