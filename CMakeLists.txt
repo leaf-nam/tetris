@@ -19,5 +19,7 @@ endif()
 if (WIN32)
     add_subdirectory(platform/Terminal/input)
     add_subdirectory(platform/Terminal/render)
+
+    # 실행파일(terminal_main.exe)
     add_subdirectory(platform/Terminal/main)
 endif()
