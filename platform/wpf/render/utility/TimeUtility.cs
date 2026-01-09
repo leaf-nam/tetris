@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfApp1.render
+namespace wpf.render.utility
 {
     public static class TimeUtility
     {

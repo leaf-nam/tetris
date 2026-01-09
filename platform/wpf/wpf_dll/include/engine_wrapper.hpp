@@ -13,7 +13,16 @@ extern "C"
 {
 
 	// DLL에서 콜백 등록
-	DLL_EXPORT void register_callback(const Callbacks cbs);
+	void register_callbacks(
+		const char* (*scan_callback)(),
+		void (*background_callback)(int),
+		void (*board_callback)(int),
+		void (*timer_callback)(int),
+		void (*nextblock_callback)(int),
+		void (*hold_callback)(int),
+		void (*score_callback)(int),
+		void (*level_callback)(int)
+	);
 
 	// DLL 루프 시작
 	DLL_EXPORT void init_engine();

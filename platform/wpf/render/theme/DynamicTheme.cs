@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 
-namespace WpfApp1.render
+namespace wpf.render.theme
 {
     class DynamicTheme :IColorTheme
     {

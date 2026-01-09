@@ -8,9 +8,9 @@
         Width="800"
         Height="800"
         KeyDown="Window_KeyDown"
-        KeyUp="Window_KeyUp"
         Background="{StaticResource Background}"
         Focusable="True"
+        ResizeMode="NoResize"
         >
 
     <Grid Margin="10">
@@ -39,10 +39,15 @@
 
         <!-- 메인 게임판 -->
         <Border Grid.Row="1" Grid.Column="1"
+                >
+            <!-- 게임판 사이즈 고정 -->
+            <Border
                 Margin="5"
+                Width="277" Height="550"
                 BorderBrush="{StaticResource Comment}"
-                BorderThickness="3">
-            <Canvas x:Name="CanvasBoard"/>
+                BorderThickness="2">        
+                <Canvas x:Name="CanvasBoard"/>
+            </Border>
         </Border>
 
         <!-- 좌측 Hold + 점수판 -->

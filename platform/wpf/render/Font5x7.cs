@@ -1,4 +1,4 @@
-﻿namespace WpfApp1.render
+﻿namespace wpf.render
 {
     public static class Font5x7
     {

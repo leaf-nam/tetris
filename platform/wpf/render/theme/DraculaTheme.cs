@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace WpfApp1.render
+namespace wpf.render.theme
 {
     public sealed class DraculaTheme : IColorTheme
     {

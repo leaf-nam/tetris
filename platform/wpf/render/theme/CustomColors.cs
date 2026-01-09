@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
-namespace WpfApp1.render
+namespace wpf.render.theme
 {
     class CustomColors
     {
