@@ -10,6 +10,7 @@ enum Action
     ROTATE_CCW,
     HARD_DROP,
     SWAP,
+    NONE,
 };
 
 #endif
