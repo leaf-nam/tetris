@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/tetris.dir/tetris.cpp.o -o tetris  ../engine/libEngine.a ../game_rule/libgame_rule.a ../input/libconsole_input.a ../board/libboard.a ../tetromino/libtetromino.a ../util/libutil.a 
