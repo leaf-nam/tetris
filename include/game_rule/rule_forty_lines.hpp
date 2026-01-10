@@ -1,18 +1,16 @@
-#ifndef __RULE_ZEN_HPP__
-#define __RULE_ZEN_HPP__
+#ifndef __RULE_FORTY_LINES_HPP__
+#define __RULE_FORTY_LINES_HPP__
 
 #include "game_rule/rule.hpp"
 #include "board/board.hpp"
 
-class ZEN : public GameRule
+class FortyLines : public GameRule
 {
     private:
-    int time_for_level_up[11];
-    int level_game_time;
-    int current_level;
+    int complete_lines;
 
     public:
-    ZEN(Board& board);
+    FortyLines(Board& board);
     bool is_game_clear() override;
     bool is_game_over() override;
     int update_score() override;
