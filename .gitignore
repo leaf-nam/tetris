@@ -45,7 +45,7 @@ tetris
 tags
 
 # cmake build folder
-build
+build/
 
 # visual studio 
 .vs

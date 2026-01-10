@@ -1,2 +1,0 @@
-/usr/bin/ar qc libutil.a CMakeFiles/util.dir/rand_gen.cpp.o CMakeFiles/util.dir/timer.cpp.o
-/usr/bin/ranlib libutil.a

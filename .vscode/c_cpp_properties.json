@@ -4,6 +4,7 @@
       "name": "WSL",
       "includePath": [
         "${workspaceFolder}/include",
+        "${workspaceFolder}/platform/linux/include",
         "/usr/include",
         "/usr/local/include"
       ],
