@@ -40,24 +40,12 @@ void GameRule::process(int user_input)
         if (new_rot == -1) new_rot = 3;
         else if (new_rot == 4) new_rot = 0;
 
-        if (enable_kick)
+        if (board.can_place_mino(new_r, new_c, new_rot))
         {
-            /**
-             * According to Standard Rotation System, tetromino's rotaion is defined as below:
-             * 0: Spawn
-             * R: Right turn from spawn
-             * L: Left turn from spawn
-             * 2: opposite direction from spawn
-             */
+            board.set_active_mino_pos(new_r, new_c);
+            board.set_active_mino_rotation(new_rot);
         }
-        else
-        {
-            if (board.can_place_mino(new_r, new_c, new_rot))
-            {
-                board.set_active_mino_pos(new_r, new_c);
-                board.set_active_mino_rotation(new_rot);
-            }
-        }
+        
     }
     else if (user_input == Action::HARD_DROP)
     {
