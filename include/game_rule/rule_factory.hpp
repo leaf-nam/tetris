@@ -5,6 +5,6 @@
 #include "game_rule/rule.hpp"
 #include "game_rule/rule_zen.hpp"
 
-GameRule* create_rule(std::string game_mode, Board& board);
+std::unique_ptr<GameRule> create_rule(std::string game_mode, Board& board);
 
 #endif

@@ -17,7 +17,7 @@ Engine::Engine(IInputHandler* input_handler, IRenderer* renderer) : input_handle
 void Engine::run()
 {
     Board board;
-    GameRule* rule = create_rule("ZEN", board);
+    unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
 

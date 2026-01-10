@@ -2,7 +2,7 @@
 
 using namespace std;
 
-GameRule* create_rule(string game_mode, Board& board)
+unique_ptr<GameRule> create_rule(string game_mode, Board& board)
 {
-    return &ZEN(board);
+    return make_unique<ZEN>(board);
 }
