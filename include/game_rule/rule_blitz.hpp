@@ -1,5 +1,5 @@
-#ifndef __GAME_RULE_HPP__
-#define __GAME_RULE_HPP__
+#ifndef __RULE_BLITZ_HPP__
+#define __RULE_BLITZ_HPP__
 
 #include "game_rule/rule.hpp"
 #include "board/board.hpp"
