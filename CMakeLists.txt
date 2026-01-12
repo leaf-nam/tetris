@@ -6,7 +6,9 @@ project(
   DESCRIPTION "Tetris"
   LANGUAGES CXX
 )
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+message(STATUS "MSVC Compiler Version: ${MSVC_VERSION}")
 add_subdirectory(source/board)
 add_subdirectory(source/game_rule)
 add_subdirectory(source/tetromino)
@@ -17,12 +19,10 @@ if (UNIX)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/path)
 else (WIN32)
-    add_subdirectory(platform/windows/source/path)
-endif()
-if (WIN32)
+    
     add_subdirectory(platform/Terminal/input)
     add_subdirectory(platform/Terminal/render)
-
+    add_subdirectory(platform/windows/path)
     # 실행파일(terminal_main.exe)
     add_subdirectory(platform/Terminal/main)
 endif()

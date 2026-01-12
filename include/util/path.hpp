@@ -7,8 +7,9 @@
 class PathService
 {
 private:
-    std::string path;
     PathService();
+    std::filesystem::path ff;
+    
 public:
     static PathService& get_instance();
     PathService(const PathService&) = delete;

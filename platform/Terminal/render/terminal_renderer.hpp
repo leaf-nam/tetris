@@ -87,8 +87,8 @@ private:
     void drawUIBox(std::string title, int x, int y, int w, int h, const char* color);
 
     //draw
-    void renderMinoPattern(int x, int y, uint16_t shape, const char* color);
-    void drawHold(uint16_t hold_shape);
+    void renderMinoPattern(int x, int y,const mino& shape, const char* color);
+    void drawHold(const mino& hold_shape);
     //hide, show cursor
     void showCursor();
     void hideCursor();

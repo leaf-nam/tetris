@@ -1,9 +1,9 @@
-#include <Windows.h>
+
 
 #include "engine/Engine.hpp"
 #include "render/terminal_renderer.hpp"
 #include "input/terminal_input.hpp"
-
+#include <Windows.h>
 int main() {
 
     // 윈도우 UTF8 인코딩 설정

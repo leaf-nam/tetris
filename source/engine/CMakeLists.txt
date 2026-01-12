@@ -5,7 +5,6 @@ target_link_libraries(engine
 	PRIVATE board
 	PRIVATE tetromino
     PRIVATE util
-    PRIVATE render
 	PRIVATE path
 )
 
