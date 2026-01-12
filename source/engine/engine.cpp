@@ -1,6 +1,7 @@
 #include "engine/engine.hpp"
 #include "board/board.hpp"
 #include "game_rule/rule_factory.hpp"
+#include "game_rule/key_mapper.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/timer.hpp"
 #include "util/action.hpp"
@@ -19,6 +20,7 @@ void Engine::run()
 {
     PathService& path = PathService::get_instance();
     Board board;
+    KeyMapper& key_map = KeyMapper::get_instance();
     unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
@@ -55,25 +57,9 @@ void Engine::run()
             is_level_up = rule->time_and_level_update();
         }
         
-        key = input_handler->scan();
-        if(key)
-        {
-            switch(key)
-            {
-                case 'a': action = Action::LEFT; break;
-                case 's': action = Action::DROP; break;
-                case 'd': action = Action::RIGHT; break;
-                case 'q': action = Action::ROTATE_CCW; break;
-                case 'e': action = Action::ROTATE_CW; break;
-                case 'f': action = Action::HARD_DROP; break;
-                case 'w': action = Action::SWAP; break;
-                default: action = -1; break;
-            }
-        }
-        else
-            action = -1;
+        key = key_map.map_key(input_handler->scan());
 
-        if (action != -1) 
+        if (action != Action::INVALID) 
         {
             rule->process(action);
             renderer->renderNextBlock(tetromino_queue.get_tetrominos());
