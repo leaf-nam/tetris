@@ -12,10 +12,14 @@ class Engine {
     public:
     /**
      * @brief 게임 수행 전 필드 초기화(생성자)
-     * @param 프로그램 실행 인자(개수, 문자열)
+     * @param 핸들러, 렌더러 인터페이스
      * @return 게임엔진
      */
+<<<<<<< HEAD
+    Engine(IInputHandler*, IRenderer*);
+=======
     Engine(IInputHandler* input_handler, IRenderer* renderer);
+>>>>>>> b76dff269f0c7cc36325ec90d47dc53b31626446
 
     /**
      * @brief 게임 메인루프

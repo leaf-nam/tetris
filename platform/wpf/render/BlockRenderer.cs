@@ -104,15 +104,6 @@ namespace wpf.render
             }
         }
 
-        // 지정된 색깔로 문자 그리기
-        public void DrawString(string s, int x, int y, Brush color)
-        {
-            for (int i = 0; i < s.Length; i++)
-            {
-                DrawChar(s[i], x + i * 6, y, color);
-            }
-        }
-
         // 문자열 가운데 정렬해서 그리기(점수판, 레벨)
         public void DrawStringCenter(string s)
         {

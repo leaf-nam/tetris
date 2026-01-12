@@ -2,7 +2,6 @@ add_library(engine engine.cpp)
 
 target_link_libraries(engine
 	PRIVATE game_rule
-	PRIVATE input
 	PRIVATE board
 	PRIVATE tetromino
     PRIVATE util
