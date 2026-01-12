@@ -12,29 +12,34 @@ inline constexpr int BOARD_UPPER = 2;
 typedef int board_row[BOARD_COL];
 typedef board_row board_t[BOARD_ROW];
 
+enum MoveOption
+{
+    DISMISS_IF_FAIL = 0,
+    FIX_IF_FAIL = 1
+};
 
 class Board
 {
-    private:
+private:
     Tetromino active_mino;
     Tetromino saved_mino;
     bool is_mino_swaped;
     board_t game_board;
     bool is_mino_active;
-    
-    public:
+
+    bool can_move_mino(int new_r, int new_c, int new_rot);
+
+public:
     Board();
 
     std::pair<int, int> get_active_mino_pos();
     int get_active_mino_rotation();
-    
-    void set_active_mino_pos(int new_r, int new_c);
-    void set_active_mino_rotation(int new_rot);
+    int get_active_mino_type();
 
     const bool has_active_mino() const;
     const bool has_swaped_mino() const;
 
-    bool can_place_mino(int new_r, int new_c, int new_rot);
+    bool move_active_mino(int new_r, int new_c, int new_rot, MoveOption move_option);
     void update_board();
 
     bool spawn_mino(int type);
