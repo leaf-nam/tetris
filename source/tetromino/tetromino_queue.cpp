@@ -7,13 +7,16 @@ using namespace std;
 
 TetrominoQueue::TetrominoQueue()
 {
-    RandGen& rand_gen = RandGen::get_instance();
+    draw_count = 0;
+
     int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
-    
-    for(int i = 0; i < size_of_tetrominos; ++i)
+    for (int i = 0; i < size_of_tetrominos; ++i)
     {
-        tetrominos[i] = rand_gen.get_rand_int() % 7;
+        tetrominos[i] = i;
     }
+    
+    mt19937 rng(random_device{}());
+    shuffle(tetrominos, tetrominos + size_of_tetrominos, rng);
 }
 
 TetrominoQueue& TetrominoQueue::get_instance()
@@ -24,16 +27,25 @@ TetrominoQueue& TetrominoQueue::get_instance()
 
 int TetrominoQueue::get_new_tetromino()
 {
-    RandGen& rand_gen = RandGen::get_instance();
-    int new_tetromino = tetrominos[0];
     int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
+    int new_tetromino;
 
-    for(int i = 1; i < size_of_tetrominos; ++i)
+    if (draw_count >= size_of_tetrominos)
+    {
+        mt19937 rng(random_device{}());
+        shuffle(tetrominos, tetrominos + size_of_tetrominos, rng);
+        draw_count = 0;
+    }
+
+    new_tetromino = tetrominos[0];
+
+    for (int i = 1; i < size_of_tetrominos; ++i)
     {
         tetrominos[i - 1] = tetrominos[i];
     }
 
-    tetrominos[size_of_tetrominos - 1] = rand_gen.get_rand_int() % 7;
+    tetrominos[size_of_tetrominos - 1] = new_tetromino;
+    draw_count++;
 
     return new_tetromino;
 }
@@ -42,12 +54,15 @@ void TetrominoQueue::set_new_tetromino(int new_tetromino)
 {
     int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
 
-    for(int i = 0; i < size_of_tetrominos - 1; ++i)
+    for(int i = 0; i < size_of_tetrominos; ++i)
     {
-        tetrominos[i + 1] = tetrominos[i];
+        if (new_tetromino == tetrominos[i])
+        {
+            int temp = tetrominos[0];
+            tetrominos[0] = new_tetromino;
+            tetrominos[i] = temp;
+        }
     }
-
-    tetrominos[0] = new_tetromino;
 }
 
 const int* TetrominoQueue::get_tetrominos()
