@@ -12,10 +12,10 @@ int main() {
     IRenderer* renderer = new TerminalRenderer();
     IInputHandler* input = new TerminalInput();
     INetwork* network = new TerminalNetwork();
-    Engine engine(input, renderer);
+    Engine engine(input, renderer,network);
 
     engine.run();
-
+    engine.stop();
     engine.finish();
 
     return 0;
