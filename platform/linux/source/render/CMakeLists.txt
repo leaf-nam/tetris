@@ -1,6 +1,6 @@
-add_library(linux_render linux_render.cpp)
+add_library(render linux_render.cpp)
 
-target_include_directories(linux_render 
+target_include_directories(render
     PUBLIC ${PROJECT_SOURCE_DIR}/include
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/linux/include
 )
