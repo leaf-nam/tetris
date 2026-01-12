@@ -11,13 +11,13 @@ int main() {
     SetConsoleCP(CP_UTF8);
 
     IRenderer* renderer = new TerminalRenderer();
-    IInputHandler* input = new TerminalInput(); 
+    IInputHandler* input = new TerminalInput();
     
     Engine engine(input, renderer);
 
     engine.run();
 
-    engine.finish(); 
+    engine.finish();
 
     return 0;
 }
