@@ -2,6 +2,7 @@
 #define __GAME_RULE_HPP__
 
 #include "board/board.hpp"
+#include "game_rule/action_resolver.hpp"
 
 class RuleEngine
 {
@@ -10,7 +11,10 @@ class RuleEngine
     int level_game_time;
     int current_level;
     bool enable_kick;
+    bool enable_hold;
+    bool enable_hard_drop;
     Board& board;
+    ActionResolver action;
 
     public:
     RuleEngine(Board& board);
