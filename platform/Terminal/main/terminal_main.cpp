@@ -1,8 +1,7 @@
-
-
-#include "engine/Engine.hpp"
+#include "engine/engine.hpp"
 #include "render/terminal_renderer.hpp"
 #include "input/terminal_input.hpp"
+#include "network/terminal_network.hpp"
 #include <Windows.h>
 int main() {
 
@@ -12,7 +11,7 @@ int main() {
 
     IRenderer* renderer = new TerminalRenderer();
     IInputHandler* input = new TerminalInput();
-    
+    INetwork* network = new TerminalNetwork();
     Engine engine(input, renderer);
 
     engine.run();

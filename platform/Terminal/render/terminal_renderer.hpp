@@ -77,7 +77,18 @@ public:
      * @brief 소멸자
      */
     virtual ~TerminalRenderer() override;
-    void renderEnemyBoard(const Board& board, const Tetromino& tetromino);
+
+
+
+    void renderOtherBoard(packet& pkt) override;
+    void renderIPRecv() override;
+
+    void renderChar(char c) override;
+
+    void renderClear() override;
+
+
+
     void renderGameOver();
 private:
     void clear();
