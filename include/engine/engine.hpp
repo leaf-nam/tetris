@@ -15,7 +15,11 @@ class Engine {
      * @param 핸들러, 렌더러 인터페이스
      * @return 게임엔진
      */
+<<<<<<< HEAD
     Engine(IInputHandler*, IRenderer*);
+=======
+    Engine(IInputHandler* input_handler, IRenderer* renderer);
+>>>>>>> b76dff269f0c7cc36325ec90d47dc53b31626446
 
     /**
      * @brief 게임 메인루프

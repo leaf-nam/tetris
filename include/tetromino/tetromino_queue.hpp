@@ -1,10 +1,14 @@
 #ifndef __TETROMINOQUEUE_HPP__
 #define __TETROMINOQUEUE_HPP__
 
+#include <algorithm>
+#include <random>
+
 class TetrominoQueue
 {
     private:
     int tetrominos[7];
+    int draw_count;
     TetrominoQueue();
 
     public:

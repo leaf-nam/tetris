@@ -1,2 +1,0 @@
-/usr/bin/ar qc libgame_rule.a CMakeFiles/game_rule.dir/game_rule.cpp.o
-/usr/bin/ranlib libgame_rule.a
