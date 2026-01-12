@@ -24,6 +24,8 @@ namespace wpf
             Callbacks.ScanCallback scanCallback,
             Callbacks.BackgroundCallback backgroundCallback,
             Callbacks.BoardCallback boardCallback,
+            Callbacks.HoldCallback holdCallback,
+            Callbacks.NextBlockCallback NextCallback,
             Callbacks.TimerCallback timerCallback,
             Callbacks.ScoreCallback scoreCallback,
             Callbacks.LevelCallback levelCallback
@@ -60,6 +62,8 @@ namespace wpf
         Callbacks.ScanCallback scanCallback;
         Callbacks.BackgroundCallback backgroundCallback;
         Callbacks.BoardCallback boardCallback;
+        Callbacks.HoldCallback holdCallback;
+        Callbacks.NextBlockCallback nextCallback;
         Callbacks.TimerCallback timerCallback;
         Callbacks.ScoreCallback scoreCallback;
         Callbacks.LevelCallback levelCallback;
@@ -79,30 +83,17 @@ namespace wpf
             scanCallback = new Callbacks.ScanCallback(SendInput);
             backgroundCallback = new Callbacks.BackgroundCallback(UpdateBackground);
             boardCallback = new Callbacks.BoardCallback(UpdateBoard);
+            holdCallback = new Callbacks.HoldCallback(UpdateHold);
+            nextCallback = new Callbacks.NextBlockCallback(UpdateNext);
             timerCallback = new Callbacks.TimerCallback(UpdateTimer);
             scoreCallback = new Callbacks.ScoreCallback(UpdateScore);
             levelCallback = new Callbacks.LevelCallback(UpdateLevel);
 
-            register_callbacks(scanCallback, backgroundCallback, boardCallback, timerCallback, scoreCallback, levelCallback);
+            register_callbacks(scanCallback, backgroundCallback, boardCallback, holdCallback, nextCallback, timerCallback, scoreCallback, levelCallback);
 
             // 엔진 실행
             init_engine();
             run_engine();
-
-            // 보드 렌더링 콜백 등록(보드 크기를 알아야해서 콜백으로 실행함)
-            CanvasBoard.Loaded += (s, e) =>
-            {
-
-                // 홀드 렌더링
-                //holdRenderer.DrawTetrominoCenter(5, 0);
-
-                // 넥스트 렌더링
-                //next1Renderer.DrawTetrominoCenter(1, 0);
-                //next2Renderer.DrawTetrominoCenter(2, 0);
-                //next3Renderer.DrawTetrominoCenter(3, 0);
-
-            };
-
         }
 
         private void initRender()
@@ -121,16 +112,6 @@ namespace wpf
             holdRenderer = new BlockRenderer(CanvasHold, 30);
             scoreRenderer = new BlockRenderer(CanvasScore, 3);
             levelRenderer = new BlockRenderer(CanvasLevel, 3);
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            try
-            {
-                finish_engine();
-            }
-            catch { }
-            base.OnClosed(e);
         }
 
         // 입력 받아서 전송하기
@@ -182,6 +163,30 @@ namespace wpf
             });
         }
 
+        // 홀드 업데이트
+        void UpdateHold(int tetrominoType)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                CanvasHold.Children.Clear();
+                holdRenderer.DrawTetrominoCenter(tetrominoType);
+            });
+        }
+
+        // 넥스트 업데이트
+        void UpdateNext(IntPtr tetromino)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                CanvasNext1.Children.Clear();
+                CanvasNext2.Children.Clear();
+                CanvasNext3.Children.Clear();
+                next1Renderer.DrawTetrominoCenter(Marshal.ReadInt32(tetromino, 0));
+                next2Renderer.DrawTetrominoCenter(Marshal.ReadInt32(tetromino, 1 * sizeof(int)));
+                next3Renderer.DrawTetrominoCenter(Marshal.ReadInt32(tetromino, 2 * sizeof(int)));
+            });
+        }
+
         // 타이머 업데이트
         void UpdateTimer(int value)
         {
@@ -197,6 +202,7 @@ namespace wpf
         {
             Dispatcher.Invoke(() =>
             {
+                CanvasScore.Children.Clear();
                 scoreRenderer.DrawStringCenter(score.ToString());
             });
         }
@@ -206,15 +212,19 @@ namespace wpf
         {
             Dispatcher.Invoke(() =>
             {
+                CanvasLevel.Children.Clear();
                 levelRenderer.DrawStringCenter(lv.ToString());
             });
         }
 
-        IntPtr MyScanCallback()
+        protected override void OnClosed(EventArgs e)
         {
-            string s = "Hello from C#";
-            // C++에서 읽을 수 있도록 unmanaged 메모리로 변환
-            return Marshal.StringToHGlobalAnsi(s);
+            try
+            {
+                finish_engine();
+            }
+            catch { }
+            base.OnClosed(e);
         }
     }
 

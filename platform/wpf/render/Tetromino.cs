@@ -31,10 +31,10 @@ namespace wpf.render
 
         public static readonly Tetromino O = new Tetromino(new ushort[]
         {
-            0b1100_1100_0000_0000,
-            0b1100_1100_0000_0000,
-            0b1100_1100_0000_0000,
-            0b1100_1100_0000_0000
+            0b0000_0110_0110_0000,
+            0b0000_0110_0110_0000,
+            0b0000_0110_0110_0000,
+            0b0000_0110_0110_0000
         });
 
         public static readonly Tetromino Z = new Tetromino(new ushort[]

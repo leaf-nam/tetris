@@ -18,6 +18,8 @@ extern "C"
 		InputScanCallback scan_callback,
 		RenderBackgroundCallback background_callback,
 		RenderBoardCallback board_callback,
+		RenderHoldCallback hold_callback,
+		RenderNextBlockCallback next_callback,
 		RenderTimerCallback timer_callback,
 		RenderScoreCallback score_callback,
 		RenderLevelCallback level_callback

@@ -23,6 +23,8 @@ extern "C"
 		InputScanCallback scan_callback,
 		RenderBackgroundCallback background_callback,
 		RenderBoardCallback board_callback,
+		RenderHoldCallback hold_callback,
+		RenderNextBlockCallback next_callback,
 		RenderTimerCallback timer_callback,
 		RenderScoreCallback score_callback,
 		RenderLevelCallback level_callback
@@ -30,6 +32,8 @@ extern "C"
 		cbs.scan_callback = scan_callback;
 		cbs.background_callback = background_callback;
 		cbs.board_callback = board_callback;
+		cbs.hold_callback = hold_callback;
+		cbs.next_block_callback = next_callback;
 		cbs.timer_callback = timer_callback;
 		cbs.score_callback = score_callback;
 		cbs.level_callback = level_callback;
@@ -72,6 +76,8 @@ extern "C"
 		cbs.scan_callback = nullptr;
 		cbs.background_callback = nullptr;
 		cbs.board_callback = nullptr;
+		cbs.hold_callback = nullptr;
+		cbs.next_block_callback = nullptr;
 		cbs.timer_callback = nullptr;
 		cbs.score_callback = nullptr;
 		cbs.level_callback = nullptr;

@@ -167,9 +167,9 @@ namespace wpf.render
                 {
                     int offset = (y * board.maxX + x) * sizeof(int);
                     int value = Marshal.ReadInt32(board.board, offset);
-                    if (value >= 1 && value <= 7)
+                    if (value <= 7)
                     {
-                        DrawBlock20x10(x, y, GetTetrominoColor(value - 1));
+                        DrawBlock20x10(x, y, GetTetrominoColor(value));
                     }
                 }
             }
@@ -201,7 +201,7 @@ namespace wpf.render
 
         public void DrawTetromino(TetrominoWrapper tetromino)
         {
-            if (tetromino.y < 2) return;
+            if (tetromino.y < 1) return;
             DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, tetromino.y - 3, GetTetrominoColor(tetromino.type));
         }
 
@@ -216,6 +216,7 @@ namespace wpf.render
                 case 4: return CustomColors.Theme.Get(ColorKey.Accent5);
                 case 5: return CustomColors.Theme.Get(ColorKey.Accent6);
                 case 6: return CustomColors.Theme.Get(ColorKey.Accent7);
+                case 7: return CustomColors.Theme.Get(ColorKey.Comment);
                 default: throw new ArgumentOutOfRangeException();
             }
         }
@@ -241,9 +242,10 @@ namespace wpf.render
         }
 
         // 테트로미노 타입에 따라 블록 렌더링(홀드, 넥스트용)
-        public void DrawTetrominoCenter(int type, int rotate)
+        public void DrawTetrominoCenter(int tetrominoType)
         {
-            DrawTetrominoCenter(Tetrominos.All[type].Rotations[rotate], GetTetrominoColor(type));
+            if (tetrominoType < 0 || tetrominoType > 7) return;
+            DrawTetrominoCenter(Tetrominos.All[tetrominoType].Rotations[0], GetTetrominoColor(tetrominoType));
         }
 
         private void DrawTetrominoCenter(ushort tetromino, Brush color)

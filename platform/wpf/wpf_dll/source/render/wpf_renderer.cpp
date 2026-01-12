@@ -17,13 +17,11 @@ void WpfRenderer::renderBackground()
 
 void WpfRenderer::renderBoard(const Board& board, const Tetromino& tetromino) {
 	int* board2D = new int[20 * 10];
-	const uint16_t* rows = board.get_board();
+	auto board_grid = board.get_board();
 
 	for (int y = 0; y < 20; ++y) {
-		uint16_t row = rows[y + 2];
-
 		for (int x = 0; x < 10; ++x) {
-			board2D[y * 10 + x] = (row & (1 << x)) ? 1 : 0;
+			board2D[y * 10 + x] = board_grid[y + 2][x];
 		}
 	}
 
@@ -40,26 +38,22 @@ void WpfRenderer::renderTimer(const int sec)
 
 void WpfRenderer::renderNextBlock(const int* tetromino_array) 
 {
-	//TetrominoWrapper t1 = map_to_tetromino(tetromino_array[0]);
-	//TetrominoWrapper t2 = map_to_tetromino(tetromino_array[1]);
-	//TetrominoWrapper t3 = map_to_tetromino(tetromino_array[2]);
-	//this->cbs.next_block_callback(t1, t2, t3);
+	this->cbs->next_block_callback(tetromino_array);
 }
 
 void WpfRenderer::renderHold(const Tetromino& tetromino) 
 {
-	//TetrominoWrapper tetromino_wrapper = map_to_tetromino(tetromino.get_mino_type());
-	//this->cbs.hold_callback(tetromino_wrapper);
+	this->cbs->hold_callback(tetromino.get_mino_type());
 }
 
 void WpfRenderer::renderScore(const int score) 
 {
-	//this->cbs.score_callback(score);
+	this->cbs->score_callback(score);
 }
 
 void WpfRenderer::renderLevel(const int level) 
 {
-	//this->cbs.level_callback(level);
+	this->cbs->level_callback(level);
 }
 
 WpfRenderer::~WpfRenderer() 

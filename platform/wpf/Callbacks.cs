@@ -11,11 +11,11 @@ namespace wpf
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void BoardCallback(BoardWrapper board, TetrominoWrapper tetromino);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void HoldCallback(int type);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void NextBlockCallback(IntPtr types);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void TimerCallback(int value);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void NextBlockCallback(TetrominoWrapper tetrominoWrapper1, TetrominoWrapper tetrominoWrapper2, TetrominoWrapper tetrominoWrapper3);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void HoldCallback(TetrominoWrapper tetrominoWrapper);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void ScoreCallback(int value);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
