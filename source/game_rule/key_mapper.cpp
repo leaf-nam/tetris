@@ -16,3 +16,9 @@ Action KeyMapper::map_key(char key)
     auto it = key_map.find(key);
     return (it != key_map.end()) ? it->second : Action::INVALID;
 }
+
+KeyMapper& KeyMapper::get_instance()
+{
+    static KeyMapper instance;
+    return instance;
+}
