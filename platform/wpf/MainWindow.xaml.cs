@@ -158,6 +158,8 @@ namespace wpf
             Dispatcher.Invoke(() =>
             {
                 CanvasBoard.Children.Clear();
+                if (Settings.Default.ShadowEnabled) boardRenderer.DrawTetrominoShadow(board, tetromino);
+
                 boardRenderer.DrawBoard(board);
                 boardRenderer.DrawTetromino(tetromino);
             });
