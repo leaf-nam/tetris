@@ -5,17 +5,16 @@
 
 using namespace std;
 
-static const uint16_t left_edge = 1u << 12;
-static const uint16_t right_edge = 1u << 3;
-static const uint16_t full_line =  ((left_edge << 1) - 1) ^ (right_edge - 1);
-
 Board::Board()
 {
     is_mino_active = false;
 
-    for (size_t i = 0; i < 22; ++i)
+    for (int r = 0; r < BOARD_ROW; ++r)
     {
-        game_board[i] = 0u;
+        for (int c = 0; c < BOARD_COL; ++c)
+        {
+            game_board[r][c] = MinoType::NONE;
+        }
     }
 
     saved_mino.set_mino_type(-1);
@@ -40,22 +39,12 @@ int Board::get_active_mino_rotation()
 }
 
 /**
- * @brief active tetromino의 위치를 수정
- * @param new_r 새로운 row 위치
- * @param new_c 새로운 col 위치
+ * @brief active tetromino의 타입 반환
+ * @return 타입 (0 ~ 6)
  */
-void Board::set_active_mino_pos(int new_r, int new_c)
+int Board::get_active_mino_type()
 {
-    active_mino.set_pos(new_r, new_c);
-}
-
-/**
- * @brief active tetromino의 회전을 수정
- * @param new_rot 새로운 회전 방향
- */
-void Board::set_active_mino_rotation(int new_rot)
-{
-    active_mino.set_rotation(new_rot);
+    return active_mino.get_mino_type();
 }
 
 /**
@@ -80,26 +69,57 @@ const bool Board::has_swaped_mino() const
  * @brief 테트로미노가 새로운 위치와 회전 상태일 때 보드 상에서 충돌이 있는 지 판정
  * @return false: 충돌 / true: 충돌 없음
  */
-bool Board::can_place_mino(int new_r, int new_c, int new_rot)
+bool Board::can_move_mino(int new_r, int new_c, int new_rot)
 {
-    int move_result;
-    uint16_t mino_mask = 0b1111000000000000;
-    uint16_t mino_shape;
-    uint16_t mino_row;
+    const mino& m = active_mino.get_shape(new_rot);
 
-    mino_shape = active_mino.get_shape(new_rot);
-
-    for (int i = 3, r = new_r; i >= 0; --i, mino_mask >>= 4, r++)
+    for (int r = 0; r < MINO_SIZE; ++r)
     {
-        mino_row = mino_mask & mino_shape;
-        mino_row >>= i * 4;
-        mino_row <<= (9 - new_c);
-        if ((r >= 22 && mino_row) ) return false; // 보드 바깥으로 나가는지 판정
-        if (r < 22 && game_board[r] & mino_row) return false; // 보드 안에 쌓여있는 블록과 충돌하는지 확인
-        if ((mino_row & left_edge << 1) || (mino_row & right_edge >> 1)) return false; // 보드 벽과 충돌하는지 확인
+        for (int c = 0; c < MINO_SIZE; ++c)
+        {
+            if (is_filled(new_r + r, new_c + c) && m[r][c]) return false;
+        }
     }
 
     return true;
+}
+
+/**
+ * @brief 게임 보드에 블록을 채움
+ * @return false: 해당 위치에 이미 블록이 있음 / true: 블록을 보드에 채워넣음
+ * @note 범위 밖인 경우 false 반환
+ */
+bool Board::fill(int r, int c, int type)
+{
+    if (r < 0 || r >= BOARD_ROW || c < 0 || c >= BOARD_COL) return false;
+    game_board[r][c] = type;
+    return true;
+}
+
+/**
+ * @brief 테트로미노를 지정한 위치로 이동
+ * @param new_r
+ * @param new_c
+ * @param new_rot
+ * @param move_option DISMISS_IF_FAIL: 충돌 발생하면 무시 / FIX_IF_FAIL: 충돌 발생하면 board에 고정
+ * @return false: 이동 중 충돌 발생 / true: 이동 성공
+ */
+bool Board::move_active_mino(int new_r, int new_c, int new_rot, MoveOption move_option)
+{
+    bool res = false;
+    
+    if (can_move_mino(new_r, new_c, new_rot) && is_mino_active)
+    {
+        active_mino.set_pos(new_r, new_c);
+        active_mino.set_rotation(new_rot);
+        res = true;
+    }
+    else if (move_option == MoveOption::FIX_IF_FAIL)
+    {
+        update_board();
+    }
+
+    return res;
 }
 
 /**
@@ -112,7 +132,7 @@ bool Board::spawn_mino(int type)
     is_mino_swaped = false;
     active_mino.init_mino(type);
 
-    is_mino_active = can_place_mino(0, 3, 0);
+    is_mino_active = can_move_mino(0, 3, 0);
     return is_mino_active;
 }
 
@@ -123,18 +143,16 @@ void Board::update_board()
 {
     if (!is_mino_active) return;
 
+    int mino_type = active_mino.get_mino_type();
     auto [pos_r, pos_c] = active_mino.get_pos();
-    uint16_t mino_mask = 0b1111000000000000;
-    uint16_t mino_shape = active_mino.get_shape();
-    uint16_t mino_row;
+    const mino& m = active_mino.get_shape();
 
-    for (int i = 3; i >= 0; --i, mino_mask >>= 4, pos_r++)
+    for (int r = 0; r < MINO_SIZE; ++r)
     {
-        if (pos_r >= 22) break;
-        mino_row = mino_mask & mino_shape;
-        mino_row >>= i * 4;
-        mino_row <<= (9 - pos_c);
-        game_board[pos_r] |= mino_row;
+        for (int c = 0; c < MINO_SIZE; ++c)
+        {
+            if (m[r][c]) fill(pos_r + r , pos_c + c, mino_type);
+        }
     }
 
     is_mino_active = false;
@@ -158,9 +176,33 @@ bool Board::get_is_mino_swaped()
 /**
  * @brief 게임 보드를 반환
  */
-const uint16_t *Board::get_board() const
+const board_t& Board::get_board() const
 {
     return game_board;
+}
+
+/**
+ * @brief 보드의 특정 좌표에 블록이 있는지 반환
+ * @return true: 블록 있음, false: 블록 없음
+ * @note
+ * 보드 범위를 벗어나는 좌표인 경우 0 반환
+ */
+const bool Board::is_filled(int r, int c) const
+{
+    if (r < 0 || r >= BOARD_ROW || c < 0 || c >= BOARD_COL) return true;
+    return game_board[r][c] != MinoType::NONE;
+}
+
+/**
+ * @brief 보드의 특정 좌표에 있는 블록의 타입을 반환
+ * @return 블록의 타입 (MinoType)
+ * @note
+ * 보드 범위를 벗어나는 좌표인 경우 Obstacle (7) 반환
+ */
+const int Board::at(int r, int c) const
+{
+    if (r < 0 || r >= BOARD_ROW || c < 0 || c >= BOARD_COL) return MinoType::OBSTACLE;
+    return game_board[r][c];
 }
 
 /**
@@ -169,11 +211,9 @@ const uint16_t *Board::get_board() const
 void Board::delete_line(int del_row)
 {
     if (del_row >= 22 || del_row < 0) return;
-    for (int r = del_row; r >= 1; --r)
-    {
-        game_board[r] = game_board[r - 1];
-    }
-    game_board[0] = 0u;
+
+    for (int r = del_row; r >= 1; --r) copy(game_board[r - 1], game_board[r - 1] + BOARD_COL, game_board[r]);
+    for (int c = 0; c < BOARD_COL; ++c) game_board[0][c] = MinoType::NONE;
 }
 
 bool Board::insert_line(int ins_row)
@@ -186,14 +226,18 @@ bool Board::insert_line(int ins_row)
 
     for (int r = ins_row; r < 22; ++r)
     {
-        game_board[r - ins_row] = game_board[r];
-    }
-    for (int r = 21; r > 21-ins_row; --r)
-    {
-        game_board[r] = ~(1 << ((rand_gen.get_rand_int() % 10) + 3));
+        copy(game_board[r], game_board[r] + BOARD_COL, game_board[r - ins_row]);
     }
 
-    while (!can_place_mino(new_r, curr_c, curr_rot) && new_r > 0)
+    for (int r = 21; r > 21-ins_row; --r)
+    {
+        int rand_idx = rand_gen.get_rand_int() % BOARD_COL;
+        board_row new_row = { MinoType::OBSTACLE };
+        new_row[rand_idx] = MinoType::NONE;
+        copy(new_row, new_row + BOARD_COL, game_board[r]);
+    }
+
+    while (!can_move_mino(new_r, curr_c, curr_rot) && new_r > 0)
     {
         new_r--;
         index++;
@@ -217,7 +261,11 @@ bool Board::insert_line(int ins_row)
 bool Board::is_line_full(int row)
 {
     if (row >= 22 || row < 0) return false;
-    return (full_line == game_board[row]);
+    for (int col = 0; col < BOARD_COL; ++col)
+    {
+        if (!is_filled(row, col)) return false; 
+    }
+    return true;
 }
 
 void Board::swap_mino()
@@ -232,7 +280,7 @@ void Board::swap_mino()
         saved_mino.init_mino(active_mino.get_mino_type());
         active_mino.init_mino(tetromino_queue.get_new_tetromino());
         active_mino.set_pos(curr_r, curr_c);
-        if (can_place_mino(curr_r, curr_c, 0) == false)
+        if (can_move_mino(curr_r, curr_c, 0) == false)
         {
             tetromino_queue.set_new_tetromino(active_mino.get_mino_type());
             active_mino.set_mino_type(saved_mino.get_mino_type());
@@ -248,7 +296,7 @@ void Board::swap_mino()
         saved_mino.init_mino(active_mino.get_mino_type());
         active_mino.init_mino(temp_mino_type);
         active_mino.set_pos(curr_r, curr_c);
-        if (can_place_mino(curr_r, curr_c, 0) == false)
+        if (can_move_mino(curr_r, curr_c, 0) == false)
         {
             temp_mino_type = saved_mino.get_mino_type();
             saved_mino.set_mino_type(active_mino.get_mino_type());
