@@ -360,6 +360,24 @@ void LinuxRender::renderOtherBoard(packet& pkt)
     cout << flush;
 }
 
+void LinuxRender::renderIPRecv()
+{
+    cout << "대전 상대의 IP를 입력하세요: ";
+    cout << flush;
+}
+
+void LinuxRender::renderChar(char c)
+{
+    cout << c;
+    cout << flush;
+}
+
+void LinuxRender::renderClear()
+{
+    cout << "\033[2J\033[H";
+    cout << flush;
+}
+
 /**
  * @brief 점수판 렌더링
  * @param 현재 점수

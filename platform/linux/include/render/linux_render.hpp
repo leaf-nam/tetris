@@ -61,6 +61,12 @@ public:
     
     void renderOtherBoard(packet& pkt) override;
 
+    void renderIPRecv() override;
+    
+    void renderChar(char c) override;
+    
+    void renderClear() override;
+    
     void renderMino(int row, int col, const mino& tetromino, int type);
 
     void restoreTerminal();

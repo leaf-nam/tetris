@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define PORT 9000
+#define PORT 41234
 #define MAX_EVENTS 10
 
 class LinuxNetwork : public INetwork

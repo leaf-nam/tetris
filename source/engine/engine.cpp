@@ -28,7 +28,24 @@ void Engine::run()
     int score = 0, new_score;
     bool is_level_up = false;
     int key;
-    const char* another_user_ip = "127.0.0.1";
+    int index = 0;
+    char another_user_ip[1024];
+    char c;
+
+    renderer->renderIPRecv();
+    while(true)
+    {
+        c = input_handler->scan();
+        if(c == '\n')
+            break;
+        if(c != 0)
+        {
+            renderer->renderChar(c);
+            another_user_ip[index++] = c;
+        }
+    }
+    another_user_ip[index] = '\0';
+    renderer->renderClear();
 
     renderer->renderBackground();
     renderer->renderBoard(board, board.get_active_mino());
