@@ -1,6 +1,10 @@
 
 ﻿using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -155,24 +159,50 @@ namespace wpf.render
         }
 
         // 보드 렌더링
-        public void DrawBoard(int[,] board)
+        public void DrawBoard(BoardWrapper board)
         {
-            for (int y = 0; y < 20; y++)
+            for (int y = 0; y < board.maxY; y++)
             {
-                for (int x = 0; x < 10; x++)
+                for (int x = 0; x < board.maxX; x++)
                 {
-                    if (board[y, x] >= 1 && board[y, x] <= 7)
+                    int offset = (y * board.maxX + x) * sizeof(int);
+                    int value = Marshal.ReadInt32(board.board, offset);
+                    if (value >= 1 && value <= 7)
                     {
-                        DrawBlock20x10(x, y, GetTetrominoColor(board[y, x] - 1));
+                        DrawBlock20x10(x, y, GetTetrominoColor(value - 1));
                     }
                 }
             }
         }
 
-        // 테트로미노 타입에 따라 블록 렌더링(메인 보드용)
-        public void DrawTetromino(int type, int rotate, int x, int y)
+        // 보드 디버깅용
+        public void PrintBoard(BoardWrapper board)
         {
-            DrawTetromino(Tetrominos.All[type].Rotations[rotate], x, y, GetTetrominoColor(type));
+            StringBuilder sb = new StringBuilder();
+
+            for (int y = 0; y < board.maxY; y++)
+            {
+                for (int x = 0; x < board.maxX; x++)
+                {
+                    int offset = (y * board.maxX + x) * sizeof(int);
+                    int value = Marshal.ReadInt32(board.board, offset);
+
+                    // 보기 좋게 한 칸씩
+                    sb.Append(value);
+                    sb.Append(' ');
+                }
+                sb.AppendLine();
+            }
+
+            MessageBox.Show(sb.ToString());
+        }
+
+        // 테트로미노 타입에 따라 블록 렌더링(메인 보드용)
+
+        public void DrawTetromino(TetrominoWrapper tetromino)
+        {
+            if (tetromino.y < 2) return;
+            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, tetromino.y - 3, GetTetrominoColor(tetromino.type));
         }
 
         private Brush GetTetrominoColor(int type)

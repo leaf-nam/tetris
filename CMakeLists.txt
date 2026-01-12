@@ -7,19 +7,33 @@ project(
   LANGUAGES CXX
 )
 
+option(USE_WPF "Build WPF UI" ON)
+
 add_subdirectory(source/board)
 add_subdirectory(source/game_rule)
 add_subdirectory(source/tetromino)
 add_subdirectory(source/util)
 add_subdirectory(source/engine)
+
+# 리눅스 터미널 UI 빌드
 if (UNIX)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
-endif()
-if (WIN32)
-    add_subdirectory(platform/Terminal/input)
-    add_subdirectory(platform/Terminal/render)
 
-    # 실행파일(terminal_main.exe)
-    add_subdirectory(platform/Terminal/main)
+# 윈도우 빌드
+elseif (WIN32)
+
+    # WPF UI 빌드 -> wpf_dll.dll 생성
+    if (USE_WPF)
+        add_subdirectory(platform/wpf/wpf_dll/source/input)
+        add_subdirectory(platform/wpf/wpf_dll/source/render)
+        add_subdirectory(platform/wpf/wpf_dll/source/callback)
+
+    # 윈도우 터미널 UI 빌드 -> terminal_main.exe 생성
+    else()
+        add_subdirectory(platform/Terminal/input)
+        add_subdirectory(platform/Terminal/render)
+        add_subdirectory(platform/Terminal/main)
+    endif()
+
 endif()

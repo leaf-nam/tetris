@@ -7,7 +7,7 @@
 
 using namespace std;
 
-typedef string(*InputScanCallback)();
+typedef char(*InputScanCallback)();
 typedef void(*RenderBackgroundCallback)();
 typedef void(*RenderBoardCallback)(BoardWrapper, TetrominoWrapper);
 typedef void(*RenderTimerCallback)(int);

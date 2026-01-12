@@ -5,11 +5,11 @@ namespace wpf
     public class Callbacks
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr ScanCallback();
+        public delegate char ScanCallback();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void BackgroundCallback();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BoardCallback(BoardWrapper boardWrapper, TetrominoWrapper tetrominoWrapper);
+        public delegate void BoardCallback(BoardWrapper board, TetrominoWrapper tetromino);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void TimerCallback(int value);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -29,7 +29,6 @@ namespace wpf
         public HoldCallback hold_callback { get; set; }
         public ScoreCallback score_callback { get; set; }
         public LevelCallback level_callback { get; set; }
-
     }
 
 }

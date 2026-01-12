@@ -11,27 +11,34 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using wpf.render;
 using wpf.render.theme;
+using wpf.render.utility;
 
 namespace wpf
 {
-    delegate void TimerCallback(int value);
 
     public partial class MainWindow : Window
     {
 
-        [DllImport("wpf_dll.dll")]
-        static extern void registerCallback(TimerCallback timerCallback);
+        [DllImport("engine_wrapper.dll")]
+        static extern void register_callbacks(
+            Callbacks.ScanCallback scanCallback,
+            Callbacks.BackgroundCallback backgroundCallback,
+            Callbacks.BoardCallback boardCallback,
+            Callbacks.TimerCallback timerCallback,
+            Callbacks.ScoreCallback scoreCallback,
+            Callbacks.LevelCallback levelCallback
+        );
 
-        [DllImport("wpf_dll.dll")]
+        [DllImport("engine_wrapper.dll")]
         static extern void init_engine();
 
-        [DllImport("wpf_dll.dll")]
+        [DllImport("engine_wrapper.dll")]
         static extern void run_engine();
 
-        [DllImport("wpf_dll.dll")]
+        [DllImport("engine_wrapper.dll")]
         static extern void stop_engine();
 
-        [DllImport("wpf_dll.dll")]
+        [DllImport("engine_wrapper.dll")]
         static extern void finish_engine();
 
         private BlockRenderer titleRenderer;
@@ -49,7 +56,13 @@ namespace wpf
         private BlockRenderer scoreRenderer;
         private BlockRenderer levelRenderer;
 
-        private TimerCallback timerCallback;
+
+        Callbacks.ScanCallback scanCallback;
+        Callbacks.BackgroundCallback backgroundCallback;
+        Callbacks.BoardCallback boardCallback;
+        Callbacks.TimerCallback timerCallback;
+        Callbacks.ScoreCallback scoreCallback;
+        Callbacks.LevelCallback levelCallback;
 
         public MainWindow()
         {
@@ -60,6 +73,40 @@ namespace wpf
             CustomColors.SetTheme(new DynamicTheme());
 
             // 렌더 초기화
+            initRender();
+
+            // 콜백 등록
+            scanCallback = new Callbacks.ScanCallback(SendInput);
+            backgroundCallback = new Callbacks.BackgroundCallback(UpdateBackground);
+            boardCallback = new Callbacks.BoardCallback(UpdateBoard);
+            timerCallback = new Callbacks.TimerCallback(UpdateTimer);
+            scoreCallback = new Callbacks.ScoreCallback(UpdateScore);
+            levelCallback = new Callbacks.LevelCallback(UpdateLevel);
+
+            register_callbacks(scanCallback, backgroundCallback, boardCallback, timerCallback, scoreCallback, levelCallback);
+
+            // 엔진 실행
+            init_engine();
+            run_engine();
+
+            // 보드 렌더링 콜백 등록(보드 크기를 알아야해서 콜백으로 실행함)
+            CanvasBoard.Loaded += (s, e) =>
+            {
+
+                // 홀드 렌더링
+                //holdRenderer.DrawTetrominoCenter(5, 0);
+
+                // 넥스트 렌더링
+                //next1Renderer.DrawTetrominoCenter(1, 0);
+                //next2Renderer.DrawTetrominoCenter(2, 0);
+                //next3Renderer.DrawTetrominoCenter(3, 0);
+
+            };
+
+        }
+
+        private void initRender()
+        {
             titleRenderer = new BlockRenderer(CanvasTitle, 8);
             nextTitleRenderer = new BlockRenderer(CanvasNextTitle, 5);
             holdTitleRenderer = new BlockRenderer(CanvasHoldTitle, 5);
@@ -74,59 +121,68 @@ namespace wpf
             holdRenderer = new BlockRenderer(CanvasHold, 30);
             scoreRenderer = new BlockRenderer(CanvasScore, 3);
             levelRenderer = new BlockRenderer(CanvasLevel, 3);
-
-            // 콜백 등록
-            updateTimer = new Callback(UpdateTimer);
-            RegisterCallback(updateTimer);
-
-            // 백그라운드 렌더링
-            titleRenderer.DrawString("TETRISSEN v1", 0, 4);
-            nextTitleRenderer.DrawString("NEXT", 6, 2, CustomColors.Theme.Get(ColorKey.Cyan));
-            holdTitleRenderer.DrawString("HOLD", 6, 2, CustomColors.Theme.Get(ColorKey.Green));
-            scoreTitleRenderer.DrawString("Score", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
-            levelTitleRenderer.DrawString("Lv", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
-
-            // 보드 렌더링
-            int[,] board = new int[20, 10];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    board[i, j] = j % 7 + 1;
-                }
-                
-            }
-
-            // 보드 렌더링 콜백 등록(보드 크기를 알아야해서 콜백으로 실행함)
-            CanvasBoard.Loaded += (s, e) =>
-            {
-                boardRenderer.DrawBoard(board);
-
-                // 테트로미노 렌더링
-                for (int i = 0; i < 7; i++)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        boardRenderer.DrawTetromino(i, j, j * 3, i * 3);
-                    }
-                }
-
-                // 홀드 렌더링
-                holdRenderer.DrawTetrominoCenter(5, 0);
-
-                // 넥스트 렌더링
-                next1Renderer.DrawTetrominoCenter(1, 0);
-                next2Renderer.DrawTetrominoCenter(2, 0);
-                next3Renderer.DrawTetrominoCenter(3, 0);
-
-                // 스코어 렌더링
-                scoreRenderer.DrawStringCenter("1234");
-                levelRenderer.DrawStringCenter("1");
-            };
-
         }
 
-        // DLL에서 호출되는 함수
+        protected override void OnClosed(EventArgs e)
+        {
+            try
+            {
+                finish_engine();
+            }
+            catch { }
+            base.OnClosed(e);
+        }
+
+        // 입력 받아서 전송하기
+        StringBuilder buffer = new StringBuilder();
+
+        // TODO : 입력 누르고 있을때 처리
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            buffer.Append(e.Key.ToString().ToLower());
+        }
+
+        char SendInput()
+        {
+            if (buffer.Length > 0)
+            {
+                char lastChar = buffer[^1];
+                buffer.Clear();
+                return lastChar;
+            }
+
+            return '\0';
+        }
+
+        // 백그라운드 업데이트
+        void UpdateBackground()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                titleRenderer.DrawString("TETRISSEN v1", 0, 4);
+                nextTitleRenderer.DrawString("NEXT", 6, 2, CustomColors.Theme.Get(ColorKey.Cyan));
+                holdTitleRenderer.DrawString("HOLD", 6, 2, CustomColors.Theme.Get(ColorKey.Green));
+                scoreTitleRenderer.DrawString("Score", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
+                levelTitleRenderer.DrawString("Lv", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
+
+                // 초기 스코어, 레벨 렌더링
+                scoreRenderer.DrawStringCenter("0");
+                levelRenderer.DrawStringCenter("1");
+            });
+        }
+
+        // 보드 업데이트
+        void UpdateBoard(BoardWrapper board, TetrominoWrapper tetromino)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                CanvasBoard.Children.Clear();
+                boardRenderer.DrawBoard(board);
+                boardRenderer.DrawTetromino(tetromino);
+            });
+        }
+
+        // 타이머 업데이트
         void UpdateTimer(int value)
         {
             Dispatcher.Invoke(() =>
@@ -136,40 +192,29 @@ namespace wpf
             });
         }
 
+        // 점수 업데이트
+        void UpdateScore(int score)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                scoreRenderer.DrawStringCenter(score.ToString());
+            });
+        }
+
+        // 레벨 업데이트
+        void UpdateLevel(int lv)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                levelRenderer.DrawStringCenter(lv.ToString());
+            });
+        }
+
         IntPtr MyScanCallback()
         {
             string s = "Hello from C#";
             // C++에서 읽을 수 있도록 unmanaged 메모리로 변환
             return Marshal.StringToHGlobalAnsi(s);
-        }
-
-        StringBuilder buffer = new StringBuilder();
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            string allowedKeys = "wasdfqeWASDFQE";
-
-            // Key -> char 변환
-            char keyChar = KeyToChar(e.Key);
-            if (allowedKeys.Contains(keyChar))
-            {
-                buffer.Append(keyChar);
-            }
-        }
-
-        private char KeyToChar(Key key)
-        {
-            return key switch
-            {
-                Key.W => 'w',
-                Key.A => 'a',
-                Key.S => 's',
-                Key.D => 'd',
-                Key.F => 'f',
-                Key.Q => 'q',
-                Key.E => 'e',
-                _ => '\0'
-            };
         }
     }
 

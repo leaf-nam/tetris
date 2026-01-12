@@ -5,9 +5,9 @@ extern "C"
     struct BoardWrapper
     {
     public:
-        const int8_t* cells;
-        int xs;
-        int ys;
+        int* board;
+        int maxX;
+        int maxY;
     };
 }
 #endif

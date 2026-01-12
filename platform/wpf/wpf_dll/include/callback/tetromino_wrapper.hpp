@@ -7,8 +7,9 @@ extern "C"
 {
     struct TetrominoWrapper
     {
-    private:
-        uint16_t shape;
+    public:
+        int type;
+        int rotation;
         int x;
         int y;
     };

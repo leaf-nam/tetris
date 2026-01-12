@@ -12,13 +12,13 @@
 class WpfInputHandler : public IInputHandler 
 {
 private:
-	Callbacks cbs;
+	Callbacks* cbs;
 public:
 	WpfInputHandler();
 
-	void set_callback(const Callbacks);
+	void set_callback(Callbacks*);
 
-	string scan() override;
+	char scan() override;
 
 	~WpfInputHandler() override;
 };
