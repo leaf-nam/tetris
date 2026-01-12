@@ -40,7 +40,9 @@ namespace wpf
 
         private BlockRenderer boardRenderer;
         private BlockRenderer timerRenderer;
-        private BlockRenderer nextRenderer;
+        private BlockRenderer next1Renderer;
+        private BlockRenderer next2Renderer;
+        private BlockRenderer next3Renderer;
         private BlockRenderer holdRenderer;
         private BlockRenderer scoreRenderer;
         private BlockRenderer levelRenderer;
@@ -62,7 +64,9 @@ namespace wpf
 
             boardRenderer = new BlockRenderer(CanvasBoard, 0);
             timerRenderer = new BlockRenderer(CanvasTimer, 5);
-            nextRenderer = new BlockRenderer(CanvasBoard, 5);
+            next1Renderer = new BlockRenderer(CanvasNext1, 30);
+            next2Renderer = new BlockRenderer(CanvasNext2, 30);
+            next3Renderer = new BlockRenderer(CanvasNext3, 30);
             holdRenderer = new BlockRenderer(CanvasHold, 30);
             scoreRenderer = new BlockRenderer(CanvasScore, 3);
             levelRenderer = new BlockRenderer(CanvasLevel, 3);
@@ -103,7 +107,16 @@ namespace wpf
                 }
 
                 // 홀드 렌더링
-                holdRenderer.DrawTetrominoCenter(0, 1);
+                holdRenderer.DrawTetrominoCenter(5, 0);
+
+                // 넥스트 렌더링
+                next1Renderer.DrawTetrominoCenter(1, 0);
+                next2Renderer.DrawTetrominoCenter(2, 0);
+                next3Renderer.DrawTetrominoCenter(3, 0);
+
+                // 스코어 렌더링
+                scoreRenderer.DrawStringCenter("1234");
+                levelRenderer.DrawStringCenter("1");
             };
 
         }
