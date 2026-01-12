@@ -48,7 +48,7 @@ const pair<int, int> Tetromino::get_pos() const
  * @brief 테트로미노 모양
  * @return 테트로미노 모양
  */
-const mino Tetromino::get_shape() const
+const mino& Tetromino::get_shape() const
 {
     return TETROMINO[mino_type][rotation];
 }
@@ -57,7 +57,7 @@ const mino Tetromino::get_shape() const
  * @brief 회전한 테트로미노 모양을 반환하는 함수. 회전 상태가 반영되진 않음
  * @return 테트로미노 모양
  */
-const mino Tetromino::get_shape(int rot) const
+const mino& Tetromino::get_shape(int rot) const
 {
     return TETROMINO[mino_type][rot];
 }

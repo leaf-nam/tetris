@@ -17,8 +17,6 @@ class Engine {
      */
     Engine(IInputHandler* input_handler, IRenderer* renderer);
 
-    Engine(IInputHandler*, IRenderer*);
-
     /**
      * @brief 게임 메인루프
      */
