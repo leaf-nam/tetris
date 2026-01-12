@@ -58,6 +58,8 @@ public:
      * @param 현재 레벨
      */
     void renderLevel(const int level) override;
+    
+    void renderOtherBoard(packet& pkt) override;
 
     void renderMino(int row, int col, const mino& tetromino, int type);
 

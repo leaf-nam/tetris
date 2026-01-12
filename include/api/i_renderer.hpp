@@ -4,6 +4,7 @@
 #include <string>
 #include "tetromino/tetromino.hpp"
 #include "board/board.hpp"
+#include "util/network_packet.hpp"
 
 class IRenderer {
 public:
@@ -42,6 +43,8 @@ public:
      * @param 현재 점수
      */
     virtual void renderScore(const int score) = 0;
+
+    virtual void renderOtherBoard(packet& pkt) = 0;
 
     /**
      * @brief 레벨 렌더링

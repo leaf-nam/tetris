@@ -13,7 +13,7 @@
 
 using namespace std;
 
-Engine::Engine(IInputHandler* input_handler, IRenderer* renderer) : input_handler(input_handler), renderer(renderer) {}
+Engine::Engine(IInputHandler* input_handler, IRenderer* renderer, INetwork* network) : input_handler(input_handler), renderer(renderer), network(network) {}
 
 void Engine::run()
 {
@@ -28,6 +28,7 @@ void Engine::run()
     int score = 0, new_score;
     bool is_level_up = false;
     int key;
+    const char* another_user_ip = "127.0.0.1";
 
     renderer->renderBackground();
     renderer->renderBoard(board, board.get_active_mino());
@@ -53,6 +54,7 @@ void Engine::run()
             renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
             is_level_up = rule->time_and_level_update();
+            network->send_udp(board, board.get_active_mino(), another_user_ip);
         }
         
         key = input_handler->scan();
@@ -79,6 +81,7 @@ void Engine::run()
             renderer->renderNextBlock(tetromino_queue.get_tetrominos());
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
+            network->send_udp(board, board.get_active_mino(), another_user_ip);
         }
         
         new_score = rule->update_score();
@@ -99,6 +102,10 @@ void Engine::run()
             renderer->renderTimer(timer.get_seconds());
             is_level_up = false;
         }
+        
+        packet recv_pkt;
+        if(network->recv_udp(recv_pkt))
+            renderer->renderOtherBoard(recv_pkt);
     }
 }
 

@@ -306,6 +306,60 @@ void LinuxRender::renderHold(const Tetromino& tetromino)
     cout << flush;
 }
 
+void LinuxRender::renderOtherBoard(packet& pkt)
+{
+    string board_color;
+    int wr = 7, wc = 50; // board 테두리 기준
+    int br = wr - 1, bc = wc + 1; // board 내부 기준
+    int pos_r = pkt.r;
+    int pos_c = pkt.c;
+    int mino_type = pkt.type;
+    const mino& m = TETROMINO[mino_type][pkt.rotation];
+    const string block_color = color_map[mino_type];
+    int mino_r, mino_c;
+
+    // board
+    go(wr, wc);
+    cout << "┌";
+    for (int i = 0; i < BOARD_COL; ++i) cout << "──";
+    cout << "┐";
+
+    for (int r = BOARD_UPPER - 2; r < BOARD_ROW - 2; ++r) 
+    {
+        go(wr + 1 + r - (BOARD_UPPER - 2), wc);
+        cout << "│";
+        for (int c = 0; c < BOARD_COL; ++c)
+        {
+            board_color = color_map[pkt.board[r][c]];
+            cout << (pkt.board[r][c] != MinoType::NONE ? board_color + "[]" : "  ") << ANSI_RESET;
+        }
+        cout << "│";
+    }
+
+    go(wr + 1 + (BOARD_ROW - BOARD_UPPER), wc);
+    cout << "└";
+    for (int i = 0; i < BOARD_COL; ++i) cout << "──";
+    cout << "┘";
+
+    // mino
+    go(br, bc);
+    for (int r = (BOARD_UPPER - 2); r < (BOARD_ROW - 2); ++r) 
+    {
+        if((br + r - (BOARD_UPPER - 2)) <= wr)
+            continue;
+        go(br + r - (BOARD_UPPER - 2), bc);
+        mino_r = r - pos_r;
+        for (int c = 0; c < BOARD_COL; ++c)
+        {
+            mino_c = c - pos_c;
+            if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << (m[mino_r][mino_c] ? block_color + "[]" : "\x1b[2C") << ANSI_RESET;
+            else cout << "\x1b[2C";
+        }
+    }       
+
+    cout << flush;
+}
+
 /**
  * @brief 점수판 렌더링
  * @param 현재 점수
