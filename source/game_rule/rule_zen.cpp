@@ -44,7 +44,7 @@ bool ZEN::is_game_clear()
 
 bool ZEN::is_game_over()
 {
-    const uint16_t* game_board = board.get_board();
+    const board_t& game_board = board.get_board();
     for (int r = 0; r < 2; ++r) 
     {
         if (game_board[r]) return true;

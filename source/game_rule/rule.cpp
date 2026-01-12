@@ -12,56 +12,50 @@ void GameRule::process(int user_input)
 {
     auto [curr_r, curr_c] = board.get_active_mino_pos();
     int curr_rot = board.get_active_mino_rotation();
-    int new_r, new_c, new_rot;
+    int mino_type = board.get_active_mino_type();
 
-    if (user_input == Action::DROP)
+    vector<Pose> poses;
+    size_t size;
+
+    switch (user_input)
     {
-        new_r = curr_r + 1;
-        new_c = curr_c;
-        new_rot = curr_rot;
-
-        if (board.can_place_mino(new_r, new_c, new_rot)) board.set_active_mino_pos(new_r, new_c);
-        else board.update_board();
-    }
-    else if (user_input == Action::LEFT || user_input == Action::RIGHT)
-    {
-        new_r = curr_r;
-        new_c = (user_input == Action::LEFT ? curr_c - 1 : curr_c + 1);
-        new_rot = curr_rot;
-        
-        if (board.can_place_mino(new_r, new_c, new_rot)) board.set_active_mino_pos(new_r, new_c);
-    }
-    else if (user_input == Action::ROTATE_CCW || user_input == Action::ROTATE_CW)
-    {
-        new_r = curr_r;
-        new_c = curr_c;
-        new_rot = (user_input == Action::ROTATE_CW ? curr_rot + 1 : curr_rot - 1);
-
-        if (new_rot == -1) new_rot = 3;
-        else if (new_rot == 4) new_rot = 0;
-
-        if (board.can_place_mino(new_r, new_c, new_rot))
+        case Action::SWAP:
         {
-            board.set_active_mino_pos(new_r, new_c);
-            board.set_active_mino_rotation(new_rot);
+            if (enable_hold) board.swap_mino();
+            break;
         }
-        
-    }
-    else if (user_input == Action::HARD_DROP)
-    {
-        new_r = curr_r;
-        new_c = curr_c;
-        new_rot = curr_rot;
-        while (board.has_active_mino())
+        case Action::DROP:
         {
-            if (board.can_place_mino(++new_r, new_c, new_rot)) board.set_active_mino_pos(new_r, new_c);
-            else board.update_board();
+            auto [new_r, new_c, new_rot] = action.resolve_move(curr_r, curr_c, curr_rot, user_input);
+            board.move_active_mino(new_r, new_c, new_rot, MoveOption::FIX_IF_FAIL);
+            break;
         }
-    }
-    else if (user_input == Action::SWAP)
-    {
-        if (board.has_swaped_mino() == false)
-            board.swap_mino();
-        else return;
+        case Action::LEFT:
+        case Action::RIGHT:
+        {
+            auto [new_r, new_c, new_rot] = action.resolve_move(curr_r, curr_c, curr_rot, user_input);
+            board.move_active_mino(new_r, new_c, new_rot, MoveOption::DISMISS_IF_FAIL);
+            break;
+        }
+        case Action::HARD_DROP:
+        {
+            auto [new_r, new_c, new_rot] = action.resolve_move(curr_r, curr_c, curr_rot, Action::DROP);
+            while (board.move_active_mino(new_r, new_c, new_rot, MoveOption::FIX_IF_FAIL)) new_r++;
+            break;
+        }
+        case Action::ROTATE_CW:
+        case Action::ROTATE_CCW:
+        {
+            poses = action.resolve_rotation(curr_r, curr_c, curr_rot, mino_type, user_input, enable_kick);
+            size = poses.size();
+
+            for (size_t i = 0; i < size; ++i)
+            {
+                auto& [new_r, new_c, new_rot] = poses[i];
+                if (board.move_active_mino(new_r, new_c, new_rot, MoveOption::DISMISS_IF_FAIL)) break;
+            }
+
+            break;
+        }
     }
 }

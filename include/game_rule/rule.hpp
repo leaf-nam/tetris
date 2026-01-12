@@ -5,10 +5,12 @@
 #include <memory>
 #include "util/action.hpp"
 #include "board/board.hpp"
+#include "game_rule/action_resolver.hpp"
 
 class GameRule
 {
     protected:
+    ActionResolver action;
     Board& board;
     bool enable_kick, enable_hold;
 
