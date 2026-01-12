@@ -1,8 +1,6 @@
 #ifndef __ACTION_HPP__
 #define __ACTION_HPP__
 
-#include <map>
-
 enum Action
 {
     LEFT = 0,
@@ -12,6 +10,7 @@ enum Action
     ROTATE_CCW,
     HARD_DROP,
     SWAP,
+    INVALID,
 };
 
 #endif

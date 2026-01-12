@@ -1,9 +1,10 @@
 #include "engine/engine.hpp"
 #include "board/board.hpp"
-#include "game_rule/game_rule.hpp"
+#include "game_rule/rule_factory.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/timer.hpp"
 #include "util/action.hpp"
+#include "util/path.hpp"
 
 #include <thread>
 #include <chrono>
@@ -16,8 +17,9 @@ Engine::Engine(IInputHandler* input_handler, IRenderer* renderer) : input_handle
 
 void Engine::run()
 {
+    PathService& path = PathService::get_instance();
     Board board;
-    RuleEngine rule(board);
+    unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
 
@@ -31,7 +33,7 @@ void Engine::run()
     renderer->renderBoard(board, board.get_active_mino());
     renderer->renderHold(board.get_saved_mino());
     renderer->renderScore(score);
-    renderer->renderLevel(rule.get_level());
+    renderer->renderLevel(rule->get_level());
     renderer->renderTimer(timer.get_seconds());
     while (1)
     {
@@ -44,13 +46,13 @@ void Engine::run()
         timer.set_curr_time();
         if (timer.check_500ms_time())
         {
-            rule.process(Action::DROP);
+            rule->process(Action::DROP);
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
             renderer->renderScore(score);
-            renderer->renderLevel(rule.get_level());
+            renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
-            is_level_up = rule.time_and_level_update();
+            is_level_up = rule->time_and_level_update();
         }
         
         key = input_handler->scan();
@@ -73,13 +75,13 @@ void Engine::run()
 
         if (action != -1) 
         {
-            rule.process(action);
+            rule->process(action);
             renderer->renderNextBlock(tetromino_queue.get_tetrominos());
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
         }
         
-        new_score = rule.update_score(board);
+        new_score = rule->update_score();
         if(is_level_up)
             if(!board.insert_line(3))
             {
@@ -93,7 +95,7 @@ void Engine::run()
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
             renderer->renderScore(score);
-            renderer->renderLevel(rule.get_level());
+            renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
             is_level_up = false;
         }
