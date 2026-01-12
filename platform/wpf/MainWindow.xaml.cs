@@ -14,23 +14,25 @@ using wpf.render.theme;
 
 namespace wpf
 {
+    delegate void TimerCallback(int value);
+
     public partial class MainWindow : Window
     {
 
-        //[DllImport("wpf_dll.dll")]
-        //static extern void register_callback(Callbacks cb);
+        [DllImport("wpf_dll.dll")]
+        static extern void registerCallback(TimerCallback timerCallback);
 
-        //[DllImport("wpf_dll.dll")]
-        //static extern void init_engine();
+        [DllImport("wpf_dll.dll")]
+        static extern void init_engine();
 
-        //[DllImport("wpf_dll.dll")]
-        //static extern void run_engine();
+        [DllImport("wpf_dll.dll")]
+        static extern void run_engine();
 
-        //[DllImport("wpf_dll.dll")]
-        //static extern void stop_engine();
+        [DllImport("wpf_dll.dll")]
+        static extern void stop_engine();
 
-        //[DllImport("wpf_dll.dll")]
-        //static extern void finish_engine();
+        [DllImport("wpf_dll.dll")]
+        static extern void finish_engine();
 
         private BlockRenderer titleRenderer;
         private BlockRenderer nextTitleRenderer;
@@ -46,6 +48,8 @@ namespace wpf
         private BlockRenderer holdRenderer;
         private BlockRenderer scoreRenderer;
         private BlockRenderer levelRenderer;
+
+        private TimerCallback timerCallback;
 
         public MainWindow()
         {
@@ -71,15 +75,16 @@ namespace wpf
             scoreRenderer = new BlockRenderer(CanvasScore, 3);
             levelRenderer = new BlockRenderer(CanvasLevel, 3);
 
+            // 콜백 등록
+            updateTimer = new Callback(UpdateTimer);
+            RegisterCallback(updateTimer);
+
             // 백그라운드 렌더링
             titleRenderer.DrawString("TETRISSEN v1", 0, 4);
             nextTitleRenderer.DrawString("NEXT", 6, 2, CustomColors.Theme.Get(ColorKey.Cyan));
             holdTitleRenderer.DrawString("HOLD", 6, 2, CustomColors.Theme.Get(ColorKey.Green));
             scoreTitleRenderer.DrawString("Score", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
             levelTitleRenderer.DrawString("Lv", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
-
-            // 타이머 렌더링
-            timerRenderer.DrawString("00:00", 3, 10, CustomColors.Theme.Get(ColorKey.Comment));
 
             // 보드 렌더링
             int[,] board = new int[20, 10];
@@ -119,6 +124,16 @@ namespace wpf
                 levelRenderer.DrawStringCenter("1");
             };
 
+        }
+
+        // DLL에서 호출되는 함수
+        void UpdateTimer(int value)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                CanvasTimer.Children.Clear();
+                timerRenderer.DrawString(TimeUtility.ConvertSecondToString(value), 3, 10, CustomColors.Theme.Get(ColorKey.Comment));
+            });
         }
 
         IntPtr MyScanCallback()
