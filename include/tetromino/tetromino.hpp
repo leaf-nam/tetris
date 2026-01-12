@@ -28,17 +28,6 @@ enum MinoType
     NONE,
 };
 
-enum MinoType
-{
-    I = 0,
-    O,
-    Z,
-    S,
-    J,
-    L,
-    T
-};
-
 class Tetromino
 {
     private:

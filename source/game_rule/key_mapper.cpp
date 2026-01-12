@@ -14,5 +14,5 @@ KeyMapper::KeyMapper()
 Action KeyMapper::map_key(char key)
 {
     auto it = key_map.find(key);
-    return (it != key_map.end()) ? it->second : Action::NONE;
+    return (it != key_map.end()) ? it->second : Action::INVALID;
 }
