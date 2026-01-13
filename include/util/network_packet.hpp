@@ -3,7 +3,8 @@
 
 #include <cstdint>
 
-#pragma pack(push, 1)
+#define PACKET_SIZE (20 * 10 * 4 + 5 * 4)
+
 typedef struct Packet {
     int32_t board[20][10];
     int32_t type;
@@ -12,6 +13,5 @@ typedef struct Packet {
     int32_t c;
     int32_t deleted_line;
 }packet;
-#pragma pack(pop)
 
 #endif

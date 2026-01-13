@@ -1,5 +1,6 @@
 #include "network/linux_network.hpp"
 #include <stdlib.h>
+#include <iostream>
 
 LinuxNetwork::LinuxNetwork()
 {
@@ -44,35 +45,55 @@ LinuxNetwork::LinuxNetwork()
     }
 }
 
-void LinuxNetwork::serialize(packet& pkt)
+void LinuxNetwork::write_32b(uint8_t*& p, int32_t v)
 {
-    pkt.type = htonl(pkt.type);
-    pkt.rotation = htonl(pkt.rotation);
-    pkt.r = htonl(pkt.r);
-    pkt.c = htonl(pkt.c);
-    pkt.deleted_line = htonl(pkt.deleted_line);
-
-    for(int i = 0; i < 10; ++i)
-        for(int j = 0; j < 20; ++j)
-            pkt.board[i][j] = htonl(pkt.board[i][j]);
+    int32_t n = htonl(v);
+    memcpy(p, &n, 4);
+    p += 4;
 }
 
-void LinuxNetwork::deserialize(packet& pkt)
+void LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
 {
-    pkt.type = ntohl(pkt.type);
-    pkt.rotation = ntohl(pkt.rotation);
-    pkt.r = ntohl(pkt.r);
-    pkt.c = ntohl(pkt.c);
-    pkt.deleted_line = ntohl(pkt.deleted_line);
+    uint8_t* p = buf;
 
-    for(int i = 0; i < 10; ++i)
-        for(int j = 0; j < 20; ++j)
-            pkt.board[i][j] = htonl(pkt.board[i][j]);
+    for (int i = 0; i < 20; ++i)
+        for (int j = 0; j < 10; ++j)
+            write_32b(p, pkt.board[i][j]);
+
+    write_32b(p, pkt.type);
+    write_32b(p, pkt.rotation);
+    write_32b(p, pkt.r);
+    write_32b(p, pkt.c);
+    write_32b(p, pkt.deleted_line);
+}
+
+int32_t LinuxNetwork::read_32b(const uint8_t*& p)
+{
+    int32_t n;
+    memcpy(&n, p, 4);
+    p += 4;
+    return ntohl(n);
+}
+
+void LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
+{
+    const uint8_t* p = buf;
+
+    for (int i = 0; i < 20; ++i)
+        for (int j = 0; j < 10; ++j)
+            pkt.board[i][j] = read_32b(p);
+
+    pkt.type = read_32b(p);
+    pkt.rotation = read_32b(p);
+    pkt.r = read_32b(p);
+    pkt.c = read_32b(p);
+    pkt.deleted_line = read_32b(p);
 }
 
 void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip)
 {
     packet pkt;
+    uint8_t buf[PACKET_SIZE];
     auto [pos_r, pos_c] = tetromino.get_pos();    
     sockaddr_in another_user;
     
@@ -89,12 +110,12 @@ void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, cons
     pkt.c = pos_c;
     pkt.deleted_line = deleted_line;
 
-    serialize(pkt);
+    serialize(buf, pkt);
 
     sendto(
         client_sock,
-        &pkt,
-        sizeof(pkt),
+        (char*)buf,
+        PACKET_SIZE,
         0,
         (sockaddr*)&another_user,
         sizeof(another_user)
@@ -103,7 +124,9 @@ void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, cons
 
 bool LinuxNetwork::recv_udp(packet& recv_pkt)
 {
+    uint8_t buf[PACKET_SIZE];
     int n = epoll_wait(epfd, events, MAX_EVENTS, 0);
+    int r;
     if (n < 0) {
         if (errno == EINTR)
             return false;
@@ -119,10 +142,10 @@ bool LinuxNetwork::recv_udp(packet& recv_pkt)
                 sockaddr_in client{};
                 socklen_t len = sizeof(client);
 
-                int r = recvfrom(
+                r = recvfrom(
                     server_sock,
-                    &recv_pkt,
-                    sizeof(recv_pkt),
+                    (char*)buf,
+                    PACKET_SIZE,
                     0,
                     (sockaddr*)&client,
                     &len
@@ -137,8 +160,10 @@ bool LinuxNetwork::recv_udp(packet& recv_pkt)
                         exit(0);
                     }
                 }
+                else if (r != PACKET_SIZE)
+                    return false;
                     
-                deserialize(recv_pkt);
+                deserialize(buf, recv_pkt);
             }
         }
     }
