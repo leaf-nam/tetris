@@ -77,7 +77,8 @@ public:
      * @brief 소멸자
      */
     virtual ~TerminalRenderer() override;
-
+    void renderEnemyBoard(const Board& board, const Tetromino& tetromino);
+    void renderGameOver();
 private:
     void clear();
     void setCursor(int x, int y);

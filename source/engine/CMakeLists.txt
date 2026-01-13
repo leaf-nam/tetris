@@ -1,10 +1,14 @@
-add_library(engine engine.cpp)
+add_library(engine engine.cpp solo_engine.cpp multi_engine.cpp)
 
 target_link_libraries(engine
 	PRIVATE game_rule
 	PRIVATE board
 	PRIVATE tetromino
-    PRIVATE util
+  PRIVATE util
+  PRIVATE render
+  PRIVATE path
+  PRIVATE network
+  PRIVATE input
 )
 
 target_include_directories(engine PUBLIC ${PROJECT_SOURCE_DIR}/include)
