@@ -50,6 +50,7 @@ void LinuxNetwork::serialize(packet& pkt)
     pkt.rotation = htonl(pkt.rotation);
     pkt.r = htonl(pkt.r);
     pkt.c = htonl(pkt.c);
+    pkt.deleted_line = htonl(pkt.deleted_line);
 
     for(int i = 0; i < 10; ++i)
         for(int j = 0; j < 20; ++j)
@@ -62,13 +63,14 @@ void LinuxNetwork::deserialize(packet& pkt)
     pkt.rotation = ntohl(pkt.rotation);
     pkt.r = ntohl(pkt.r);
     pkt.c = ntohl(pkt.c);
+    pkt.deleted_line = ntohl(pkt.deleted_line);
 
     for(int i = 0; i < 10; ++i)
         for(int j = 0; j < 20; ++j)
             pkt.board[i][j] = htonl(pkt.board[i][j]);
 }
 
-void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const char* another_user_ip)
+void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip)
 {
     packet pkt;
     auto [pos_r, pos_c] = tetromino.get_pos();    
@@ -85,6 +87,7 @@ void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, cons
     pkt.rotation = tetromino.get_rotation();
     pkt.r = pos_r;
     pkt.c = pos_c;
+    pkt.deleted_line = deleted_line;
 
     serialize(pkt);
 

@@ -10,6 +10,7 @@ typedef struct Packet {
     int32_t rotation;
     int32_t r;
     int32_t c;
+    int32_t deleted_line;
 }packet;
 #pragma pack(pop)
 

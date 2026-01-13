@@ -26,7 +26,7 @@ class LinuxNetwork : public INetwork
 
     public:
     LinuxNetwork();
-    void send_udp(const Board& board, const Tetromino& tetromino, const char* another_user_ip) override;
+    void send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip) override;
     bool recv_udp(packet& recv_pkt) override;
     ~LinuxNetwork();
 };

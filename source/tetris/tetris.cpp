@@ -13,7 +13,7 @@ int main()
     INetwork* network;
     Engine* engine;
 
-#if 1
+#if 0
     engine = new SoloEngine(input_handler, renderer);
 #else
     network = new LinuxNetwork;
