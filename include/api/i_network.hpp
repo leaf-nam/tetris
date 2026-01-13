@@ -7,11 +7,11 @@
 
 class INetwork
 {
-public:
+    public:
     virtual void send_udp(const Board& board, const Tetromino& tetromino, const char* another_user_ip) = 0;
-
+    
     virtual bool recv_udp(packet& recv_pkt) = 0;
-
+    
     ~INetwork() = default;
 };
 

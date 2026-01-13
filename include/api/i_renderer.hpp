@@ -44,7 +44,7 @@ public:
      */
     virtual void renderScore(const int score) = 0;
 
-
+    virtual void renderOtherBoard(packet& pkt) = 0;
 
     /**
      * @brief 레벨 렌더링
@@ -52,16 +52,11 @@ public:
      */
     virtual void renderLevel(const int level) = 0;
 
-    virtual void renderOtherBoard(packet& pkt) = 0;
-
     virtual void renderIPRecv() = 0;
 
     virtual void renderChar(char c) = 0;
-
+    
     virtual void renderClear() = 0;
-
-
-
 
     /**
      * @brief 소멸자
