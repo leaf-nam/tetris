@@ -1,19 +1,18 @@
-#include "callbacks.hpp"
+#include "callback/callbacks.hpp"
 #include "input/wpf_input_handler.hpp"
 
 WpfInputHandler::WpfInputHandler() 
 {
-
 }
 
-string WpfInputHandler::scan() 
-{
-	return this->cbs.scan_callback();
-}
-
-void WpfInputHandler::set_callback(Callbacks cbs) 
+void WpfInputHandler::set_callback(Callbacks* cbs)
 {
 	this->cbs = cbs;
+}
+
+char WpfInputHandler::scan() 
+{
+    return this->cbs->scan_callback();
 }
 
 WpfInputHandler::~WpfInputHandler() 
