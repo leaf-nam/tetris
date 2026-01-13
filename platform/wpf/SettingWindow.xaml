@@ -17,7 +17,7 @@
         <Style x:Key="GameButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="150"/>
             <Setter Property="Height" Value="80"/>
-            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource Background}"/>
             <Setter Property="Background" Value="{DynamicResource Foreground}"/>
@@ -127,8 +127,8 @@
 
             <!-- 하단 버튼 -->
             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,200,0,0" >
-                <Button Content="저장" Style="{StaticResource GameButtonStyle}" Click="SaveSettings_Click" Margin="0 0 10 0"/>
-                <Button Content="취소" Style="{StaticResource GameButtonStyle}" Click="CancelSettings_Click" Margin="0 0 10 0"/>
+                <Button Content="저장" Style="{StaticResource GameButtonStyle}" Click="SaveSettings_Click" Margin="10 0 10 0"/>
+                <Button Content="취소" Style="{StaticResource GameButtonStyle}" Click="CancelSettings_Click" Margin="10 0 10 0"/>
             </StackPanel>
 
 

@@ -45,8 +45,6 @@ namespace wpf
             rightRenderer = new BlockRenderer(CanvasRight, 0);
 
             CanvasLeft.Loaded += (s, e) => { RenderSide(); };
-
-            
         }
 
         private void RenderSide()
