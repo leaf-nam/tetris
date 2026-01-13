@@ -36,7 +36,7 @@ void MultiEngine::run()
     while(true)
     {
         c = input_handler->scan();
-        if(c == '\n')
+        if(c == '\n' || c == '\r')
             break;
         if(c != 0)
         {
