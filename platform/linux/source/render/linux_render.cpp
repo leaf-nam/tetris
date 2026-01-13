@@ -310,8 +310,8 @@ void LinuxRender::renderOtherBoard(packet& pkt)
 {
     string board_color;
     int wr = 7, wc = 50; // board 테두리 기준
-    int br = wr - 1, bc = wc + 1; // board 내부 기준
-    int pos_r = pkt.r;
+    int br = wr + 1, bc = wc + 1; // board 내부 기준
+    int pos_r = pkt.r - 2;
     int pos_c = pkt.c;
     int mino_type = pkt.type;
     const mino& m = TETROMINO[mino_type][pkt.rotation];
