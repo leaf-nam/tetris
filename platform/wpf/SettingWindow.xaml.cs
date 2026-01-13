@@ -52,6 +52,9 @@ namespace wpf
         private void RenderSide()
         {
             CustomColors.SetTheme(new DynamicTheme());
+            CanvasLeft.Children.Clear();
+            CanvasRight.Children.Clear();
+
             for (int i = 0; i < 7; i++)
             {
                 TetrominoWrapper tetromino = new TetrominoWrapper();
@@ -63,6 +66,13 @@ namespace wpf
 
                 if (i == 0) tetromino.y++;
                 if (i == 1) tetromino.y--;
+
+                if (_shadowEnabled)
+                {
+                    tetromino.y++;
+                    leftRenderer.DrawTetromino(tetromino, CustomColors.Theme.Get(ColorKey.Comment));
+                    tetromino.y--;
+                }
 
                 leftRenderer.DrawTetromino(tetromino);
             }
@@ -78,6 +88,14 @@ namespace wpf
 
                 if (i == 0) tetromino.y++;
                 if (i == 1) tetromino.y--;
+
+
+                if (_shadowEnabled)
+                {
+                    tetromino.y++;
+                    rightRenderer.DrawTetromino(tetromino, CustomColors.Theme.Get(ColorKey.Comment));
+                    tetromino.y--;
+                }
 
                 rightRenderer.DrawTetromino(tetromino);
             }
@@ -124,6 +142,14 @@ namespace wpf
             if (ShadowComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
                 _shadowEnabled = selectedItem.Tag.ToString() == "on";
+            }
+
+            if (leftRenderer != null && rightRenderer != null)
+            {
+                leftRenderer = new BlockRenderer(CanvasLeft, 0);
+                rightRenderer = new BlockRenderer(CanvasRight, 0);
+
+                RenderSide();
             }
         }
         #endregion

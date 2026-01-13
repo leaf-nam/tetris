@@ -200,8 +200,14 @@ namespace wpf.render
         // 테트로미노 타입에 따라 블록 렌더링(메인 보드용)
         public void DrawTetromino(TetrominoWrapper tetromino)
         {
+            DrawTetromino(tetromino, GetTetrominoColor(tetromino.type));
+        }
+
+        // 색깔 변경 가능
+        public void DrawTetromino(TetrominoWrapper tetromino, Brush color)
+        {
             if (tetromino.y < 1) return;
-            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, tetromino.y - 3, GetTetrominoColor(tetromino.type));
+            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, tetromino.y - 3, color);
         }
 
         // 쉐도우 그리기
@@ -211,44 +217,43 @@ namespace wpf.render
             int dropY = CalculateDropY(board, tetromino);
 
             // 2. 예상 위치 블록 그리기 (반투명)
-            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, dropY + 1, CustomColors.Theme.Get(ColorKey.Comment));
+            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, dropY, CustomColors.Theme.Get(ColorKey.Comment));
         }
 
         private int CalculateDropY(BoardWrapper board, TetrominoWrapper tetromino)
         {
-            double maxY = calculateRealSize(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation]).Item1;
-            int dropY = tetromino.y + Convert.ToInt32(maxY);
+            int dropY = tetromino.y - 3;
 
-            while (!IsColliding(board, tetromino, tetromino.x - 1, dropY))
+            while (!IsColliding(board, tetromino, tetromino.x - 1, dropY + 1))
             {
                 dropY++; // 한 칸씩 아래로 이동
             }
 
-            return dropY - 1; // 충돌 직전 위치 반환
+            return dropY; // 충돌 직전 위치 반환
         }
 
         private bool IsColliding(BoardWrapper board, TetrominoWrapper tetromino, int offsetX, int offsetY)
         {
             ushort shape = Tetrominos.All[tetromino.type].Rotations[tetromino.rotation];
 
-            // 4x4 테트로미노 루프
+            if (offsetY < -2) return true;
+
             for (int y = 0; y < 4; y++)
             {
                 for (int x = 0; x < 4; x++)
                 {
                     int bit = y * 4 + x;
 
-                    if ((shape & (1 << bit)) != 0)
+                    if ((shape & (1UL << bit)) != 0)
                     {
-                        int boardX = offsetX + (3 - x);
-                        int boardY = offsetY + y;
+                        int nx = 4 - x + offsetX;
+                        int ny = 4 - y + offsetY;
 
-                        // 보드 범위 체크
-                        if (boardX < -1 || boardX >= board.maxX || boardY >= board.maxY)
+                        if (nx < 0 || nx >= board.maxX || ny > 19)
                             return true;
 
-                        int offset = (boardY * board.maxX + boardX) * sizeof(int);
-                        int value = Marshal.ReadInt32(board.board, offset);
+                        int pidx = (ny * board.maxX + nx) * sizeof(int);
+                        int value = Marshal.ReadInt32(board.board, pidx);
                         if (value >= 0 && value <= 7) // 이미 블록 존재
                             return true;
                     }
