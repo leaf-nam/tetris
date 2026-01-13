@@ -8,20 +8,21 @@
 #endif
 
 #include <cstdint>
+#include "engine_wrapper.hpp"
 
 extern "C" 
 {
 
 	// DLL에서 콜백 등록
-	void register_callbacks(
-		const char* (*scan_callback)(),
-		void (*background_callback)(int),
-		void (*board_callback)(int),
-		void (*timer_callback)(int),
-		void (*nextblock_callback)(int),
-		void (*hold_callback)(int),
-		void (*score_callback)(int),
-		void (*level_callback)(int)
+	DLL_EXPORT void register_callbacks(
+		InputScanCallback scan_callback,
+		RenderBackgroundCallback background_callback,
+		RenderBoardCallback board_callback,
+		RenderHoldCallback hold_callback,
+		RenderNextBlockCallback next_callback,
+		RenderTimerCallback timer_callback,
+		RenderScoreCallback score_callback,
+		RenderLevelCallback level_callback
 	);
 
 	// DLL 루프 시작

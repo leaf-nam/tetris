@@ -45,7 +45,8 @@ tetris
 tags
 
 # cmake build folder
-build/
+build
+out
 
 .vs
 .vscode

@@ -1,7 +1,7 @@
 #ifndef __WPF_RENDERED_HPP__
 #define __WPF_RENDERED_HPP__
 
-#include "callbacks.hpp"
+#include "callback/callbacks.hpp"
 #include "api/i_renderer.hpp"
 
 #ifdef _WIN32
@@ -13,19 +13,19 @@
 class WpfRenderer : public IRenderer 
 {
 private:
-	Callbacks cbs;
+	Callbacks* cbs;
 public:
 	WpfRenderer();
 
-	void set_callback(const Callbacks);
+	void set_callback(Callbacks*);
 
-	void render_background() override;
-	void render_board(const Board&, const Tetromino&) override;
-	void render_timer(const int) override;
-	void render_next_block(const int*) override;
-	void render_hold(const Tetromino&) override;
-	void render_score(const int) override;
-	void render_level(const int) override;
+	void renderBackground() override;
+	void renderBoard(const Board&, const Tetromino&) override;
+	void renderTimer(const int) override;
+	void renderNextBlock(const int*) override;
+	void renderHold(const Tetromino&) override;
+	void renderScore(const int) override;
+	void renderLevel(const int) override;
 
 	~WpfRenderer() override;
 };

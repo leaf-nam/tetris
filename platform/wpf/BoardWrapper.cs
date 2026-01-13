@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 [StructLayout(LayoutKind.Sequential)]
 public struct BoardWrapper
 {
-    public IntPtr cells;
-    public int xs;
-    public int ys;
+    public IntPtr board;
+    public int maxX;
+    public int maxY;
 }
