@@ -51,37 +51,55 @@ TerminalNetwork::TerminalNetwork() {
     // 대신 recv_udp에서 논블로킹 소켓의 특성을 이용합니다.
 }
 
-void TerminalNetwork::serialize(packet& pkt) {
-    pkt.type = htonl(pkt.type);
-    pkt.rotation = htonl(pkt.rotation);
-    pkt.r = htonl(pkt.r);
-    pkt.c = htonl(pkt.c);
-
-    for (int i = 0; i < 20; ++i) {      // 보드 크기에 맞게 수정 (Row)
-        for (int j = 0; j < 10; ++j) {  // Col
-            pkt.board[i][j] = htonl(pkt.board[i][j]);
-        }
-    }
+void TerminalNetwork::write_32b(uint8_t*& p, int32_t v)
+{
+    int32_t n = htonl(v);
+    memcpy(p, &n, 4);
+    p += 4;
 }
 
-void WindowsNetwork::deserialize(packet& pkt) {
-    pkt.type = ntohl(pkt.type);
-    pkt.rotation = ntohl(pkt.rotation);
-    pkt.r = ntohl(pkt.r);
-    pkt.c = ntohl(pkt.c);
+void TerminalNetwork::serialize(uint8_t* buf, const Packet& pkt)
+{
+    uint8_t* p = buf;
 
-    for (int i = 0; i < 20; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            // [수정] 원본 코드의 오타 수정 (htonl -> ntohl)
-            pkt.board[i][j] = ntohl(pkt.board[i][j]); 
-        }
-    }
+    for (int i = 0; i < 20; ++i)
+        for (int j = 0; j < 10; ++j)
+            write_32b(p, pkt.board[i][j]);
+
+    write_32b(p, pkt.type);
+    write_32b(p, pkt.rotation);
+    write_32b(p, pkt.r);
+    write_32b(p, pkt.c);
+    write_32b(p, pkt.deleted_line);
 }
 
-void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, const char* another_user_ip) {
+int32_t TerminalNetwork::read_32b(const uint8_t*& p)
+{
+    int32_t n;
+    memcpy(&n, p, 4);
+    p += 4;
+    return ntohl(n);
+}
+
+void TerminalNetwork::deserialize(const uint8_t* buf, Packet& pkt)
+{
+    const uint8_t* p = buf;
+
+    for (int i = 0; i < 20; ++i)
+        for (int j = 0; j < 10; ++j)
+            pkt.board[i][j] = read_32b(p);
+
+    pkt.type = read_32b(p);
+    pkt.rotation = read_32b(p);
+    pkt.r = read_32b(p);
+    pkt.c = read_32b(p);
+    pkt.deleted_line = read_32b(p);
+}
+
+void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip) {
     packet pkt;
     auto [pos_r, pos_c] = tetromino.get_pos();
-    
+    uint8_t buf[PACKET_SIZE];
     SOCKADDR_IN another_user;
     ZeroMemory(&another_user, sizeof(another_user));
     another_user.sin_family = AF_INET;
@@ -99,13 +117,14 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, c
     pkt.rotation = tetromino.get_rotation();
     pkt.r = pos_r;
     pkt.c = pos_c;
+    pkt.deleted_line = deleted_line;
 
-    serialize(pkt);
+    serialize(buf, pkt);
 
     int sendResult = sendto(
         client_sock,
-        (const char*)&pkt, // char* 캐스팅 필요
-        sizeof(pkt),
+        (char*)buf,
+        PACKET_SIZE,
         0,
         (SOCKADDR*)&another_user,
         sizeof(another_user)
@@ -117,8 +136,8 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, c
 }
 
 bool TerminalNetwork::recv_udp(packet& recv_pkt) {
+    uint8_t buf[PACKET_SIZE];
     bool data_received = false;
-    packet temp_pkt;
     SOCKADDR_IN client_addr;
     int addr_len = sizeof(client_addr);
 
@@ -127,8 +146,8 @@ bool TerminalNetwork::recv_udp(packet& recv_pkt) {
     while (true) {
         int r = recvfrom(
             server_sock,
-            (char*)&temp_pkt,
-            sizeof(temp_pkt),
+            (char*)buf,
+            PACKET_SIZE,
             0,
             (SOCKADDR*)&client_addr,
             &addr_len
@@ -148,8 +167,7 @@ bool TerminalNetwork::recv_udp(packet& recv_pkt) {
         }
         
         // 데이터 수신 성공
-        recv_pkt = temp_pkt;
-        deserialize(recv_pkt);
+        deserialize(buf, recv_pkt);
         data_received = true;
     }
 

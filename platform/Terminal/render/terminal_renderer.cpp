@@ -70,6 +70,7 @@ void TerminalRenderer::drawLogo() {
 	int y = 1;  // 시작 Y 좌표
 
 	for (int i = 0; i < 5; i++) {
+		//
 		setCursor(x, y + i);
 		// 순서대로 색상과 함께 출력
 		printf("%s%s ", Color::RED, T[i]); // T
@@ -102,72 +103,7 @@ void TerminalRenderer::drawLogo() {
 	setCursor(x + 52, y + 4);
 	printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
 }
-void TerminalRenderer::renderBoard(const Board& board, const Tetromino& tetromino) {
-	int startX = boardX;
-	int startY = 7;
 
-	// 1. 보드 데이터 가져오기 (int[22][10] 배열이라고 가정)
-	auto game_board = board.get_board();
-
-	// 2. 현재 떨어지는 미노 정보 가져오기
-	auto [pos_r, pos_c] = tetromino.get_pos(); // 현재 위치 (Top-Left)
-	const mino& shape = tetromino.get_shape(); // 현재 회전 상태의 4x4 배열 (int[4][4])
-
-	setCursor(startX, startY);
-	std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
-
-	// 행 루프 (2~21)
-	for (int r = 2; r < 22; ++r) {
-		setCursor(startX, startY + (r - 1));
-		std::cout << Color::BOLD << "┃ " << Color::RESET;
-
-		// 열 루프 (0~9)
-		for (int c = 0; c < 10; ++c) {
-			bool isFallingBlock = false;
-			int blockType = 0;
-
-			// --- [핵심 변경] 비트 연산 제거 -> 좌표 비교 ---
-
-			// 1. 현재 좌표(r, c)가 떨어지는 미노의 4x4 영역 안에 있는지 확인
-			bool insideBox = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
-
-			if (insideBox) {
-				// 4x4 배열 내부에서의 상대 좌표 계산 (0~3)
-				int local_r = r - pos_r;
-				int local_c = c - pos_c;
-
-				// 해당 위치에 블록이 채워져 있는지 확인 (0이 아니면 블록임)
-				if (shape[local_r][local_c] != 0) {
-					isFallingBlock = true;
-					// 미노 자체의 타입을 가져오거나, shape의 값을 사용
-					blockType = tetromino.get_mino_type(); // 또는 shape[local_r][local_c]
-				}
-			}
-
-			// --- 그리기 로직 ---
-
-			if (isFallingBlock) {
-				// 떨어지는 블록 그리기
-				std::cout << getBlockColor(blockType) << "██" << Color::RESET;
-			}
-			else if (game_board[r][c] < 8 &&game_board[r][c]>-1) {
-				// 바닥에 쌓인 블록 그리기
-				std::cout << getBlockColor(game_board[r][c]) << "██" << Color::RESET;
-			}
-			else {
-				// 빈 공간
-				std::cout << Color::GRAY << ". " << Color::RESET;
-			}
-		}
-
-		std::cout << Color::BOLD << " ┃" << Color::RESET;
-	}
-
-	
-
-	setCursor(startX, startY + 21);
-	std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
-}
 
 void TerminalRenderer::renderTimer(const int totalSec) {
 	int min = (totalSec / 60);
@@ -185,7 +121,21 @@ void TerminalRenderer::renderTimer(const int totalSec) {
 
 void TerminalRenderer::renderNextBlock(const int* tetrominoArray) {
 	for (size_t i = 0; i < 3; ++i) {
-		//renderMinoPattern(middleX + 3, 11 + (i * 5), TETROMINO[tetrominoArray[i].get_shape(), Color::CYAN);
+		int wr = middleX+3, wc = 11;
+		const mino& m1 = TETROMINO[tetrominoArray[0]][0];
+		const mino& m2 = TETROMINO[tetrominoArray[1]][0];
+		const mino& m3 = TETROMINO[tetrominoArray[2]][0];
+
+		// next mino
+		renderMinoPattern(wr , wc , m1, getBlockColor(tetrominoArray[0]));
+
+		renderMinoPattern(wr , wc +5, m2, getBlockColor(tetrominoArray[1]));
+
+		renderMinoPattern(wr , wc +10, m3, getBlockColor(tetrominoArray[2]));
+
+		
+
+
 	}
 }
 
@@ -268,66 +218,142 @@ void TerminalRenderer::showCursor() {
 void TerminalRenderer::renderGameOver() {
 	setCursor(43, 16); printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
 }
+void TerminalRenderer::renderBoard(const Board& board, const Tetromino& tetromino) {
+	int startX = boardX;
+	int startY = 7;
 
+	// 1. 보드 데이터 가져오기 (int[22][10] 배열이라고 가정)
+	auto game_board = board.get_board();
+
+	// 2. 현재 떨어지는 미노 정보 가져오기
+	auto [pos_r, pos_c] = tetromino.get_pos(); // 현재 위치 (Top-Left)
+	const mino& shape = tetromino.get_shape(); // 현재 회전 상태의 4x4 배열 (int[4][4])
+
+	setCursor(startX, startY);
+	std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
+
+	// 행 루프 (2~21)
+	for (int r = 2; r < 22; ++r) {
+		setCursor(startX, startY + (r - 1));
+		std::cout << Color::BOLD << "┃ " << Color::RESET;
+
+		// 열 루프 (0~9)
+		for (int c = 0; c < 10; ++c) {
+			bool isFallingBlock = false;
+			int blockType = 0;
+
+			// --- [핵심 변경] 비트 연산 제거 -> 좌표 비교 ---
+
+			// 1. 현재 좌표(r, c)가 떨어지는 미노의 4x4 영역 안에 있는지 확인
+			bool insideBox = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
+
+			if (insideBox) {
+				// 4x4 배열 내부에서의 상대 좌표 계산 (0~3)
+				int local_r = r - pos_r;
+				int local_c = c - pos_c;
+
+				// 해당 위치에 블록이 채워져 있는지 확인 (0이 아니면 블록임)
+				if (shape[local_r][local_c] != 0) {
+					isFallingBlock = true;
+					// 미노 자체의 타입을 가져오거나, shape의 값을 사용
+					blockType = tetromino.get_mino_type(); // 또는 shape[local_r][local_c]
+				}
+			}
+
+			// --- 그리기 로직 ---
+
+			if (isFallingBlock) {
+				// 떨어지는 블록 그리기
+				std::cout << getBlockColor(blockType) << "██" << Color::RESET;
+			}
+			else if (game_board[r][c] < 8 && game_board[r][c]>-1) {
+				// 바닥에 쌓인 블록 그리기
+				std::cout << getBlockColor(game_board[r][c]) << "██" << Color::RESET;
+			}
+			else {
+				// 빈 공간
+				std::cout << Color::GRAY << ". " << Color::RESET;
+			}
+		}
+
+		std::cout << Color::BOLD << " ┃" << Color::RESET;
+	}
+
+
+
+	setCursor(startX, startY + 21);
+	std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
+}
 void TerminalRenderer::renderOtherBoard(packet& pkt) {
-	int startX = 50; // wc (원래 코드의 50)
+	int startX = 80; // wc (원래 코드의 50)
 	int startY = 7;  // wr (원래 코드의 7)
 
 	// 2. 패킷에서 데이터 추출
-	int pos_r = pkt.r;
+	int pos_r = pkt.r-2;
 	int pos_c = pkt.c;
 	int mino_type = pkt.type;
 	int rotation = pkt.rotation;
 
+
 	// 미노 모양 가져오기 (TETROMINO 배열이 전역이거나 클래스 멤버여야 함)
-	const mino& m = TETROMINO[mino_type][rotation];
+	const mino& shape = TETROMINO[mino_type][rotation];
 	std::string minoColor = getBlockColor(mino_type); // 기존에 만든 색상 함수 활용
 
-	// 3. 상단 테두리 그리기
 	setCursor(startX, startY);
-	std::cout << "┌";
-	for (int i = 0; i < 10; ++i) std::cout << "──"; // BOARD_COL=10 가정
-	std::cout << "┐";
+	std::cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
 
-	// 4. 보드 내부 그리기 (단일 루프 방식)
-	for (int r = 0; r < 20; ++r) { // BOARD_ROW(22) - BOARD_UPPER(2) 가정
-		setCursor(startX, startY + 1 + r);
-		std::cout << "│";
+	// 행 루프 (2~21)
+	for (int r = 0; r < 20; ++r) {
+		setCursor(startX, startY + (r + 1));
+		std::cout << Color::BOLD << "┃ " << Color::RESET;
 
+		// 열 루프 (0~9)
 		for (int c = 0; c < 10; ++c) {
 			bool isFallingBlock = false;
+			int blockType = 0;
 
-			// 실제 보드 인덱스 계산 (숨겨진 위쪽 2줄 고려)
-			int board_r = r + 2;
+			// --- [핵심 변경] 비트 연산 제거 -> 좌표 비교 ---
 
-			// (A) 떨어지는 미노 확인
-			if (board_r >= pos_r && board_r < pos_r + 4 && c >= pos_c && c < pos_c + 4) {
-				if (m[board_r - pos_r][c - pos_c] != 0) {
+			// 1. 현재 좌표(r, c)가 떨어지는 미노의 4x4 영역 안에 있는지 확인
+			bool insideBox = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
+
+			if (insideBox) {
+				// 4x4 배열 내부에서의 상대 좌표 계산 (0~3)
+				int local_r = r - pos_r;
+				int local_c = c - pos_c;
+
+				// 해당 위치에 블록이 채워져 있는지 확인 (0이 아니면 블록임)
+				if (shape[local_r][local_c] != 0) {
 					isFallingBlock = true;
+					// 미노 자체의 타입을 가져오거나, shape의 값을 사용
+					blockType = shape[local_r][local_c]; 
 				}
 			}
 
-			// (B) 그리기 우선순위: 떨어지는 미노 > 바닥에 쌓인 블록 > 빈공간
+			// --- 그리기 로직 ---
+
 			if (isFallingBlock) {
-				std::cout << minoColor << "[]" << Color::RESET;
+				// 떨어지는 블록 그리기
+				std::cout << getBlockColor(pkt.type) << "██" << Color::RESET;
 			}
-			else if (pkt.board[board_r][c] != 0) {
-				// 패킷에 담긴 보드 정보로 그리기
-				std::cout << getBlockColor(pkt.board[board_r][c]) << "[]" << Color::RESET;
+			else if (pkt.board[r][c] < 8 && pkt.board[r][c]>-1) {
+				// 바닥에 쌓인 블록 그리기
+				std::cout << getBlockColor(pkt.board[r][c]) << "██" << Color::RESET;
 			}
 			else {
-				std::cout << "  ";
+				// 빈 공간
+				std::cout << Color::GRAY << ". " << Color::RESET;
 			}
 		}
-		std::cout << "│";
+
+		std::cout << Color::BOLD << " ┃" << Color::RESET;
 	}
 
-	// 5. 하단 테두리
+
+
 	setCursor(startX, startY + 21);
-	std::cout << "└";
-	for (int i = 0; i < 10; ++i) std::cout << "──";
-	std::cout << "┘";
-	}
+	std::cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
+}
 
 
 

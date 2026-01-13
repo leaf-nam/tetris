@@ -3,6 +3,8 @@
 #include "input/terminal_input.hpp"
 #include "network/terminal_network.hpp"
 #include <Windows.h>
+#include "engine/solo_engine.hpp"
+#include "engine/multi_engine.hpp"
 int main() {
 
     // 윈도우 UTF8 인코딩 설정
@@ -12,11 +14,15 @@ int main() {
     IRenderer* renderer = new TerminalRenderer();
     IInputHandler* input = new TerminalInput();
     INetwork* network = new TerminalNetwork();
-    Engine engine(input, renderer,network);
+    Engine *engine;
+    bool isSolo = false;
+    if(!isSolo)engine =new MultiEngine(input, renderer, network);
+    else engine =new SoloEngine(input, renderer);
 
-    engine.run();
-    engine.stop();
-    engine.finish();
+    engine->run();
+    engine->stop();
+    engine->finish();
 
+    
     return 0;
 }

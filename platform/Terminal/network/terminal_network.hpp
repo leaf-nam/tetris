@@ -27,14 +27,16 @@ private:
     SOCKADDR_IN server_addr;
     SOCKADDR_IN client_addr;
 
-    void serialize(packet& pkt);
-    void deserialize(packet& pkt);
+    void write_32b(uint8_t*& p, int32_t v);
+    void serialize(uint8_t* buf, const Packet& pkt);
+    int32_t read_32b(const uint8_t*& p);
+    void deserialize(const uint8_t* buf, Packet& pkt);
 
 public:
     TerminalNetwork();
     
     // 부모 클래스(INetwork)의 가상 함수 오버라이드
-    void send_udp(const Board& board, const Tetromino& tetromino, const char* another_user_ip) override;
+    void send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip) override;
     bool recv_udp(packet& recv_pkt) override;
     
     ~TerminalNetwork();
