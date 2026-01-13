@@ -1,0 +1,86 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|c:\\users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\desktop\\tetris\\wpfapp1\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|solutionrelative:loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|c:\\users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\desktop\\tetris\\wpfapp1\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|c:\\users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\desktop\\tetris\\wpfapp1\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|solutionrelative:loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|c:\\users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\desktop\\tetris\\wpfapp1\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C5E909BA-3C30-04C8-EE6C-B85DCBBE0461}|WpfApp1.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "LoginWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\LoginWindow.xaml",
+              "RelativeDocumentMoniker": "LoginWindow.xaml",
+              "ToolTip": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\LoginWindow.xaml",
+              "RelativeToolTip": "LoginWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-01-12T06:30:19.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "LoginWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\LoginWindow.xaml.cs",
+              "RelativeDocumentMoniker": "LoginWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\LoginWindow.xaml.cs",
+              "RelativeToolTip": "LoginWindow.xaml.cs",
+              "ViewState": "AgIAACcAAAAAAAAAAAAuwC0AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T00:22:42.001Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "MainWindow.xaml",
+              "ToolTip": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\MainWindow.xaml",
+              "RelativeToolTip": "MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-01-13T03:27:21.187Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\Tetris\\WpfApp1\\MainWindow.xaml.cs",
+              "RelativeToolTip": "MainWindow.xaml.cs",
+              "ViewState": "AgIAAG4AAAAAAAAAAADwv3cAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-12T05:57:48.588Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\wpf_server\\tetris_server\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8E8C4EC9-DEBB-48A4-A543-380439569FAE}|tetris_server.csproj|c:\\users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\desktop\\wpf_server\\tetris_server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E8C4EC9-DEBB-48A4-A543-380439569FAE}|tetris_server.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\wpf_server\\tetris_server\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\\uD55C\uAD6D\uC804\uD30C\uC9C4\uD765\uD611\uD68C\\Desktop\\wpf_server\\tetris_server\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-12T06:42:40.072Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

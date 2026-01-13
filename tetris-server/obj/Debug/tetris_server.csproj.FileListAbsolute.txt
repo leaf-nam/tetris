@@ -1,0 +1,14 @@
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\bin\Debug\tetris_server.exe.config
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\bin\Debug\tetris_server.exe
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\bin\Debug\tetris_server.pdb
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\obj\Debug\tetris_server.csproj.AssemblyReference.cache
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\obj\Debug\tetris_server.csproj.CoreCompileInputs.cache
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\obj\Debug\tetris_server.exe
+C:\Users\한국전파진흥협회\Desktop\Tetris\tetris_server\obj\Debug\tetris_server.pdb
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\bin\Debug\tetris_server.exe.config
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\bin\Debug\tetris_server.exe
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\bin\Debug\tetris_server.pdb
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\obj\Debug\tetris_server.csproj.AssemblyReference.cache
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\obj\Debug\tetris_server.csproj.CoreCompileInputs.cache
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\obj\Debug\tetris_server.exe
+C:\Users\한국전파진흥협회\Desktop\wpf_server\tetris_server\obj\Debug\tetris_server.pdb
