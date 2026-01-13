@@ -17,6 +17,9 @@
     <Compile Update="SettingWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ConnectWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

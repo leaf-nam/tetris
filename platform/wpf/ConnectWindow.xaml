@@ -1,0 +1,178 @@
+﻿<Window x:Class="wpf.ConnectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="TETRISSEN"
+        Width="800"
+        Height="800"
+        Background="{DynamicResource Background}"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+
+        <!-- 게임 버튼 스타일 -->
+        <Style x:Key="GameButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="300"/>
+            <Setter Property="Height" Value="90"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource Background}"/>
+            <Setter Property="Background" Value="{StaticResource Foreground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,20,0,0"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="20">
+                            <ContentPresenter
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- 마우스 효과 -->
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border"
+                                    Property="Background"
+                                    Value="{DynamicResource Comment}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border"
+                                    Property="Background"
+                                    Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border"
+                                    Property="Opacity"
+                                    Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid Margin="10">
+
+        <!-- 열 2개 -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5*" />
+            <RowDefinition Height="20*" />
+        </Grid.RowDefinitions>
+
+        <!-- 행 3개 -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="20*" />
+            <ColumnDefinition Width="10*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- 상단 타이틀 -->
+        <Border Grid.Row="0"
+          Grid.Column="0"
+          Grid.ColumnSpan="1"
+          Margin="5"
+          BorderThickness="2">
+            <Canvas x:Name="CanvasTitle"/>
+        </Border>
+
+        <!-- 제목-->
+        <TextBlock 
+                Grid.Row="0"
+                Grid.Column="1"
+                Text="통신 연결"
+                Foreground="{DynamicResource Foreground}"
+                FontSize="50"
+                FontWeight="Bold"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"/>
+
+        <!-- 옵션 영역 -->
+        <StackPanel Grid.Row="1" 
+                        Grid.Column="1" 
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top" >
+
+            <!-- 방 생성 -->
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="left" Margin="0,0,0,10">
+                <TextBlock Text="방만들기" Foreground="{DynamicResource Foreground}" HorizontalAlignment="Left" FontSize="20" Margin="0,0,0,10"/>
+                <ComboBox x:Name="CreateRoomComboBox" Width="250" Height="40" FontSize="20" 
+                    SelectionChanged="CreateRoomComboBox_SelectionChanged">
+                    <ComboBoxItem Content="생성" Tag="on" IsSelected="True"/>
+                    <ComboBoxItem Content="종료" Tag="off"/>
+                </ComboBox>
+            </StackPanel>
+
+            <!-- 상대방 연결 -->
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="left" Margin="0,50,0,10">
+
+                <!-- 제목 -->
+                <TextBlock Text="상대방 IP 입력"
+                           Foreground="{DynamicResource Foreground}"
+                           FontSize="20"
+                           Margin="0,0,0,10"
+                           HorizontalAlignment="Left"/>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="IpAddressTextBox"
+                                     Grid.Column="0"
+                                     Width="200"
+                                     Height="50"
+                                     FontSize="20"
+                                     Padding="10"
+                                     VerticalContentAlignment="Center"
+                                     Text="127.0.0.1"/>
+
+                    <Button Grid.Column="1"
+                            Content="연결"
+                            Height="40"
+                            Width="80"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource Foreground}"
+                            Background="{DynamicResource Comment}"
+                            Style="{StaticResource GameButtonStyle}"
+                            Click="ConnectButton_Click" Grid.ColumnSpan="2" Margin="25,0,-15,0"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- 하단 버튼 -->
+            <Button Content="복귀" Style="{StaticResource GameButtonStyle}" Click="SaveSettings_Click" Margin="10 100 10 0"/>
+
+        </StackPanel>
+
+
+        <Border Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="1"
+                Margin="5"
+                BorderThickness="2">
+            <Canvas x:Name="CanvasLeft"/>
+        </Border>
+
+        <Border Grid.Row="1"
+                Grid.Column="2"
+                Grid.ColumnSpan="1"
+                Margin="5"
+                BorderThickness="2">
+            <Canvas x:Name="CanvasRight"/>
+        </Border>
+    </Grid>
+
+</Window>

@@ -17,13 +17,13 @@ using wpf.render.theme;
 namespace wpf
 {
 
-    public partial class StartWindow : Window
+    public partial class ConnectWindow : Window
     {
         private BlockRenderer titleRenderer;
         private BlockRenderer leftRenderer;
         private BlockRenderer rightRenderer;
 
-        public StartWindow()
+        public ConnectWindow()
         {
             InitializeComponent();
             CustomColors.SetTheme(new DynamicTheme());
@@ -71,30 +71,57 @@ namespace wpf
             };
         }
 
-        private void SingleGame_Click(object sender, RoutedEventArgs e)
+        private void CreateRoomComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var gameWindow = new MainWindow();
+            if (CreateRoomComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                if (selectedItem.Tag.ToString() == "on")
+                {
+                    MessageBox.Show("방 생성");
+                }
+
+                if (selectedItem.Tag.ToString() == "off")
+                {
+                    MessageBox.Show("방 종료");
+                }
+            }
+        }
+
+        private void ConnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            string ip = IpAddressTextBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(ip))
+            {
+                MessageBox.Show("IP 주소를 입력하세요.");
+                return;
+            }
+
+            // TODO: IP 형식 검증 (선택)
+            // TODO: 서버 연결 로직
+
+            MessageBox.Show($"연결 시도: {ip}");
+
+            MessageBox.Show($"연결 완료");
+            var gameWindow = new MultiWindow();
             gameWindow.Show();
             this.Close();
         }
 
-        private void MultiGame_Click(object sender, RoutedEventArgs e)
+        private void SaveSettings_Click(object sender, RoutedEventArgs e)
         {
-            var connectWindow = new ConnectWindow();
-            connectWindow.Show();
+            // 실제 저장: App Settings 또는 Engine 반영
+            var startWindow = new StartWindow();
+            startWindow.Show();
             this.Close();
         }
 
-        private void Setting_Click(object sender, RoutedEventArgs e)
+        private void CancelSettings_Click(object sender, RoutedEventArgs e)
         {
-            var settingWindow = new SettingWindow();
-            settingWindow.Show();
+            // 변경사항 무시
+            var startWindow = new StartWindow();
+            startWindow.Show();
             this.Close();
-        }
-
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
         }
     }
 
