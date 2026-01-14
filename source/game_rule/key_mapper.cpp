@@ -3,8 +3,8 @@
 KeyMapper::KeyMapper()
 {
     key_map['a'] = Action::LEFT;
-    key_map['s'] = Action::RIGHT;
-    key_map['d'] = Action::DROP;
+    key_map['d'] = Action::RIGHT;
+    key_map['s'] = Action::DROP;
     key_map['q'] = Action::ROTATE_CCW;
     key_map['e'] = Action::ROTATE_CW;
     key_map['f'] = Action::HARD_DROP;
