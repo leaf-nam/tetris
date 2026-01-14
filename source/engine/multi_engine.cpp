@@ -106,11 +106,11 @@ void MultiEngine::run()
             renderer->renderOtherBoard(recv_pkt);
 
             // 같은 타이밍에 서로 공격한 경우 상쇄됨
-            if (recv_pkt.attack > attack)
+            if (recv_pkt.deleted_line > attack)
             {
                 // 예시: 상대방이 garbage를 5 던졌는데, 내가 같은 타이밍에 3 던졌으면, 3만큼은 상쇄되고 2만 적용됨
                 // 반대로 상대편 측에서는 5 던졌는데, 상대가 3을 던졌으므로 garbage를 모두 상쇄하여 아무 불이익도 받지 않음
-                is_line_fill_complete = board.insert_line(recv_pkt.attack - attack);
+                is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - attack);
                 if (!is_line_fill_complete)
                     break;
                 renderer->renderBoard(board, board.get_active_mino());
