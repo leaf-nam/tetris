@@ -17,8 +17,11 @@ add_subdirectory(source/engine)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
+    add_subdirectory(platform/linux/source/path)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
+    add_subdirectory(platform/linux/source/network)
+    add_subdirectory(source/tetris)
 
 # 윈도우 빌드
 elseif (WIN32)
@@ -31,8 +34,10 @@ elseif (WIN32)
 
     # 윈도우 터미널 UI 빌드 -> terminal_main.exe 생성
     else()
+        add_subdirectory(platform/windows/path)
         add_subdirectory(platform/Terminal/input)
         add_subdirectory(platform/Terminal/render)
+        add_subdirectory(platform/Terminal/network)
         add_subdirectory(platform/Terminal/main)
     endif()
 
