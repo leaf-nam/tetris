@@ -1,5 +1,5 @@
 
-﻿using System;
+using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Reflection;
@@ -53,7 +53,7 @@ namespace wpf.render
         }
 
         private void DrawBlockAbsolute(double x, double y, double blockSize, Brush color)
-        { 
+        {
 
             Rectangle rect = new Rectangle
             {
