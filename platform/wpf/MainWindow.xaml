@@ -4,15 +4,66 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="SINGLE GAME"
         Width="800"
         Height="800"
         KeyDown="Window_KeyDown"
-        Background="{StaticResource Background}"
+        Background="{DynamicResource Background}"
         Focusable="True"
         ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
         >
+    <Window.Resources>
 
+        <!-- 게임 버튼 스타일 -->
+        <Style x:Key="GameButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Background}"/>
+            <Setter Property="Background" Value="{DynamicResource Foreground}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,20,0,0"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                         Background="{TemplateBinding Background}"
+                         CornerRadius="30">
+                            <ContentPresenter
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- 마우스 효과 -->
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border"
+                                 Property="Background"
+                                 Value="{DynamicResource Comment}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border"
+                                 Property="Background"
+                                 Value="{DynamicResource Orange}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border"
+                                 Property="Opacity"
+                                 Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+    
     <Grid Margin="10">
 
         <!-- 열 2개 -->
@@ -38,13 +89,12 @@
         </Border>
 
         <!-- 메인 게임판 -->
-        <Border Grid.Row="1" Grid.Column="1"
-                >
+        <Border Grid.Row="1" Grid.Column="1">
             <!-- 게임판 사이즈 고정 -->
             <Border
                 Margin="5"
                 Width="277" Height="550"
-                BorderBrush="{StaticResource Comment}"
+                BorderBrush="{DynamicResource Comment}"
                 BorderThickness="2">        
                 <Canvas x:Name="CanvasBoard"/>
             </Border>
@@ -82,7 +132,7 @@
             <!-- Score -->
             <Border Grid.Row="1"
                     CornerRadius="12"
-                    BorderBrush="{StaticResource Panel}"
+                    BorderBrush="{DynamicResource Panel}"
                     BorderThickness="2"
                     Margin="5">
                 <Canvas x:Name="CanvasScore"/>
@@ -91,7 +141,7 @@
             <!-- Lv -->
             <Border Grid.Row="2"
                     CornerRadius="12"
-                    BorderBrush="{StaticResource Panel}"
+                    BorderBrush="{DynamicResource Panel}"
                     BorderThickness="2"
                     Margin="5">
                 <Canvas x:Name="CanvasLevel"/>
@@ -102,7 +152,7 @@
         <!-- 우측 타이머 -->
         <Border Grid.Row="0"
                 Grid.Column="2"
-                BorderBrush="{StaticResource Comment}"
+                BorderBrush="{DynamicResource Comment}"
                 BorderThickness="2"
                 Margin="5">
             <Canvas x:Name="CanvasTimer"/>
@@ -125,7 +175,7 @@
 
             <Border Grid.Row="1"
                     CornerRadius="10"
-                    BorderBrush="{StaticResource Cyan}"
+                    BorderBrush="{DynamicResource Cyan}"
                     BorderThickness="2"
                     Margin="5">
                 <Canvas x:Name="CanvasNext1"/>
@@ -133,7 +183,7 @@
 
             <Border Grid.Row="2"
                     CornerRadius="10"
-                    BorderBrush="{StaticResource Cyan}"
+                    BorderBrush="{DynamicResource Cyan}"
                     BorderThickness="2"
                     Margin="5">
                 <Canvas x:Name="CanvasNext2"/>
@@ -141,11 +191,37 @@
 
             <Border Grid.Row="3"
                     CornerRadius="10"
-                    BorderBrush="{StaticResource Cyan}"
+                    BorderBrush="{DynamicResource Cyan}"
                     BorderThickness="2"
                     Margin="5">
                 <Canvas x:Name="CanvasNext3"/>
             </Border>
         </Grid>
+
+        <!-- 오버레이 -->
+        <Border x:Name="Overlay"
+                Grid.Row="0"
+                Grid.Column="0"
+                Grid.RowSpan="2"
+                Grid.ColumnSpan="3"
+                Background="#AA000000"
+                Visibility="Collapsed"
+                Panel.ZIndex="100">
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Canvas x:Name="CanvasOverlayTitle"/>
+                    <Canvas x:Name="CanvasOverlayContent"/>
+                    <!-- 오버레이 -->
+                <Border x:Name="Overlay2"
+                    Background="#AA000000"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="200">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,100,0,0" >
+                        <Button Content="메인" Style="{StaticResource GameButtonStyle}" Click="GoHome_Click" Margin="25 0 25 0"/>
+                        <Button Content="종료" Style="{StaticResource GameButtonStyle}" Click="Exit_Click"  Margin="25 0 25 0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

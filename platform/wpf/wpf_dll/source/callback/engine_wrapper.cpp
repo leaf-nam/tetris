@@ -27,7 +27,8 @@ extern "C"
 		RenderNextBlockCallback next_callback,
 		RenderTimerCallback timer_callback,
 		RenderScoreCallback score_callback,
-		RenderLevelCallback level_callback
+		RenderLevelCallback level_callback,
+		FinishCallback finish_callback
 	) {
 		cbs.scan_callback = scan_callback;
 		cbs.background_callback = background_callback;
@@ -37,6 +38,7 @@ extern "C"
 		cbs.timer_callback = timer_callback;
 		cbs.score_callback = score_callback;
 		cbs.level_callback = level_callback;
+		cbs.finish_callback = finish_callback;
 	}
 
 	// 반드시 콜백 등록(register_callback) 후 시작
@@ -59,6 +61,7 @@ extern "C"
 			{
 				if (!game_engine) return;
 				game_engine->run();
+				cbs.finish_callback();
 			});
 	}
 
@@ -72,7 +75,7 @@ extern "C"
 	{
 		game_engine->finish();
 		game_engine = nullptr;
-
+		
 		cbs.scan_callback = nullptr;
 		cbs.background_callback = nullptr;
 		cbs.board_callback = nullptr;
@@ -81,8 +84,10 @@ extern "C"
 		cbs.timer_callback = nullptr;
 		cbs.score_callback = nullptr;
 		cbs.level_callback = nullptr;
+		cbs.finish_callback = nullptr;
 
-		if (game_worker.joinable())
+		if (game_worker.joinable()) {
 			game_worker.join();
+		}
 	}
 }

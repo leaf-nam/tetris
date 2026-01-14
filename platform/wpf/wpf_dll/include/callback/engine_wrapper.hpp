@@ -22,7 +22,8 @@ extern "C"
 		RenderNextBlockCallback next_callback,
 		RenderTimerCallback timer_callback,
 		RenderScoreCallback score_callback,
-		RenderLevelCallback level_callback
+		RenderLevelCallback level_callback,
+		FinishCallback finish_callback
 	);
 
 	// DLL 루프 시작
