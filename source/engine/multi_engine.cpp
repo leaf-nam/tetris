@@ -26,7 +26,7 @@ void MultiEngine::run()
     packet recv_pkt;
     int curr_mino = 0;
     int action;
-    int attack = 0, new_attack;
+    int attack = 0;
     bool is_line_fill_complete = false;
     int key;
     int index = 0;
@@ -54,6 +54,7 @@ void MultiEngine::run()
     renderer->renderScore(attack);
     renderer->renderLevel(rule->get_level());
     renderer->renderTimer(timer.get_seconds());
+
     while (1)
     {
         if(!board.has_active_mino())
@@ -68,12 +69,10 @@ void MultiEngine::run()
             rule->process(Action::DROP);
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(attack);
             renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
-            network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
-        
+
         key = input_handler->scan();
         action = key_mapper.map_key(key);
 
@@ -83,24 +82,14 @@ void MultiEngine::run()
             renderer->renderNextBlock(tetromino_queue.get_tetrominos());
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
-            network->send_udp(board, board.get_active_mino(), 0, another_user_ip);
         }
         
-        new_attack = rule->update_score();
-
-        if (new_attack) 
-        {
-            attack = new_attack;
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(attack);
-            renderer->renderLevel(rule->get_level());
-            renderer->renderTimer(timer.get_seconds());
-
-            network->send_udp(board, board.get_active_mino(), attack, another_user_ip);
-        }
+        attack = rule->update_score();
         
-        
+        network->send_udp(board, board.get_active_mino(), attack, another_user_ip);
+
+        if (attack > 0) renderer->renderScore(attack);
+
         if(network->recv_udp(recv_pkt))
         {
             renderer->renderOtherBoard(recv_pkt);
