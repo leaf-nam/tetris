@@ -17,7 +17,7 @@ MultiEngine::MultiEngine(IInputHandler* input_handler, IRenderer* renderer, INet
 
 void MultiEngine::run()
 {
-    PathService& path = PathService::get_instance();
+    //PathService& path = PathService::get_instance();
     Board board;
     unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();

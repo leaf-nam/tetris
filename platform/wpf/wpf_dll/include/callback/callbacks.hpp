@@ -3,6 +3,7 @@
 
 #include "tetromino_wrapper.hpp"
 #include "board_wrapper.hpp"
+#include "util/network_packet.hpp"
 #include <string>
 
 using namespace std;
@@ -15,7 +16,11 @@ typedef void(*RenderNextBlockCallback)(const int*);
 typedef void(*RenderHoldCallback)(int);
 typedef void(*RenderScoreCallback)(int);
 typedef void(*RenderLevelCallback)(int);
+typedef void(*RenderLevelCallback)(int);
+typedef void(*RenderOtherBoardCallback)(BoardWrapper, TetrominoWrapper);
 typedef void(*FinishCallback)();
+typedef void(*SendUdpCallback)(BoardWrapper, TetrominoWrapper);
+typedef void(*ReceiveUdpCallback)(const int*, int, int, int, int, int);
 
 struct Callbacks 
 {
@@ -31,6 +36,11 @@ public:
 	RenderHoldCallback hold_callback;
 	RenderScoreCallback score_callback;
 	RenderLevelCallback level_callback;
+	RenderOtherBoardCallback other_board_callback;
+	
+	// Network용 콜백함수
+	SendUdpCallback send_callback;
+	ReceiveUdpCallback receive_callback;
 	
 	// 게임 종료용 콜백함수
 	FinishCallback finish_callback;

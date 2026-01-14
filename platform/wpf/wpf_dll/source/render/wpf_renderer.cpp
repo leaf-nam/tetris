@@ -1,5 +1,6 @@
 #include "callback/callbacks.hpp"
 #include "render/wpf_renderer.hpp"
+#include "util/network_packet.hpp"
 
 WpfRenderer::WpfRenderer()
 {
@@ -55,6 +56,28 @@ void WpfRenderer::renderLevel(const int level)
 {
 	this->cbs->level_callback(level);
 }
+
+void WpfRenderer::renderOtherBoard(packet& pkt)
+{
+	this->cbs->other_board_callback(
+		{ *pkt.board, 10, 20 },
+		{ pkt.type, pkt.rotation, pkt.c, pkt.r }
+	);
+}
+
+void WpfRenderer::renderIPRecv()
+{
+	return;
+}
+void WpfRenderer::renderChar(char c)
+{
+	return;
+}
+void WpfRenderer::renderClear()
+{
+	return;
+}
+
 
 WpfRenderer::~WpfRenderer() 
 {

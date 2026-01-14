@@ -15,6 +15,8 @@ namespace wpf
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void NextBlockCallback(IntPtr types);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void BoardOtherCallback(BoardWrapper board, TetrominoWrapper tetromino);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void TimerCallback(int value);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void ScoreCallback(int value);
@@ -22,6 +24,10 @@ namespace wpf
         public delegate void LevelCallback(int value);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void FinishCallback();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void SendUdpCallback();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool ReceiveUdpCallback();
 
         public ScanCallback scan_callback { get; set; }
         public BackgroundCallback background_callback { get; set; }

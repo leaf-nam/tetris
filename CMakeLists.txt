@@ -27,6 +27,7 @@ elseif (WIN32)
     if (USE_WPF)
         add_subdirectory(platform/wpf/wpf_dll/source/input)
         add_subdirectory(platform/wpf/wpf_dll/source/render)
+        add_subdirectory(platform/wpf/wpf_dll/source/network)
         add_subdirectory(platform/wpf/wpf_dll/source/callback)
 
     # 윈도우 터미널 UI 빌드 -> terminal_main.exe 생성

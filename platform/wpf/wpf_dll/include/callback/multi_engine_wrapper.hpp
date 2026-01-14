@@ -9,11 +9,11 @@
 
 #include <cstdint>
 
-extern "C" 
+extern "C"
 {
 
 	// DLL에서 콜백 등록
-	DLL_EXPORT void register_callbacks(
+	DLL_EXPORT void register_multi_callbacks(
 		InputScanCallback scan_callback,
 		RenderBackgroundCallback background_callback,
 		RenderBoardCallback board_callback,
@@ -22,17 +22,20 @@ extern "C"
 		RenderTimerCallback timer_callback,
 		RenderScoreCallback score_callback,
 		RenderLevelCallback level_callback,
-		FinishCallback finish_callback
+		RenderOtherBoardCallback other_board_callback,
+		FinishCallback finish_callback,
+		SendUdpCallback send_callback,
+		ReceiveUdpCallback receive_callback
 	);
 
 	// DLL 루프 시작
-	DLL_EXPORT void init_engine();
+	DLL_EXPORT void init_multi_engine();
 
 	// DLL 루프 종료
-	DLL_EXPORT void run_engine();
+	DLL_EXPORT void run_multi_engine();
 
-	DLL_EXPORT void stop_engine();
+	DLL_EXPORT void stop_multi_engine();
 
-	DLL_EXPORT void finish_engine();
+	DLL_EXPORT void finish_multi_engine();
 }
 #endif

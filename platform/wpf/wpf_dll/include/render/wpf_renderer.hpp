@@ -27,6 +27,12 @@ public:
 	void renderScore(const int) override;
 	void renderLevel(const int) override;
 
+	void renderOtherBoard(packet& pkt) override;
+	
+	void renderIPRecv() override;
+	void renderChar(char c) override;
+	void renderClear() override;
+
 	~WpfRenderer() override;
 };
 

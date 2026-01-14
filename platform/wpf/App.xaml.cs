@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using wpf.network;
 
 namespace wpf
 {
@@ -9,6 +10,8 @@ namespace wpf
     /// </summary>
     public partial class App : Application
     {
+        public static NetworkService Network { get; } = new NetworkService();
+
     }
 
 }

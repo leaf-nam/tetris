@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using wpf.network;
 using wpf.render;
 using wpf.render.theme;
 
@@ -75,20 +76,22 @@ namespace wpf
         {
             if (CreateRoomComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
+                NetworkService networkService = NetworkService.GetInstance();
                 if (selectedItem.Tag.ToString() == "on")
                 {
-                    MessageBox.Show("방 생성");
+                    networkService.Open();
                 }
 
                 if (selectedItem.Tag.ToString() == "off")
                 {
-                    MessageBox.Show("방 종료");
+                    networkService.Disconnect();
                 }
             }
         }
 
         private void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
+            NetworkService networkService = NetworkService.GetInstance();
             string ip = IpAddressTextBox.Text.Trim();
 
             if (string.IsNullOrEmpty(ip))
@@ -101,6 +104,16 @@ namespace wpf
             // TODO: 서버 연결 로직
 
             MessageBox.Show($"연결 시도: {ip}");
+
+            try
+            {
+                networkService.Connect(ip, 7777);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"오류: {ex}");
+            }
+
 
             MessageBox.Show($"연결 완료");
             var gameWindow = new MultiWindow();

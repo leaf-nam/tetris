@@ -86,17 +86,6 @@
             <Canvas x:Name="CanvasTitle"/>
         </Border>
 
-        <!-- 제목-->
-        <TextBlock 
-                Grid.Row="0"
-                Grid.Column="1"
-                Text="통신 연결"
-                Foreground="{DynamicResource Foreground}"
-                FontSize="50"
-                FontWeight="Bold"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"/>
-
         <!-- 옵션 영역 -->
         <StackPanel Grid.Row="1" 
                         Grid.Column="1" 

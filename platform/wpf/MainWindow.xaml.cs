@@ -268,7 +268,11 @@ namespace wpf
         {
             try
             {
-                if (!finished) finish_engine();
+                if (!finished)
+                {
+                    finished = true;
+                    finish_engine();
+                }
             }
             catch { }
 
@@ -297,7 +301,11 @@ namespace wpf
         {
             try
             {
-                if (!finished) finish_engine();
+                if (!finished)
+                {
+                    finished = true;
+                    finish_engine();
+                }
             }
             catch { }
             base.OnClosed(e);
