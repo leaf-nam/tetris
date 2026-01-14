@@ -2,7 +2,6 @@
 #define __PACKET_HPP__
 
 #include <cstdint>
-
 #define PACKET_SIZE (20 * 10 * 4 + 5 * 4)
 
 typedef struct Packet {

@@ -131,7 +131,7 @@ void MultiEngine::run()
                 is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - 1);
                 renderer->renderBoard(board, board.get_active_mino());
                 renderer->renderHold(board.get_saved_mino());
-                if(!is_line_fill_complete)
+                if (!is_line_fill_complete)
                     break;
             }
         }
