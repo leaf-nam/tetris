@@ -20,6 +20,8 @@ namespace wpf
         public delegate void ScoreCallback(int value);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LevelCallback(int value);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void FinishCallback();
 
         public ScanCallback scan_callback { get; set; }
         public BackgroundCallback background_callback { get; set; }
