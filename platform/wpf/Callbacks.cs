@@ -5,21 +5,23 @@ namespace wpf
     public class Callbacks
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr ScanCallback();
+        public delegate char ScanCallback();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void BackgroundCallback();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BoardCallback(BoardWrapper boardWrapper, TetrominoWrapper tetrominoWrapper);
+        public delegate void BoardCallback(BoardWrapper board, TetrominoWrapper tetromino);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void HoldCallback(int type);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void NextBlockCallback(IntPtr types);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void TimerCallback(int value);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void NextBlockCallback(TetrominoWrapper tetrominoWrapper1, TetrominoWrapper tetrominoWrapper2, TetrominoWrapper tetrominoWrapper3);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void HoldCallback(TetrominoWrapper tetrominoWrapper);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void ScoreCallback(int value);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void LevelCallback(int value);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void FinishCallback();
 
         public ScanCallback scan_callback { get; set; }
         public BackgroundCallback background_callback { get; set; }
@@ -29,7 +31,6 @@ namespace wpf
         public HoldCallback hold_callback { get; set; }
         public ScoreCallback score_callback { get; set; }
         public LevelCallback level_callback { get; set; }
-
     }
 
 }

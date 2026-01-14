@@ -1,6 +1,10 @@
 
 ﻿using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -155,24 +159,108 @@ namespace wpf.render
         }
 
         // 보드 렌더링
-        public void DrawBoard(int[,] board)
+        public void DrawBoard(BoardWrapper board)
         {
-            for (int y = 0; y < 20; y++)
+            for (int y = 0; y < board.maxY; y++)
             {
-                for (int x = 0; x < 10; x++)
+                for (int x = 0; x < board.maxX; x++)
                 {
-                    if (board[y, x] >= 1 && board[y, x] <= 7)
+                    int offset = (y * board.maxX + x) * sizeof(int);
+                    int value = Marshal.ReadInt32(board.board, offset);
+                    if (value <= 7)
                     {
-                        DrawBlock20x10(x, y, GetTetrominoColor(board[y, x] - 1));
+                        DrawBlock20x10(x, y, GetTetrominoColor(value));
                     }
                 }
             }
         }
 
-        // 테트로미노 타입에 따라 블록 렌더링(메인 보드용)
-        public void DrawTetromino(int type, int rotate, int x, int y)
+        // 보드 디버깅용
+        public void PrintBoard(BoardWrapper board)
         {
-            DrawTetromino(Tetrominos.All[type].Rotations[rotate], x, y, GetTetrominoColor(type));
+            StringBuilder sb = new StringBuilder();
+
+            for (int y = 0; y < board.maxY; y++)
+            {
+                for (int x = 0; x < board.maxX; x++)
+                {
+                    int offset = (y * board.maxX + x) * sizeof(int);
+                    int value = Marshal.ReadInt32(board.board, offset);
+
+                    // 보기 좋게 한 칸씩
+                    sb.Append(value);
+                    sb.Append(' ');
+                }
+                sb.AppendLine();
+            }
+
+            MessageBox.Show(sb.ToString());
+        }
+
+        // 테트로미노 타입에 따라 블록 렌더링(메인 보드용)
+        public void DrawTetromino(TetrominoWrapper tetromino)
+        {
+            DrawTetromino(tetromino, GetTetrominoColor(tetromino.type));
+        }
+
+        // 색깔 변경 가능
+        public void DrawTetromino(TetrominoWrapper tetromino, Brush color)
+        {
+            if (tetromino.y < 1) return;
+            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, tetromino.y - 3, color);
+        }
+
+        // 쉐도우 그리기
+        public void DrawTetrominoShadow(BoardWrapper board, TetrominoWrapper tetromino)
+        {
+            // 1. 떨어질 위치 계산
+            int dropY = CalculateDropY(board, tetromino);
+
+            // 2. 예상 위치 블록 그리기 (반투명)
+            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, dropY, CustomColors.Theme.Get(ColorKey.Comment));
+        }
+
+        private int CalculateDropY(BoardWrapper board, TetrominoWrapper tetromino)
+        {
+            int dropY = tetromino.y - 3;
+
+            while (!IsColliding(board, tetromino, tetromino.x - 1, dropY + 1))
+            {
+                dropY++; // 한 칸씩 아래로 이동
+            }
+
+            return dropY; // 충돌 직전 위치 반환
+        }
+
+        private bool IsColliding(BoardWrapper board, TetrominoWrapper tetromino, int offsetX, int offsetY)
+        {
+            ushort shape = Tetrominos.All[tetromino.type].Rotations[tetromino.rotation];
+
+            if (offsetY < -2) return true;
+
+            for (int y = 0; y < 4; y++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    int bit = y * 4 + x;
+
+                    if ((shape & (1UL << bit)) != 0)
+                    {
+                        int nx = 4 - x + offsetX;
+                        int ny = 4 - y + offsetY;
+
+                        if (nx < 0 || nx >= board.maxX || ny > 19)
+                            return true;
+
+                        int pidx = (ny * board.maxX + nx) * sizeof(int);
+                        int value = Marshal.ReadInt32(board.board, pidx);
+                        if (value >= 0 && value <= 7) // 이미 블록 존재
+                            return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private Brush GetTetrominoColor(int type)
@@ -186,6 +274,7 @@ namespace wpf.render
                 case 4: return CustomColors.Theme.Get(ColorKey.Accent5);
                 case 5: return CustomColors.Theme.Get(ColorKey.Accent6);
                 case 6: return CustomColors.Theme.Get(ColorKey.Accent7);
+                case 7: return CustomColors.Theme.Get(ColorKey.Comment);
                 default: throw new ArgumentOutOfRangeException();
             }
         }
@@ -211,9 +300,10 @@ namespace wpf.render
         }
 
         // 테트로미노 타입에 따라 블록 렌더링(홀드, 넥스트용)
-        public void DrawTetrominoCenter(int type, int rotate)
+        public void DrawTetrominoCenter(int tetrominoType)
         {
-            DrawTetrominoCenter(Tetrominos.All[type].Rotations[rotate], GetTetrominoColor(type));
+            if (tetrominoType < 0 || tetrominoType > 7) return;
+            DrawTetrominoCenter(Tetrominos.All[tetrominoType].Rotations[0], GetTetrominoColor(tetrominoType));
         }
 
         private void DrawTetrominoCenter(ushort tetromino, Brush color)
