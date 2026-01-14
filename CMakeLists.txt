@@ -20,7 +20,6 @@ add_subdirectory(source/engine)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
-    add_subdirectory(platform/linux/source/path)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)

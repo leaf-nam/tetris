@@ -4,7 +4,6 @@
 #include "tetromino/tetromino_queue.hpp"
 #include "util/timer.hpp"
 #include "util/action.hpp"
-#include "util/path.hpp"
 
 #include <thread>
 #include <chrono>
@@ -17,7 +16,6 @@ SoloEngine::SoloEngine(IInputHandler* input_handler, IRenderer* renderer) : Engi
 
 void SoloEngine::run()
 {
-    PathService& path = PathService::get_instance();
     Board board;
     unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
