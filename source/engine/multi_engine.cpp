@@ -1,6 +1,7 @@
 #include "engine/multi_engine.hpp"
 #include "board/board.hpp"
 #include "game_rule/rule_factory.hpp"
+#include "game_rule/key_mapper.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/timer.hpp"
 #include "util/action.hpp"
@@ -17,14 +18,16 @@ MultiEngine::MultiEngine(IInputHandler* input_handler, IRenderer* renderer, INet
 void MultiEngine::run()
 {
     Board board;
-    unique_ptr<GameRule> rule = create_rule("ZEN", board);
+    unique_ptr<GameRule> rule = create_rule("VERSUS", board);
+    KeyMapper key_mapper;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
 
+    packet recv_pkt;
     int curr_mino = 0;
     int action;
-    int score = 0, new_score;
-    bool is_level_up = false, is_line_fill_complete = false;
+    int attack = 0, new_attack;
+    bool is_line_fill_complete = false;
     int key;
     int index = 0;
     char another_user_ip[1024];
@@ -48,7 +51,7 @@ void MultiEngine::run()
     renderer->renderBackground();
     renderer->renderBoard(board, board.get_active_mino());
     renderer->renderHold(board.get_saved_mino());
-    renderer->renderScore(score);
+    renderer->renderScore(attack);
     renderer->renderLevel(rule->get_level());
     renderer->renderTimer(timer.get_seconds());
     while (1)
@@ -65,72 +68,53 @@ void MultiEngine::run()
             rule->process(Action::DROP);
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(score);
+            renderer->renderScore(attack);
             renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
-            is_level_up = rule->time_and_level_update();
             network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
         
         key = input_handler->scan();
-        if(key)
-        {
-            switch(key)
-            {
-                case 'a': action = Action::LEFT; break;
-                case 's': action = Action::DROP; break;
-                case 'd': action = Action::RIGHT; break;
-                case 'q': action = Action::ROTATE_CCW; break;
-                case 'e': action = Action::ROTATE_CW; break;
-                case 'f': action = Action::HARD_DROP; break;
-                case 'w': action = Action::SWAP; break;
-                default: action = -1; break;
-            }
-        }
-        else
-            action = -1;
+        action = key_mapper.map_key(key);
 
-        if (action != -1) 
+        if (action != Action::INVALID) 
         {
             rule->process(action);
             renderer->renderNextBlock(tetromino_queue.get_tetrominos());
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
-            network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
+            network->send_udp(board, board.get_active_mino(), 0, another_user_ip);
         }
         
-        new_score = rule->update_score();
-        if(is_level_up)
-            if(!board.insert_line(3))
-            {
-                renderer->renderBoard(board, board.get_active_mino());
-                renderer->renderHold(board.get_saved_mino());
-                break;
-            }
-        if (new_score || is_level_up) 
+        new_attack = rule->update_score();
+
+        if (new_attack) 
         {
-            score += new_score;
+            attack = new_attack;
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(score);
+            renderer->renderScore(attack);
             renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
-            is_level_up = false;
+
+            network->send_udp(board, board.get_active_mino(), attack, another_user_ip);
         }
-        if (new_score)
-            network->send_udp(board, board.get_active_mino(), (new_score / 100), another_user_ip);
         
-        packet recv_pkt;
+        
         if(network->recv_udp(recv_pkt))
         {
             renderer->renderOtherBoard(recv_pkt);
-            if(recv_pkt.deleted_line > 1)
+
+            // 같은 타이밍에 서로 공격한 경우 상쇄됨
+            if (recv_pkt.attack > attack)
             {
-                is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - 1);
-                renderer->renderBoard(board, board.get_active_mino());
-                renderer->renderHold(board.get_saved_mino());
+                // 예시: 상대방이 garbage를 5 던졌는데, 내가 같은 타이밍에 3 던졌으면, 3만큼은 상쇄되고 2만 적용됨
+                // 반대로 상대편 측에서는 5 던졌는데, 상대가 3을 던졌으므로 garbage를 모두 상쇄하여 아무 불이익도 받지 않음
+                is_line_fill_complete = board.insert_line(recv_pkt.attack - attack);
                 if (!is_line_fill_complete)
                     break;
+                renderer->renderBoard(board, board.get_active_mino());
+                renderer->renderHold(board.get_saved_mino());
             }
         }
     }
