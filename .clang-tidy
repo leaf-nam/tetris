@@ -4,6 +4,7 @@ Checks: >
   readability-avoid-const-params-in-decls,
   performance-*
 
+
 CheckOptions:
   - key: readability-identifier-naming.VariableCase
     value: lower_case

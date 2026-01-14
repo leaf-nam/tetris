@@ -7,6 +7,11 @@ project(
   LANGUAGES CXX
 )
 
+set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy;
+    -warnings-as-errors=*
+)
+
 option(USE_WPF "Build WPF UI" ON)
 
 add_subdirectory(source/board)
