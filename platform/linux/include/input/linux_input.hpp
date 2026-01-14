@@ -7,8 +7,7 @@ using namespace std;
 
 class LinuxInput : public IInputHandler
 {
-    public:
-    
+  public:
     LinuxInput();
 
     /**
