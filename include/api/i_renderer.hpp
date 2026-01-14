@@ -1,19 +1,20 @@
 #ifndef __I_RENDERER_HPP__
 #define __I_RENDERER_HPP__
 
-#include <string>
-#include "tetromino/tetromino.hpp"
 #include "board/board.hpp"
+#include "tetromino/tetromino.hpp"
 #include "util/network_packet.hpp"
 
-class IRenderer {
-public:
+#include <string>
 
+class IRenderer
+{
+  public:
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
     virtual void renderBackground() = 0;
-    
+
     /**
      * @brief 게임판 렌더링
      * @param 보드 현상태 + 현재 테트로미노 렌더링
@@ -55,7 +56,7 @@ public:
     virtual void renderIPRecv() = 0;
 
     virtual void renderChar(char c) = 0;
-    
+
     virtual void renderClear() = 0;
 
     /**
