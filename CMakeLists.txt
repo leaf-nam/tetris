@@ -7,7 +7,10 @@ project(
   LANGUAGES CXX
 )
 
-option(USE_WPF "Build WPF UI" ON)
+option(USE_WPF "Build WPF UI" OFF)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(source/board)
 add_subdirectory(source/game_rule)
@@ -19,6 +22,8 @@ add_subdirectory(source/engine)
 if (UNIX)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
+    add_subdirectory(platform/linux/source/network)
+    add_subdirectory(source/tetris)
 
 # 윈도우 빌드
 elseif (WIN32)
@@ -33,6 +38,7 @@ elseif (WIN32)
     else()
         add_subdirectory(platform/Terminal/input)
         add_subdirectory(platform/Terminal/render)
+        add_subdirectory(platform/Terminal/network)
         add_subdirectory(platform/Terminal/main)
     endif()
 
