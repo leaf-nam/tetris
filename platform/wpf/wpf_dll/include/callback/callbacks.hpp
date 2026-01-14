@@ -15,6 +15,7 @@ typedef void(*RenderNextBlockCallback)(const int*);
 typedef void(*RenderHoldCallback)(int);
 typedef void(*RenderScoreCallback)(int);
 typedef void(*RenderLevelCallback)(int);
+typedef void(*FinishCallback)();
 
 struct Callbacks 
 {
@@ -30,6 +31,9 @@ public:
 	RenderHoldCallback hold_callback;
 	RenderScoreCallback score_callback;
 	RenderLevelCallback level_callback;
+	
+	// 게임 종료용 콜백함수
+	FinishCallback finish_callback;
 };
 
 #endif

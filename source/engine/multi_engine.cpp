@@ -4,8 +4,6 @@
 #include "game_rule/rule_factory.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/action.hpp"
-#include "util/path.hpp"
-#include "util/timer.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -21,7 +19,6 @@ MultiEngine::MultiEngine(IInputHandler* input_handler, IRenderer* renderer, INet
 
 void MultiEngine::run()
 {
-    PathService& path = PathService::get_instance();
     Board board;
     unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
@@ -30,7 +27,7 @@ void MultiEngine::run()
     int curr_mino = 0;
     int action;
     int score = 0, new_score;
-    bool is_level_up = false;
+    bool is_level_up = false, is_line_fill_complete = false;
     int key;
     int index = 0;
     char another_user_ip[1024];
@@ -39,8 +36,15 @@ void MultiEngine::run()
     renderer->renderIPRecv();
     while (true) {
         c = input_handler->scan();
+<<<<<<< HEAD
         if (c == '\n') break;
         if (c != 0) {
+=======
+        if(c == '\n' || c == '\r')
+            break;
+        if(c != 0)
+        {
+>>>>>>> origin/develop
             renderer->renderChar(c);
             another_user_ip[index++] = c;
         }
@@ -69,7 +73,7 @@ void MultiEngine::run()
             renderer->renderLevel(rule->get_level());
             renderer->renderTimer(timer.get_seconds());
             is_level_up = rule->time_and_level_update();
-            network->send_udp(board, board.get_active_mino(), another_user_ip);
+            network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
 
         key = input_handler->scan();
@@ -109,7 +113,7 @@ void MultiEngine::run()
             renderer->renderNextBlock(tetromino_queue.get_tetrominos());
             renderer->renderBoard(board, board.get_active_mino());
             renderer->renderHold(board.get_saved_mino());
-            network->send_udp(board, board.get_active_mino(), another_user_ip);
+            network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
 
         new_score = rule->update_score();
@@ -128,9 +132,28 @@ void MultiEngine::run()
             renderer->renderTimer(timer.get_seconds());
             is_level_up = false;
         }
+<<<<<<< HEAD
 
         packet recv_pkt;
         if (network->recv_udp(recv_pkt)) renderer->renderOtherBoard(recv_pkt);
+=======
+        if (new_score)
+            network->send_udp(board, board.get_active_mino(), (new_score / 100), another_user_ip);
+        
+        packet recv_pkt;
+        if(network->recv_udp(recv_pkt))
+        {
+            renderer->renderOtherBoard(recv_pkt);
+            if(recv_pkt.deleted_line > 1)
+            {
+                is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - 1);
+                renderer->renderBoard(board, board.get_active_mino());
+                renderer->renderHold(board.get_saved_mino());
+                if (!is_line_fill_complete)
+                    break;
+            }
+        }
+>>>>>>> origin/develop
     }
 }
 
