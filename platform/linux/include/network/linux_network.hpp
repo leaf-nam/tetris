@@ -1,7 +1,7 @@
 #ifndef __LINUX_NETWORK_HPP__
 #define __LINUX_NETWORK_HPP__
 
-#include <api/i_network.hpp>
+#include <i_network.hpp>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <stdio.h>

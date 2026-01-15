@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.26)
 project(
   ModooCode
   VERSION 1
-  DESCRIPTION "Tetris"
+  DESCRIPTION "Tetrissen"
   LANGUAGES CXX
 )
 
@@ -21,18 +21,18 @@ set(CMAKE_CXX_CLANG_TIDY
 
 option(USE_WPF "Build WPF UI" OFF)
 
-add_subdirectory(source/board)
-add_subdirectory(source/game_rule)
-add_subdirectory(source/tetromino)
-add_subdirectory(source/util)
-add_subdirectory(source/engine)
+add_subdirectory(core/source/board)
+add_subdirectory(core/source/game_rule)
+add_subdirectory(core/source/tetromino)
+add_subdirectory(core/source/util)
+add_subdirectory(core/source/engine)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
-    add_subdirectory(source/tetris)
+    add_subdirectory(platform/linux/source/main)
 
 # 윈도우 빌드
 elseif (WIN32)

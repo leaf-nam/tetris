@@ -1,7 +1,7 @@
 #ifndef __TERMINAL_NETWORK_HPP__
 #define __TERMINAL_NETWORK_HPP__
 
-#include <api/i_network.hpp>
+#include <i_network.hpp>
 
 // [terminal] 윈도우 소켓 헤더 포함
 #include <WinSock2.h>
