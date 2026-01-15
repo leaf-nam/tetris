@@ -1,7 +1,7 @@
 #ifndef __LINUX_INPUT_HANDLER_HPP__
 #define __LINUX_INPUT_HANDLER_HPP__
 
-#include "api/i_input_handler.hpp"
+#include <i_input_handler.hpp>
 
 class LinuxInput : public IInputHandler
 {

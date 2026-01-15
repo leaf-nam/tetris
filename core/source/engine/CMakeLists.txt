@@ -6,8 +6,9 @@ target_include_directories(engine
 )
 
 target_link_libraries(engine
-    PRIVATE game_rule
-	PRIVATE board
-	PRIVATE tetromino
-    PRIVATE util
+    PUBLIC 
+		game_rule
+		board
+		tetromino
+		util
 )

@@ -9,10 +9,6 @@ target_include_directories(main
 target_link_libraries(main
     PRIVATE
         engine
-        board
-        game_rule
-        tetromino
-        util
         input
         render
         network

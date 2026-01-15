@@ -1,9 +1,9 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include "i_input_handler.hpp"
-#include "i_renderer.hpp"
-#include "i_network.hpp"
+#include <i_input_handler.hpp>
+#include <i_renderer.hpp>
+#include <i_network.hpp>
 
 class Engine {
     protected:

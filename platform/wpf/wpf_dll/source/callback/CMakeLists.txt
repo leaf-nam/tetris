@@ -9,10 +9,6 @@ target_include_directories(engine_wrapper
 target_link_libraries(engine_wrapper
     PRIVATE
         engine
-        board
-        game_rule
-        tetromino
-        util
-        wpf_input
-        wpf_render
+        input
+        render
 )

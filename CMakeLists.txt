@@ -32,7 +32,7 @@ if (UNIX)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
-    add_subdirectory(core/source/tetris)
+    add_subdirectory(platform/linux/source/main)
 
 # 윈도우 빌드
 elseif (WIN32)

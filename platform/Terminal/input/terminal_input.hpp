@@ -1,6 +1,6 @@
 #ifndef __TERMINAL_INPUT_HPP__
 #define __TERMINAL_INPUT_HPP__
-#include "i_input_handler.hpp"
+#include <i_input_handler.hpp>
 
 class TerminalInput : public IInputHandler
 {

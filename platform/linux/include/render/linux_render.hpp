@@ -8,8 +8,10 @@
 #include <sstream>
 #include <unordered_map>
 #include <csignal>
+#include <i_renderer.hpp>
+
 #include "tetromino/tetromino.hpp"
-#include "api/i_renderer.hpp"
+
 
 class LinuxRender : public IRenderer
 {
