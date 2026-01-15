@@ -1,78 +1,72 @@
-# tetris
-Nex1 Boot camp(3rd) Study Project
+### 📢 Branch Maintenance Notice
+main, develop 제외한 나머지 브랜치 리무브 예정!
 
-# 🎮 프로젝트: 멀티 테트리스
-> **Linux 환경 기반의 로컬 네트워크 멀티플레이어 테트리스 게임**
+</br>
+</br>
+</br>
 
-<br>
+# TETRISSEN: Cross-Platform Multiplayer Tetris
 
-## 🌿 브랜치 전략: Git Flow
-- **`main`**: 실행 가능 최종 브랜치
-- **`develop`**: 기능 통합 브랜치
-- **`feature/(기능이름)`**: 세부 기능 개발 브랜치
+**TETRISSEN**은 C++ 기반으로 구현된 **크로스 플랫폼 테트리스 게임**입니다.  
+게임 로직과 렌더링을 분리한 클린 아키텍처(Clean Architecture)를 적용하여,   
+서로 다른 플랫폼에서 공통 API를 통해 동일한 게임 로직을 재사용할 수 있도록 설계되었습니다.
+- 멀티플레이어
 
-<br>
-
-## 🔄 참고용 워크플로우
-
-기존 feat/tetris-name 에서 이어서 할 경우 (아직 로컬 develop 없는 경우) 세팅하기:
-```bash
-git fetch origin
-git switch -c develop origin/develop
-git switch feat/tetris-name
-git merge develop
-```
-
-1. 로컬 `develop` 최신화
-```bash
-git switch develop
-git pull origin develop
-```
+**Supported Platforms:**
+Windows (WPF, Terminal) · Linux (Terminal) · Web *(추가예정)*
 
 ---
-2. 새로운 `feature` 브랜치 생성
-```bash
-git switch -c feature/example
-```
+
+## 🕹️ 게임 모드
+
+### 1️⃣ 싱글 플레이어
+*(스크린샷 추가 예정)*  
+![Gameplay Screenshot]()
+
+- 일정 시간이 지나면 레벨 상승
+- 레벨 증가 시 하단에 방해 블록 라인 추가
+- 레벨 증가 시 블록 낙하 속도 증가
 
 ---
-3. 코드 커밋
 
-`git commit -m "[태그] 요약"` 형태로 작성
-- `[Feat]`: 새로운 기능 추가
-- `[Fix]`: 버그 수정
-- `[Docs]`: 문서 수정 (README 등)
-- `[Refactor]`: 코드 개선 (기능 변화 없음)
-- `[Chore]`: 빌드 설정, 파일 이동 등 (기능 변화 없음)
+### 2️⃣ 멀티 플레이어
+*(스크린샷 추가 예정)*  
+![Gameplay Screenshot]()
 
-**예시:** `git commit -m "[Feat] 타이머 구현"`
+- IP 주소를 통한 방 생성 / 참가, 실시간 대전 플레이
+- 2줄 이상 제거 시 상대방 보드 하단에 방해 블록 라인 추가하여 공격
 
 ---
-4. 깃헙에 완성된 `feature/example` 푸쉬
-```bash
-git push origin feature/example
-```
+
+## 조작 방식 (Keyboard Controls)
+
+| Key | Action |
+|---|---|
+| A | 왼쪽 이동 |
+| D | 오른쪽 이동 |
+| S | 소프트 드롭 |
+| F | 하드 드롭 |
+| E | 시계 방향 회전 |
+| Q | 반시계 방향 회전 |
+| W | 홀드 블록 스왑 |
 
 ---
-5. `feature/example`->`develop`로 PR 
 
-<br><br>
+## 게임 기능
 
-## 🧱코드 컨벤션 [(링크)](https://github.com/leaf-nam/tetris/wiki/Code-Convention)
+- 기본 테트리스 로직
+  - Soft Drop
+  - Hard Drop
+  - Tuck Move
+  - Wall Kick (Rotation System)
+- 다음 블록 미리보기 (3개)
+- 블록 홀드 시스템 (1개)
+- 타이머 보드
+- 스코어 보드
 
-- Class/Struct/Enum: PascalCase
-- Object (Instances): camelCase
-- Functions/Variables: snake_case
-- Member variables: snake_case_
-- Constants: SCREAMING_SNAKE_CASE
-- File-name/Branch-name: kebab-case
+---
 
-<br>
+## ⚙️ 옵션 설정
 
-## 📁디렉토리 [(링크)](https://github.com/leaf-nam/tetris/wiki/Directory-Architecture)
-
-<br><br><br>
-
-### Protection Rule Settings
-- Require a pull request before merging
-- Default develop ?
+- 블록 테마 변경
+- 고스트 블록 ON / OFF
