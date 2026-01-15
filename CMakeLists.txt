@@ -1,29 +1,49 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.26)
 
 project(
   ModooCode
   VERSION 1
-  DESCRIPTION "Tetris"
+  DESCRIPTION "Tetrissen"
   LANGUAGES CXX
 )
 
-option(USE_WPF "Build WPF UI" OFF)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# 윈도우 std::byte 오류 해결용
+if (WIN32)
+    add_compile_definitions(_HAS_STD_BYTE=0)
+endif()
 
-add_subdirectory(source/board)
-add_subdirectory(source/game_rule)
-add_subdirectory(source/tetromino)
-add_subdirectory(source/util)
-add_subdirectory(source/engine)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set_property(DIRECTORY PROPERTY
+  CMAKE_CXX_CLANG_TIDY
+  "clang-tidy;-warnings-as-errors=*"
+)
+
+option(USE_WPF "Build WPF UI" OFF)
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+if (ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(STATUS "Coverage enabled")
+
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+endif()
+
+add_subdirectory(core/source/board)
+add_subdirectory(core/source/game_rule)
+add_subdirectory(core/source/tetromino)
+add_subdirectory(core/source/util)
+add_subdirectory(core/source/engine)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
-    add_subdirectory(source/tetris)
+    add_subdirectory(platform/linux/source/main)
+    set_target_properties(tetris PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 
 # 윈도우 빌드
 elseif (WIN32)
@@ -43,3 +63,5 @@ elseif (WIN32)
     endif()
 
 endif()
+
+add_subdirectory(test)

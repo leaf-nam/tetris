@@ -1,19 +1,23 @@
 #include "terminal_network.hpp" // 헤더 파일 경로에 맞게 수정하세요
+
 #include <iostream>
 
+using namespace std;
+
 // [Terminal] 생성자
-TerminalNetwork::TerminalNetwork() {
+TerminalNetwork::TerminalNetwork()
+{
     // 1. 윈도우 소켓 초기화 (필수)
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "WSAStartup failed" << std::endl;
+    WSADATA wsa_data;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        cerr << "WSAStartup failed\n";
         exit(0);
     }
 
     // 2. Client Socket 생성 (송신용)
     client_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (client_sock == INVALID_SOCKET) {
-        std::cerr << "client socket creation failed: " << WSAGetLastError() << std::endl;
+        cerr << "client socket creation failed: " << WSAGetLastError() << "\n";
         WSACleanup();
         exit(0);
     }
@@ -21,7 +25,7 @@ TerminalNetwork::TerminalNetwork() {
     // 3. Server Socket 생성 (수신용)
     server_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (server_sock == INVALID_SOCKET) {
-        std::cerr << "server socket creation failed: " << WSAGetLastError() << std::endl;
+        cerr << "server socket creation failed: " << WSAGetLastError() << "\n";
         closesocket(client_sock);
         WSACleanup();
         exit(0);
@@ -31,7 +35,7 @@ TerminalNetwork::TerminalNetwork() {
     // (리눅스의 SOCK_NONBLOCK 대체)
     u_long mode = 1; // 1: Non-blocking, 0: Blocking
     if (ioctlsocket(server_sock, FIONBIO, &mode) == SOCKET_ERROR) {
-        std::cerr << "ioctlsocket failed: " << WSAGetLastError() << std::endl;
+        cerr << "ioctlsocket failed: " << WSAGetLastError() << "\n";
         exit(0);
     }
 
@@ -42,8 +46,8 @@ TerminalNetwork::TerminalNetwork() {
     addr.sin_port = htons(PORT);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(server_sock, (SOCKADDR*)&addr, sizeof(addr)) == SOCKET_ERROR) {
-        std::cerr << "bind failed: " << WSAGetLastError() << std::endl;
+    if (bind(server_sock, (SOCKADDR*) &addr, sizeof(addr)) == SOCKET_ERROR) {
+        cerr << "bind failed: " << WSAGetLastError() << "\n";
         exit(0);
     }
 
@@ -96,15 +100,17 @@ void TerminalNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     pkt.deleted_line = read_32b(p);
 }
 
-void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip) {
-    packet pkt;
+void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino,
+                               int deleted_line, const char* another_user_ip)
+{
+    Packet pkt;
     auto [pos_r, pos_c] = tetromino.get_pos();
     uint8_t buf[PACKET_SIZE];
     SOCKADDR_IN another_user;
     ZeroMemory(&another_user, sizeof(another_user));
     another_user.sin_family = AF_INET;
     another_user.sin_port = htons(PORT);
-    
+
     // Terminal에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
     inet_pton(AF_INET, another_user_ip, &another_user.sin_addr);
 
@@ -112,7 +118,7 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, c
     for (int r = 0; r < 20; ++r)
         for (int c = 0; c < 10; ++c)
             pkt.board[r][c] = board.at(r + 2, c); // 숨겨진 2줄 제외하고 복사
-            
+
     pkt.type = tetromino.get_mino_type();
     pkt.rotation = tetromino.get_rotation();
     pkt.r = pos_r;
@@ -121,21 +127,16 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino, c
 
     serialize(buf, pkt);
 
-    int sendResult = sendto(
-        client_sock,
-        (char*)buf,
-        PACKET_SIZE,
-        0,
-        (SOCKADDR*)&another_user,
-        sizeof(another_user)
-    );
+    int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &another_user,
+                             sizeof(another_user));
 
-    if (sendResult == SOCKET_ERROR) {
-        std::cerr << "sendto failed: " << WSAGetLastError() << std::endl;
+    if (send_result == SOCKET_ERROR) {
+        cerr << "sendto failed: " << WSAGetLastError() << "\n";
     }
 }
 
-bool TerminalNetwork::recv_udp(packet& recv_pkt) {
+bool TerminalNetwork::recv_udp(Packet& recv_pkt)
+{
     uint8_t buf[PACKET_SIZE];
     bool data_received = false;
     SOCKADDR_IN client_addr;
@@ -144,14 +145,8 @@ bool TerminalNetwork::recv_udp(packet& recv_pkt) {
     // [Terminal Non-blocking 처리]
     // epoll 대신 루프를 돌며 쌓인 패킷을 모두 처리하고 가장 최신 것을 가져옵니다.
     while (true) {
-        int r = recvfrom(
-            server_sock,
-            (char*)buf,
-            PACKET_SIZE,
-            0,
-            (SOCKADDR*)&client_addr,
-            &addr_len
-        );
+        int r =
+            recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr, &addr_len);
 
         if (r == SOCKET_ERROR) {
             int err = WSAGetLastError();
@@ -161,11 +156,11 @@ bool TerminalNetwork::recv_udp(packet& recv_pkt) {
             }
             else {
                 // 진짜 에러 발생
-                std::cerr << "recvfrom failed: " << err << std::endl;
+                cerr << "recvfrom failed: " << err << "\n";
                 return false;
             }
         }
-        
+
         // 데이터 수신 성공
         deserialize(buf, recv_pkt);
         data_received = true;
@@ -174,7 +169,8 @@ bool TerminalNetwork::recv_udp(packet& recv_pkt) {
     return data_received;
 }
 
-TerminalNetwork::~TerminalNetwork() {
+TerminalNetwork::~TerminalNetwork()
+{
     // 소켓 닫기
     if (client_sock != INVALID_SOCKET) closesocket(client_sock);
     if (server_sock != INVALID_SOCKET) closesocket(server_sock);
