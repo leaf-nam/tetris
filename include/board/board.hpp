@@ -1,9 +1,11 @@
 #ifndef __BOARD_HPP__
 #define __BOARD_HPP__
 
-#include <chrono>
-#include <iostream>
 #include "tetromino/tetromino.hpp"
+
+#include <chrono>
+#include <cstdint>
+#include <iostream>
 
 inline constexpr int BOARD_ROW = 22;
 inline constexpr int BOARD_COL = 10;
@@ -20,7 +22,7 @@ enum MoveOption : std::uint8_t
 
 class Board
 {
-private:
+  private:
     Tetromino active_mino;
     Tetromino saved_mino;
     bool is_mino_swaped;
@@ -29,7 +31,7 @@ private:
 
     bool can_move_mino(int new_r, int new_c, int new_rot);
 
-public:
+  public:
     Board();
 
     std::pair<int, int> get_active_mino_pos();
@@ -46,7 +48,7 @@ public:
     void swap_mino();
 
     bool is_line_full(int row);
-    
+
     Tetromino& get_active_mino();
     Tetromino& get_saved_mino();
     bool get_is_mino_swaped();

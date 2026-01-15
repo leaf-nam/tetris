@@ -15,7 +15,7 @@
 
 class LinuxNetwork : public INetwork
 {
-    private:
+  private:
     int client_sock;
     int server_sock;
     int epfd;
@@ -26,12 +26,12 @@ class LinuxNetwork : public INetwork
     int32_t read_32b(const uint8_t*& p);
     void deserialize(const uint8_t* buf, Packet& pkt);
 
-    public:
+  public:
     LinuxNetwork();
-    void send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip) override;
-    bool recv_udp(packet& recv_pkt) override;
+    void send_udp(const Board& board, const Tetromino& tetromino, int deleted_line,
+                  const char* another_user_ip) override;
+    bool recv_udp(Packet& recv_pkt) override;
     ~LinuxNetwork();
 };
 
 #endif
-
