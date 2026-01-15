@@ -94,7 +94,7 @@ void LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line,
                             const char* another_user_ip)
 {
-    packet pkt;
+    Packet pkt;
     uint8_t buf[PACKET_SIZE];
     auto [pos_r, pos_c] = tetromino.get_pos();
     sockaddr_in another_user;
@@ -131,7 +131,7 @@ bool LinuxNetwork::recv_udp(Packet& recv_pkt)
     if (n == 0) return false;
 
     for (int i = 0; i < n; i++) {
-        if (events[i].events & EPOLLIN != 0) {
+        if ((events[i].events & EPOLLIN) != 0) {
             while (true) {
                 sockaddr_in client{};
                 socklen_t len = sizeof(client);
