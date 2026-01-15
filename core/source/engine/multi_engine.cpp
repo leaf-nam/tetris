@@ -1,7 +1,7 @@
 #include "engine/multi_engine.hpp"
-
 #include "board/board.hpp"
 #include "game_rule/rule_factory.hpp"
+#include "game_rule/key_mapper.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/action.hpp"
 #include "util/timer.hpp"
@@ -13,32 +13,34 @@
 
 using namespace std;
 
-MultiEngine::MultiEngine(IInputHandler* input_handler, IRenderer* renderer, INetwork* network)
-    : Engine(input_handler, renderer, network)
-{
-}
+MultiEngine::MultiEngine(IInputHandler* input_handler, IRenderer* renderer, INetwork* network) : Engine(input_handler, renderer, network) {}
 
 void MultiEngine::run()
 {
     Board board;
-    unique_ptr<GameRule> rule = create_rule("ZEN", board);
+    unique_ptr<GameRule> rule = create_rule("VERSUS", board);
+    KeyMapper key_mapper;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
 
+    PacketStruct recv_pkt;
     int curr_mino = 0;
     int action;
-    int score = 0, new_score;
-    bool is_level_up = false, is_line_fill_complete = false;
+    int attack = 0;
+    bool is_line_fill_complete = false;
     int key;
     int index = 0;
     char another_user_ip[1024];
     char c;
 
     renderer->render_ip_recv();
-    while (true) {
+    while(true)
+    {
         c = input_handler->scan();
-        if (c == '\n' || c == '\r') break;
-        if (c != 0) {
+        if(c == '\n' || c == '\r')
+            break;
+        if(c != 0)
+        {
             renderer->render_char(c);
             another_user_ip[index++] = c;
         }
@@ -49,95 +51,59 @@ void MultiEngine::run()
     renderer->render_background();
     renderer->render_board(board, board.get_active_mino());
     renderer->render_hold(board.get_saved_mino());
-    renderer->render_score(score);
+    renderer->render_score(attack);
     renderer->render_level(rule->get_level());
     renderer->render_timer(timer.get_seconds());
-    while (true) {
-        if (!board.has_active_mino()) {
+
+    while (1)
+    {
+        if(!board.has_active_mino())
+        {
             if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
             renderer->render_next_block(tetromino_queue.get_tetrominos());
         }
 
         timer.set_curr_time();
-        if (timer.check_500ms_time()) {
+        if (timer.check_500ms_time())
+        {
             rule->process(Action::DROP);
             renderer->render_board(board, board.get_active_mino());
             renderer->render_hold(board.get_saved_mino());
-            renderer->render_score(score);
             renderer->render_level(rule->get_level());
             renderer->render_timer(timer.get_seconds());
-            is_level_up = rule->time_and_level_update();
-            network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
 
         key = input_handler->scan();
-        if (key != 0) {
-            switch (key) {
-            case 'a':
-                action = Action::LEFT;
-                break;
-            case 's':
-                action = Action::DROP;
-                break;
-            case 'd':
-                action = Action::RIGHT;
-                break;
-            case 'q':
-                action = Action::ROTATE_CCW;
-                break;
-            case 'e':
-                action = Action::ROTATE_CW;
-                break;
-            case 'f':
-                action = Action::HARD_DROP;
-                break;
-            case 'w':
-                action = Action::SWAP;
-                break;
-            default:
-                action = -1;
-                break;
-            }
-        }
-        else
-            action = -1;
+        action = key_mapper.map_key(key);
 
-        if (action != -1) {
+        if (action != Action::INVALID) 
+        {
             rule->process(action);
             renderer->render_next_block(tetromino_queue.get_tetrominos());
             renderer->render_board(board, board.get_active_mino());
             renderer->render_hold(board.get_saved_mino());
-            network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
+        
+        attack = rule->update_score();
+        
+        network->send_udp(board, board.get_active_mino(), attack, another_user_ip);
 
-        new_score = rule->update_score();
-        if (is_level_up)
-            if (!board.insert_line(3)) {
-                renderer->render_board(board, board.get_active_mino());
-                renderer->render_hold(board.get_saved_mino());
-                break;
-            }
-        if (new_score != 0 || is_level_up) {
-            score += new_score;
-            renderer->render_board(board, board.get_active_mino());
-            renderer->render_hold(board.get_saved_mino());
-            renderer->render_score(score);
-            renderer->render_level(rule->get_level());
-            renderer->render_timer(timer.get_seconds());
-            is_level_up = false;
-        }
+        if (attack > 0) renderer->render_score(attack);
 
-        if (new_score != 0)
-            network->send_udp(board, board.get_active_mino(), (new_score / 100), another_user_ip);
-
-        Packet recv_pkt;
-        if (network->recv_udp(recv_pkt)) {
+        if(network->recv_udp(recv_pkt))
+        {
             renderer->render_other_board(recv_pkt);
-            if (recv_pkt.deleted_line > 1) {
-                is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - 1);
+
+            // 같은 타이밍에 서로 공격한 경우 상쇄됨
+            if (recv_pkt.deleted_line > attack)
+            {
+                // 예시: 상대방이 garbage를 5 던졌는데, 내가 같은 타이밍에 3 던졌으면, 3만큼은 상쇄되고 2만 적용됨
+                // 반대로 상대편 측에서는 5 던졌는데, 상대가 3을 던졌으므로 garbage를 모두 상쇄하여 아무 불이익도 받지 않음
+                is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - attack);
+                if (!is_line_fill_complete)
+                    break;
                 renderer->render_board(board, board.get_active_mino());
                 renderer->render_hold(board.get_saved_mino());
-                if (!is_line_fill_complete) break;
             }
         }
     }

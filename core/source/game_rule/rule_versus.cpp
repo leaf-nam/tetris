@@ -65,7 +65,7 @@ bool VERSUS::is_game_clear()
 
 bool VERSUS::is_game_over()
 {
-    const board_t& game_board = board.get_board();
+    const BoardT& game_board = board.get_board();
     for (int r = 0; r < 2; ++r) 
     {
         if (game_board[r]) return true;
