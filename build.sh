@@ -5,4 +5,4 @@ mkdir build
 cd ./build
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 make
-mv platform/linux/main/tetris ../
+mv platform/linux/source/main/tetris ../
