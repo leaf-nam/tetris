@@ -1,4 +1,4 @@
-add_library(input terminal_input.cpp)
+add_library(input "terminal-input.cpp")
 
 target_include_directories(input PUBLIC ${PROJECT_SOURCE_DIR}/include)
 

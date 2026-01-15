@@ -1,4 +1,4 @@
-add_library(render terminal_renderer.cpp)
+add_library(render "terminal-renderer.cpp")
 
 target_include_directories(render PUBLIC ${PROJECT_SOURCE_DIR}/include)
 

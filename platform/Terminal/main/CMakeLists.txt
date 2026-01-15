@@ -1,4 +1,4 @@
-add_executable(main terminal_main.cpp)
+add_executable(main "terminal-main.cpp")
 
 target_include_directories(main PRIVATE ${PROJECT_SOURCE_DIR}/platform/Terminal)
 

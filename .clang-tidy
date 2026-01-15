@@ -1,0 +1,41 @@
+
+# =========================
+# 이름 검사
+# 암묵적 bool 형변환 검사
+# 불필요한 값 복사 const 검사
+# 성능 저하 검사
+# =========================
+Checks: >
+  readability-identifier-naming,
+  readability-implicit-bool-conversion,
+  readability-avoid-const-params-in-decls,
+  performance-*
+WarningsAsErrors: true
+# =========================
+# 타입(클래스, 구조체, 타입정의, 타입별칭) : PascalCase
+# 변수, 함수, 멤버변수 : lower_case
+# 상수[const / constexpr], 매크로 : UPPER_CASE
+# =========================
+CheckOptions:
+  - key: readability-identifier-naming.ClassCase
+    value: PascalCase
+  - key: readability-identifier-naming.StructCase
+    value: PascalCase
+  - key: readability-identifier-naming.TypedefCase
+    value: PascalCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: PascalCase
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ClassConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
