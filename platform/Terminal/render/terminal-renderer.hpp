@@ -12,20 +12,22 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // --- 상수 정의 ---
 static const uint16_t LEFT_EDGE = 1u << 12;
 static const uint16_t RIGHT_EDGE = 1u << 3;
 
 // --- 색상 네임스페이스 ---
 namespace Color {
-extern const char* RESET;
-extern const char* RED;
-extern const char* GREEN;
-extern const char* YELLOW;
-extern const char* CYAN;
-extern const char* PURPLE;
-extern const char* GRAY;
-extern const char* BOLD;
+extern const char* const RESET;
+extern const char* const RED;
+extern const char* const GREEN;
+extern const char* const YELLOW;
+extern const char* const CYAN;
+extern const char* const PURPLE;
+extern const char* const GRAY;
+extern const char* const BOLD;
 } // namespace Color
 
 class TerminalRenderer : public IRenderer
@@ -34,74 +36,71 @@ class TerminalRenderer : public IRenderer
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
-    void renderBackground() override;
+    void render_background() override;
 
     /**
      * @brief 게임판 렌더링
      * @param 보드 현상태 + 현재 테트로미노 렌더링
      */
-    void renderBoard(const Board& board, const Tetromino& tetromino) override;
+    void render_board(const Board& board, const Tetromino& tetromino) override;
 
     /**
      * @brief 타이머에 현재 시간 렌더링
      * @param 현재시간(초)
      */
-    void renderTimer(const int sec) override;
+    void render_timer(int sec) override;
 
     /**
      * @brief 다음 블럭 3개 렌더링
      * @param 다음 블럭 3개를 가진 배열 포인터(순서 중요)
      */
-    void renderNextBlock(const int* tetrominoArray) override;
+    void render_next_block(const int* tetrominoArray) override;
 
     /**
      * @brief 홀드할 블럭 렌더링
      * @param 홀드할 블럭
      */
-    void renderHold(const Tetromino& tetromino) override;
+    void render_hold(const Tetromino& tetromino) override;
 
     /**
      * @brief 점수판 렌더링
      * @param 현재 점수
      */
-    void renderScore(const int score) override;
+    void render_score(int score) override;
 
     /**
      * @brief 레벨 렌더링
      * @param 현재 레벨
      */
-    void renderLevel(const int level) override;
+    void render_level(int level) override;
 
     /**
      * @brief 소멸자
      */
     virtual ~TerminalRenderer() override;
 
-    void renderOtherBoard(packet& pkt) override;
-    void renderIPRecv() override;
+    void render_other_board(Packet& pkt) override;
+    void render_ip_recv() override;
 
-    void renderChar(char c) override;
+    void render_char(char c) override;
 
-    void renderClear() override;
+    void render_clear() override;
 
-    void renderGameOver();
-    void renderMenu();
-    bool is_solo;
+    void render_game_over();
 
   private:
     void clear();
-    void setCursor(int x, int y);
+    void set_cursor(int x, int y);
     // display
-    void drawLogo(int x, int y);
-    void drawEnemyLogo();
-    void drawUIBox(std::string title, int x, int y, int w, int h, const char* color);
+    void draw_logo();
+    void draw_ui_box(const string& title, int x, int y, int w, int h, const char* color);
 
     // draw
-    void renderMinoPattern(int x, int y, const mino& shape, const char* color);
-    void drawHold(const mino& hold_shape);
+    void render_mino_pattern(int x, int y, const Mino& shape, const char* color);
+    void draw_hold(const Mino& hold_shape);
     // hide, show cursor
-    void showCursor();
-    void hideCursor();
+    void show_cursor();
+    void hide_cursor();
 };
 
 #endif

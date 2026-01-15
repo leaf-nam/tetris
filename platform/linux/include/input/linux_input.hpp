@@ -3,8 +3,6 @@
 
 #include "api/i_input_handler.hpp"
 
-using namespace std;
-
 class LinuxInput : public IInputHandler
 {
     public:

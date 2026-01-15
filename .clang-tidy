@@ -10,21 +10,18 @@ Checks: >
   readability-implicit-bool-conversion,
   readability-avoid-const-params-in-decls,
   performance-*
+HeaderFilterRegex: '.*'
+SystemHeaders: false
 WarningsAsErrors: true
-# =========================
-# 타입(클래스, 구조체, 타입정의, 타입별칭) : PascalCase
-# 변수, 함수, 멤버변수 : lower_case
-# 상수[const / constexpr], 매크로 : UPPER_CASE
-# =========================
 CheckOptions:
   - key: readability-identifier-naming.ClassCase
-    value: PascalCase
+    value: CamelCase
   - key: readability-identifier-naming.StructCase
-    value: PascalCase
+    value: CamelCase
   - key: readability-identifier-naming.TypedefCase
-    value: PascalCase
+    value: CamelCase
   - key: readability-identifier-naming.TypeAliasCase
-    value: PascalCase
+    value: CamelCase
   - key: readability-identifier-naming.VariableCase
     value: lower_case
   - key: readability-identifier-naming.FunctionCase
@@ -36,6 +33,4 @@ CheckOptions:
   - key: readability-identifier-naming.StaticConstantCase
     value: UPPER_CASE
   - key: readability-identifier-naming.ClassConstantCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE

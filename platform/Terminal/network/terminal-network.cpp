@@ -6,16 +6,16 @@ using namespace std;
 TerminalNetwork::TerminalNetwork()
 {
     // 1. 윈도우 소켓 초기화 (필수)
-    WSADATA was_data;
-    if (WSAStartup(MAKEWORD(2, 2), &was_data) != 0) {
-        cerr << "WSAStartup failed" << '\n';
+    WSADATA wsa_data;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        cerr << "WSAStartup failed\n";
         exit(0);
     }
 
     // 2. Client Socket 생성 (송신용)
     client_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (client_sock == INVALID_SOCKET) {
-        cerr << "client socket creation failed: " << WSAGetLastError() << '\n';
+        cerr << "client socket creation failed: " << WSAGetLastError() << "\n";
         WSACleanup();
         exit(0);
     }
@@ -23,7 +23,7 @@ TerminalNetwork::TerminalNetwork()
     // 3. Server Socket 생성 (수신용)
     server_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (server_sock == INVALID_SOCKET) {
-        cerr << "server socket creation failed: " << WSAGetLastError() << '\n';
+        cerr << "server socket creation failed: " << WSAGetLastError() << "\n";
         closesocket(client_sock);
         WSACleanup();
         exit(0);
@@ -33,7 +33,7 @@ TerminalNetwork::TerminalNetwork()
     // (리눅스의 SOCK_NONBLOCK 대체)
     u_long mode = 1; // 1: Non-blocking, 0: Blocking
     if (ioctlsocket(server_sock, FIONBIO, &mode) == SOCKET_ERROR) {
-        cerr << "ioctlsocket failed: " << WSAGetLastError() << '\n';
+        cerr << "ioctlsocket failed: " << WSAGetLastError() << "\n";
         exit(0);
     }
 
@@ -45,7 +45,7 @@ TerminalNetwork::TerminalNetwork()
     addr.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(server_sock, (SOCKADDR*) &addr, sizeof(addr)) == SOCKET_ERROR) {
-        cerr << "bind failed: " << WSAGetLastError() << '\n';
+        cerr << "bind failed: " << WSAGetLastError() << "\n";
         exit(0);
     }
 
@@ -99,9 +99,9 @@ void TerminalNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 }
 
 void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino,
-                               const int deleted_line, const char* another_user_ip)
+                               int deleted_line, const char* another_user_ip)
 {
-    packet pkt;
+    Packet pkt;
     auto [pos_r, pos_c] = tetromino.get_pos();
     uint8_t buf[PACKET_SIZE];
     SOCKADDR_IN another_user;
@@ -129,11 +129,11 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino,
                              sizeof(another_user));
 
     if (send_result == SOCKET_ERROR) {
-        cerr << "sendto failed: " << WSAGetLastError() << '\n';
+        cerr << "sendto failed: " << WSAGetLastError() << "\n";
     }
 }
 
-bool TerminalNetwork::recv_udp(packet& recv_pkt)
+bool TerminalNetwork::recv_udp(Packet& recv_pkt)
 {
     uint8_t buf[PACKET_SIZE];
     bool data_received = false;
@@ -154,7 +154,7 @@ bool TerminalNetwork::recv_udp(packet& recv_pkt)
             }
             else {
                 // 진짜 에러 발생
-                cerr << "recvfrom failed: " << err << '\n';
+                cerr << "recvfrom failed: " << err << "\n";
                 return false;
             }
         }

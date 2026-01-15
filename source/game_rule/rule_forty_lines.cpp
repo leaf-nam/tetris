@@ -1,4 +1,5 @@
 #include "game_rule/rule_forty_lines.hpp"
+
 #include "util/action.hpp"
 
 FortyLines::FortyLines(Board& board) : GameRule(board), complete_lines(0) {}
@@ -8,17 +9,13 @@ int FortyLines::update_score()
     return complete_lines; // FortyLines에서는 score가 삭제한 line 수로 대체됨
 }
 
-bool FortyLines::is_game_clear()
-{
-    return complete_lines < 40;
-}
+bool FortyLines::is_game_clear() { return complete_lines < 40; }
 
 bool FortyLines::is_game_over()
 {
-    const board_t& game_board = board.get_board();
-    for (int r = 0; r < 2; ++r) 
-    {
-        if (game_board[r]) return true;
+    const BoardT& game_board = board.get_board();
+    for (int r = 0; r < 2; ++r) {
+        if (game_board[r] != 0) return true;
     }
 
     return false;
