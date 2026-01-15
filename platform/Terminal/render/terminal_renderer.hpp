@@ -1,7 +1,7 @@
 #ifndef TERMINAL_RENDERER_H
 #define TERMINAL_RENDERER_H
 
-#include "api/i_renderer.hpp"
+#include "i_renderer.hpp"
 #include "board/board.hpp"
 #include "tetromino/tetromino.hpp"
 
