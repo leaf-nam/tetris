@@ -9,10 +9,10 @@ inline constexpr int BOARD_ROW = 22;
 inline constexpr int BOARD_COL = 10;
 inline constexpr int BOARD_UPPER = 2;
 
-typedef int board_row[BOARD_COL];
-typedef board_row board_t[BOARD_ROW];
+typedef int BoardRow[BOARD_COL];
+typedef BoardRow BoardT[BOARD_ROW];
 
-enum MoveOption
+enum MoveOption : std::uint8_t
 {
     DISMISS_IF_FAIL = 0,
     FIX_IF_FAIL = 1
@@ -24,7 +24,7 @@ private:
     Tetromino active_mino;
     Tetromino saved_mino;
     bool is_mino_swaped;
-    board_t game_board;
+    BoardT game_board;
     bool is_mino_active;
 
     bool can_move_mino(int new_r, int new_c, int new_rot);
@@ -50,7 +50,7 @@ public:
     Tetromino& get_active_mino();
     Tetromino& get_saved_mino();
     bool get_is_mino_swaped();
-    const board_t& get_board() const;
+    const BoardT& get_board() const;
     const bool is_filled(int r, int c) const;
     const int at(int r, int c) const;
     bool fill(int r, int c, int type);

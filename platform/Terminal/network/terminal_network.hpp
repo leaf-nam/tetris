@@ -36,8 +36,8 @@ public:
     TerminalNetwork();
     
     // 부모 클래스(INetwork)의 가상 함수 오버라이드
-    void send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, const char* another_user_ip) override;
-    bool recv_udp(packet& recv_pkt) override;
+    void send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, const char* another_user_ip) override;
+    bool recv_udp(Packet& recv_pkt) override;
     
     ~TerminalNetwork();
 };

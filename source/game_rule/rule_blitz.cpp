@@ -1,4 +1,5 @@
 #include "game_rule/rule_blitz.hpp"
+
 #include "util/action.hpp"
 
 BLITZ::BLITZ(Board& board) : GameRule(board) {}
@@ -8,15 +9,12 @@ int BLITZ::update_score()
     int score = 0;
     int base_score = 100;
     int r = 21;
-    while (r >= 2) 
-    {
-        if (board.is_line_full(r))
-        {
+    while (r >= 2) {
+        if (board.is_line_full(r)) {
             board.delete_line(r);
             score += base_score;
         }
-        else
-        {
+        else {
             --r;
         }
     }
@@ -31,10 +29,9 @@ bool BLITZ::is_game_clear()
 
 bool BLITZ::is_game_over()
 {
-    const board_t& game_board = board.get_board();
-    for (int r = 0; r < 2; ++r) 
-    {
-        if (game_board[r]) return true;
+    const BoardT& game_board = board.get_board();
+    for (int r = 0; r < 2; ++r) {
+        if (game_board[r] != 0) return true;
     }
 
     return false;

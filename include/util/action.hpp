@@ -1,7 +1,7 @@
 #ifndef __ACTION_HPP__
 #define __ACTION_HPP__
 
-enum Action
+enum Action : std::uint8_t
 {
     LEFT = 0,
     RIGHT,

@@ -1,7 +1,8 @@
 #include "board/board.hpp"
+
+#include "tetromino/tetromino_queue.hpp"
 #include "util/action.hpp"
 #include "util/rand_gen.hpp"
-#include "tetromino/tetromino_queue.hpp"
 
 using namespace std;
 
@@ -9,10 +10,8 @@ Board::Board()
 {
     is_mino_active = false;
 
-    for (int r = 0; r < BOARD_ROW; ++r)
-    {
-        for (int c = 0; c < BOARD_COL; ++c)
-        {
+    for (int r = 0; r < BOARD_ROW; ++r) {
+        for (int c = 0; c < BOARD_COL; ++c) {
             game_board[r][c] = MinoType::NONE;
         }
     }
@@ -24,46 +23,31 @@ Board::Board()
  * @brief active tetromino의 위치 반환
  * @return pair<int, int> 순서대로 row, col
  */
-pair<int, int> Board::get_active_mino_pos()
-{
-    return active_mino.get_pos();
-}
+pair<int, int> Board::get_active_mino_pos() { return active_mino.get_pos(); }
 
 /**
  * @brief active tetromino의 회전 반환
  * @return 회전 (0 ~ 3)
  */
-int Board::get_active_mino_rotation()
-{
-    return active_mino.get_rotation();
-}
+int Board::get_active_mino_rotation() { return active_mino.get_rotation(); }
 
 /**
  * @brief active tetromino의 타입 반환
  * @return 타입 (0 ~ 6)
  */
-int Board::get_active_mino_type()
-{
-    return active_mino.get_mino_type();
-}
+int Board::get_active_mino_type() { return active_mino.get_mino_type(); }
 
 /**
  * @brief board 상의 mino가 active 상태인지 반환
  * @return mino가 active이면 true 반환
  */
-const bool Board::has_active_mino() const
-{
-    return is_mino_active;
-}
+const bool Board::has_active_mino() const { return is_mino_active; }
 
 /**
  * @brief swap된 mino가 있는지 반환
  * @return swap된 mino가 있으면 true 반환
  */
-const bool Board::has_swaped_mino() const
-{
-    return is_mino_swaped;
-}
+const bool Board::has_swaped_mino() const { return is_mino_swaped; }
 
 /**
  * @brief 테트로미노가 새로운 위치와 회전 상태일 때 보드 상에서 충돌이 있는 지 판정
@@ -71,13 +55,11 @@ const bool Board::has_swaped_mino() const
  */
 bool Board::can_move_mino(int new_r, int new_c, int new_rot)
 {
-    const mino& m = active_mino.get_shape(new_rot);
+    const Mino& m = active_mino.get_shape(new_rot);
 
-    for (int r = 0; r < MINO_SIZE; ++r)
-    {
-        for (int c = 0; c < MINO_SIZE; ++c)
-        {
-            if (is_filled(new_r + r, new_c + c) && m[r][c]) return false;
+    for (int r = 0; r < MINO_SIZE; ++r) {
+        for (int c = 0; c < MINO_SIZE; ++c) {
+            if (is_filled(new_r + r, new_c + c) && m[r][c] != 0) return false;
         }
     }
 
@@ -107,15 +89,13 @@ bool Board::fill(int r, int c, int type)
 bool Board::move_active_mino(int new_r, int new_c, int new_rot, MoveOption move_option)
 {
     bool res = false;
-    
-    if (can_move_mino(new_r, new_c, new_rot) && is_mino_active)
-    {
+
+    if (can_move_mino(new_r, new_c, new_rot) && is_mino_active) {
         active_mino.set_pos(new_r, new_c);
         active_mino.set_rotation(new_rot);
         res = true;
     }
-    else if (move_option == MoveOption::FIX_IF_FAIL)
-    {
+    else if (move_option == MoveOption::FIX_IF_FAIL) {
         update_board();
     }
 
@@ -145,41 +125,27 @@ void Board::update_board()
 
     int mino_type = active_mino.get_mino_type();
     auto [pos_r, pos_c] = active_mino.get_pos();
-    const mino& m = active_mino.get_shape();
+    const Mino& m = active_mino.get_shape();
 
-    for (int r = 0; r < MINO_SIZE; ++r)
-    {
-        for (int c = 0; c < MINO_SIZE; ++c)
-        {
-            if (m[r][c]) fill(pos_r + r , pos_c + c, mino_type);
+    for (int r = 0; r < MINO_SIZE; ++r) {
+        for (int c = 0; c < MINO_SIZE; ++c) {
+            if (m[r][c] != 0) fill(pos_r + r, pos_c + c, mino_type);
         }
     }
 
     is_mino_active = false;
 }
 
-Tetromino& Board::get_active_mino()
-{
-    return active_mino;
-}
+Tetromino& Board::get_active_mino() { return active_mino; }
 
-Tetromino& Board::get_saved_mino()
-{
-    return saved_mino;
-}
+Tetromino& Board::get_saved_mino() { return saved_mino; }
 
-bool Board::get_is_mino_swaped()
-{
-    return is_mino_swaped;
-}
+bool Board::get_is_mino_swaped() { return is_mino_swaped; }
 
 /**
  * @brief 게임 보드를 반환
  */
-const board_t& Board::get_board() const
-{
-    return game_board;
-}
+const BoardT& Board::get_board() const { return game_board; }
 
 /**
  * @brief 보드의 특정 좌표에 블록이 있는지 반환
@@ -212,8 +178,10 @@ void Board::delete_line(int del_row)
 {
     if (del_row >= 22 || del_row < 0) return;
 
-    for (int r = del_row; r >= 1; --r) copy(game_board[r - 1], game_board[r - 1] + BOARD_COL, game_board[r]);
-    for (int c = 0; c < BOARD_COL; ++c) game_board[0][c] = MinoType::NONE;
+    for (int r = del_row; r >= 1; --r)
+        copy(game_board[r - 1], game_board[r - 1] + BOARD_COL, game_board[r]);
+    for (int c = 0; c < BOARD_COL; ++c)
+        game_board[0][c] = MinoType::NONE;
 }
 
 bool Board::insert_line(int ins_row)
@@ -224,33 +192,29 @@ bool Board::insert_line(int ins_row)
     int new_r = curr_r;
     int index = 0;
 
-    for (int r = ins_row; r < 22; ++r)
-    {
+    for (int r = ins_row; r < 22; ++r) {
         copy(game_board[r], game_board[r] + BOARD_COL, game_board[r - ins_row]);
     }
 
-    for (int r = 21; r > 21-ins_row; --r)
-    {
+    for (int r = 21; r > 21 - ins_row; --r) {
         int rand_idx = rand_gen.get_rand_int() % BOARD_COL;
-        board_row new_row = { MinoType::OBSTACLE };
+        BoardRow new_row = {MinoType::OBSTACLE};
         new_row[rand_idx] = MinoType::NONE;
         copy(new_row, new_row + BOARD_COL, game_board[r]);
     }
 
-    while (!can_move_mino(new_r, curr_c, curr_rot) && new_r > 0)
-    {
+    while (!can_move_mino(new_r, curr_c, curr_rot) && new_r > 0) {
         new_r--;
         index++;
     }
 
-    if(index == 0) return true;
-    else if(new_r < 2)
-    {
+    if (index == 0)
+        return true;
+    else if (new_r < 2) {
         active_mino.set_pos(new_r, curr_c);
         return false;
     }
-    else
-    {
+    else {
         active_mino.set_pos(new_r, curr_c);
         update_board();
         is_mino_active = false;
@@ -261,9 +225,8 @@ bool Board::insert_line(int ins_row)
 bool Board::is_line_full(int row)
 {
     if (row >= 22 || row < 0) return false;
-    for (int col = 0; col < BOARD_COL; ++col)
-    {
-        if (!is_filled(row, col)) return false; 
+    for (int col = 0; col < BOARD_COL; ++col) {
+        if (!is_filled(row, col)) return false;
     }
     return true;
 }
@@ -275,13 +238,11 @@ void Board::swap_mino()
     int temp_mino_type;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
 
-    if (saved_mino.get_mino_type() == -1)
-    {
+    if (saved_mino.get_mino_type() == -1) {
         saved_mino.init_mino(active_mino.get_mino_type());
         active_mino.init_mino(tetromino_queue.get_new_tetromino());
         active_mino.set_pos(curr_r, curr_c);
-        if (can_move_mino(curr_r, curr_c, 0) == false)
-        {
+        if (can_move_mino(curr_r, curr_c, 0) == false) {
             tetromino_queue.set_new_tetromino(active_mino.get_mino_type());
             active_mino.set_mino_type(saved_mino.get_mino_type());
             active_mino.set_rotation(curr_rot);
@@ -290,14 +251,12 @@ void Board::swap_mino()
         else
             is_mino_swaped = true;
     }
-    else
-    {
+    else {
         temp_mino_type = saved_mino.get_mino_type();
         saved_mino.init_mino(active_mino.get_mino_type());
         active_mino.init_mino(temp_mino_type);
         active_mino.set_pos(curr_r, curr_c);
-        if (can_move_mino(curr_r, curr_c, 0) == false)
-        {
+        if (can_move_mino(curr_r, curr_c, 0) == false) {
             temp_mino_type = saved_mino.get_mino_type();
             saved_mino.set_mino_type(active_mino.get_mino_type());
             active_mino.set_mino_type(temp_mino_type);

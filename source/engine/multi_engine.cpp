@@ -4,6 +4,7 @@
 #include "game_rule/rule_factory.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/action.hpp"
+#include "util/timer.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -33,51 +34,44 @@ void MultiEngine::run()
     char another_user_ip[1024];
     char c;
 
-    renderer->renderIPRecv();
+    renderer->render_ip_recv();
     while (true) {
         c = input_handler->scan();
-<<<<<<< HEAD
-        if (c == '\n') break;
+        if (c == '\n' || c == '\r') break;
         if (c != 0) {
-=======
-        if(c == '\n' || c == '\r')
-            break;
-        if(c != 0)
-        {
->>>>>>> origin/develop
-            renderer->renderChar(c);
+            renderer->render_char(c);
             another_user_ip[index++] = c;
         }
     }
     another_user_ip[index] = '\0';
-    renderer->renderClear();
+    renderer->render_clear();
 
-    renderer->renderBackground();
-    renderer->renderBoard(board, board.get_active_mino());
-    renderer->renderHold(board.get_saved_mino());
-    renderer->renderScore(score);
-    renderer->renderLevel(rule->get_level());
-    renderer->renderTimer(timer.get_seconds());
-    while (1) {
+    renderer->render_background();
+    renderer->render_board(board, board.get_active_mino());
+    renderer->render_hold(board.get_saved_mino());
+    renderer->render_score(score);
+    renderer->render_level(rule->get_level());
+    renderer->render_timer(timer.get_seconds());
+    while (true) {
         if (!board.has_active_mino()) {
             if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
-            renderer->renderNextBlock(tetromino_queue.get_tetrominos());
+            renderer->render_next_block(tetromino_queue.get_tetrominos());
         }
 
         timer.set_curr_time();
         if (timer.check_500ms_time()) {
             rule->process(Action::DROP);
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(score);
-            renderer->renderLevel(rule->get_level());
-            renderer->renderTimer(timer.get_seconds());
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
+            renderer->render_score(score);
+            renderer->render_level(rule->get_level());
+            renderer->render_timer(timer.get_seconds());
             is_level_up = rule->time_and_level_update();
             network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
 
         key = input_handler->scan();
-        if (key) {
+        if (key != 0) {
             switch (key) {
             case 'a':
                 action = Action::LEFT;
@@ -110,50 +104,42 @@ void MultiEngine::run()
 
         if (action != -1) {
             rule->process(action);
-            renderer->renderNextBlock(tetromino_queue.get_tetrominos());
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
+            renderer->render_next_block(tetromino_queue.get_tetrominos());
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
             network->send_udp(board, board.get_active_mino(), -1, another_user_ip);
         }
 
         new_score = rule->update_score();
         if (is_level_up)
             if (!board.insert_line(3)) {
-                renderer->renderBoard(board, board.get_active_mino());
-                renderer->renderHold(board.get_saved_mino());
+                renderer->render_board(board, board.get_active_mino());
+                renderer->render_hold(board.get_saved_mino());
                 break;
             }
-        if (new_score || is_level_up) {
+        if (new_score != 0 || is_level_up) {
             score += new_score;
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(score);
-            renderer->renderLevel(rule->get_level());
-            renderer->renderTimer(timer.get_seconds());
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
+            renderer->render_score(score);
+            renderer->render_level(rule->get_level());
+            renderer->render_timer(timer.get_seconds());
             is_level_up = false;
         }
-<<<<<<< HEAD
 
-        packet recv_pkt;
-        if (network->recv_udp(recv_pkt)) renderer->renderOtherBoard(recv_pkt);
-=======
-        if (new_score)
+        if (new_score != 0)
             network->send_udp(board, board.get_active_mino(), (new_score / 100), another_user_ip);
-        
-        packet recv_pkt;
-        if(network->recv_udp(recv_pkt))
-        {
-            renderer->renderOtherBoard(recv_pkt);
-            if(recv_pkt.deleted_line > 1)
-            {
+
+        Packet recv_pkt;
+        if (network->recv_udp(recv_pkt)) {
+            renderer->render_other_board(recv_pkt);
+            if (recv_pkt.deleted_line > 1) {
                 is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - 1);
-                renderer->renderBoard(board, board.get_active_mino());
-                renderer->renderHold(board.get_saved_mino());
-                if (!is_line_fill_complete)
-                    break;
+                renderer->render_board(board, board.get_active_mino());
+                renderer->render_hold(board.get_saved_mino());
+                if (!is_line_fill_complete) break;
             }
         }
->>>>>>> origin/develop
     }
 }
 
