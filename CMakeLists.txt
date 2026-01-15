@@ -14,12 +14,20 @@ endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_CLANG_TIDY
-    clang-tidy;
-    -warnings-as-errors=*;
+set_property(DIRECTORY PROPERTY
+  CMAKE_CXX_CLANG_TIDY
+  "clang-tidy;-warnings-as-errors=*"
 )
 
 option(USE_WPF "Build WPF UI" OFF)
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+if (ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(STATUS "Coverage enabled")
+
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+endif()
 
 add_subdirectory(core/source/board)
 add_subdirectory(core/source/game_rule)
@@ -33,6 +41,9 @@ if (UNIX)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
     add_subdirectory(platform/linux/source/main)
+    set_target_properties(tetris PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 
 # 윈도우 빌드
 elseif (WIN32)
@@ -52,3 +63,5 @@ elseif (WIN32)
     endif()
 
 endif()
+
+add_subdirectory(test)
