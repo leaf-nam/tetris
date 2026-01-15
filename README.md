@@ -20,8 +20,8 @@ Windows (WPF, Terminal) · Linux (Terminal) · Web *(추가예정)*
 
 ### 1️⃣ 싱글 플레이어
 *(스크린샷 추가 예정)*  
-![Gameplay Screenshot](<img width="976" height="981" alt="스크린샷 2026-01-15 140011" src="https://github.com/user-attachments/assets/e9ffc1f2-5eca-4fb5-8f0e-5e2776c6faf2" />
-)
+![Gameplay Screenshot](https://github.com/user-attachments/assets/e9ffc1f2-5eca-4fb5-8f0e-5e2776c6faf2)
+
 
 - 일정 시간이 지나면 레벨 상승
 - 레벨 증가 시 하단에 방해 블록 라인 추가
