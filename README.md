@@ -10,7 +10,6 @@ main, develop 제외한 나머지 브랜치 리무브 예정!
 **TETRISSEN**은 C++ 기반으로 구현된 **크로스 플랫폼 테트리스 게임**입니다.  
 게임 로직과 렌더링을 분리한 클린 아키텍처(Clean Architecture)를 적용하여,   
 서로 다른 플랫폼에서 공통 API를 통해 동일한 게임 로직을 재사용할 수 있도록 설계되었습니다.
-- 멀티플레이어
 
 **Supported Platforms:**
 Windows (WPF, Terminal) · Linux (Terminal) · Web *(추가예정)*
@@ -21,7 +20,8 @@ Windows (WPF, Terminal) · Linux (Terminal) · Web *(추가예정)*
 
 ### 1️⃣ 싱글 플레이어
 *(스크린샷 추가 예정)*  
-![Gameplay Screenshot]()
+![Gameplay Screenshot](<img width="976" height="981" alt="스크린샷 2026-01-15 140011" src="https://github.com/user-attachments/assets/e9ffc1f2-5eca-4fb5-8f0e-5e2776c6faf2" />
+)
 
 - 일정 시간이 지나면 레벨 상승
 - 레벨 증가 시 하단에 방해 블록 라인 추가
