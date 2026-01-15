@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.26)
 
 project(
   ModooCode
@@ -7,10 +7,19 @@ project(
   LANGUAGES CXX
 )
 
-option(USE_WPF "Build WPF UI" OFF)
-set(CMAKE_CXX_STANDARD 17)
+# 윈도우 std::byte 오류 해결용
+if (WIN32)
+    add_compile_definitions(_HAS_STD_BYTE=0)
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy;
+    -warnings-as-errors=*;
+)
+
+option(USE_WPF "Build WPF UI" OFF)
 
 add_subdirectory(source/board)
 add_subdirectory(source/game_rule)

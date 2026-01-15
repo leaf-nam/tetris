@@ -1,18 +1,22 @@
 #include "engine/solo_engine.hpp"
+
 #include "board/board.hpp"
 #include "game_rule/rule_factory.hpp"
 #include "tetromino/tetromino_queue.hpp"
-#include "util/timer.hpp"
 #include "util/action.hpp"
+#include "util/timer.hpp"
 
-#include <thread>
-#include <chrono>
 #include <algorithm>
+#include <chrono>
 #include <random>
+#include <thread>
 
 using namespace std;
 
-SoloEngine::SoloEngine(IInputHandler* input_handler, IRenderer* renderer) : Engine(input_handler, renderer, nullptr) {}
+SoloEngine::SoloEngine(IInputHandler* input_handler, IRenderer* renderer)
+    : Engine(input_handler, renderer, nullptr)
+{
+}
 
 void SoloEngine::run()
 {
@@ -30,74 +34,82 @@ void SoloEngine::run()
     char another_user_ip[1024];
     char c;
 
-    renderer->renderBackground();
-    renderer->renderBoard(board, board.get_active_mino());
-    renderer->renderHold(board.get_saved_mino());
-    renderer->renderScore(score);
-    renderer->renderLevel(rule->get_level());
-    renderer->renderTimer(timer.get_seconds());
-    while (1)
-    {
-        if(!board.has_active_mino())
-        {
+    renderer->render_background();
+    renderer->render_board(board, board.get_active_mino());
+    renderer->render_hold(board.get_saved_mino());
+    renderer->render_score(score);
+    renderer->render_level(rule->get_level());
+    renderer->render_timer(timer.get_seconds());
+    while (true) {
+        if (!board.has_active_mino()) {
             if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
-            renderer->renderNextBlock(tetromino_queue.get_tetrominos());
+            renderer->render_next_block(tetromino_queue.get_tetrominos());
         }
 
         timer.set_curr_time();
-        if (timer.check_500ms_time())
-        {
+        if (timer.check_500ms_time()) {
             rule->process(Action::DROP);
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(score);
-            renderer->renderLevel(rule->get_level());
-            renderer->renderTimer(timer.get_seconds());
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
+            renderer->render_score(score);
+            renderer->render_level(rule->get_level());
+            renderer->render_timer(timer.get_seconds());
             is_level_up = rule->time_and_level_update();
         }
-        
+
         key = input_handler->scan();
-        if(key)
-        {
-            switch(key)
-            {
-                case 'a': action = Action::LEFT; break;
-                case 's': action = Action::DROP; break;
-                case 'd': action = Action::RIGHT; break;
-                case 'q': action = Action::ROTATE_CCW; break;
-                case 'e': action = Action::ROTATE_CW; break;
-                case 'f': action = Action::HARD_DROP; break;
-                case 'w': action = Action::SWAP; break;
-                default: action = -1; break;
+        if (key != 0) {
+            switch (key) {
+            case 'a':
+                action = Action::LEFT;
+                break;
+            case 's':
+                action = Action::DROP;
+                break;
+            case 'd':
+                action = Action::RIGHT;
+                break;
+            case 'q':
+                action = Action::ROTATE_CCW;
+                break;
+            case 'e':
+                action = Action::ROTATE_CW;
+                break;
+            case 'f':
+                action = Action::HARD_DROP;
+                break;
+            case 'w':
+                action = Action::SWAP;
+                break;
+            default:
+                action = -1;
+                break;
             }
         }
         else
             action = -1;
 
-        if (action != -1) 
-        {
+        if (action != -1) {
             rule->process(action);
-            renderer->renderNextBlock(tetromino_queue.get_tetrominos());
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
+            renderer->render_next_block(tetromino_queue.get_tetrominos());
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
         }
-        
+
         new_score = rule->update_score();
-        if(is_level_up)
-            if(!board.insert_line(3))
-            {
-                renderer->renderBoard(board, board.get_active_mino());
-                renderer->renderHold(board.get_saved_mino());
+        if (is_level_up)
+            if (!board.insert_line(3)) {
+                renderer->render_board(board, board.get_active_mino());
+                renderer->render_hold(board.get_saved_mino());
                 break;
             }
-        if (new_score || is_level_up) 
-        {
+        if (new_score != 0 || is_level_up) {
             score += new_score;
-            renderer->renderBoard(board, board.get_active_mino());
-            renderer->renderHold(board.get_saved_mino());
-            renderer->renderScore(score);
-            renderer->renderLevel(rule->get_level());
-            renderer->renderTimer(timer.get_seconds());
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
+            renderer->render_score(score);
+            renderer->render_level(rule->get_level());
+            renderer->render_timer(timer.get_seconds());
             is_level_up = false;
         }
     }

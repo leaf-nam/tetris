@@ -4,9 +4,9 @@
 
 using namespace std;
 
-static const string title = "TETRISSEN";
+static const string TITLE = "TETRISSEN";
 
-static const unordered_map<char, string> ascii_art = {
+static const unordered_map<char, string> ASCII_ART = {
 {
     'T',
     R"(
@@ -75,7 +75,7 @@ static const unordered_map<char, string> ascii_art = {
 }
 };
 
-static const char* ANSI_RESET = "\x1b[0m";
+static const char* ansi_reset = "\x1b[0m";
 
 static unordered_map<int, string> color_map = {
     {MinoType::I,           "\x1b[38;2;139;233;253m"},
@@ -96,7 +96,7 @@ LinuxRender::LinuxRender()
     std::cout << std::flush;
 }
 
-void LinuxRender::restoreTerminal()
+void LinuxRender::restore_terminal()
 {
     std::cout << "\x1b[?25h";
     std::cout << "\x1b[2J";
@@ -107,7 +107,7 @@ void LinuxRender::restoreTerminal()
 
 LinuxRender::~LinuxRender()
 {
-    restoreTerminal();
+    restore_terminal();
 }
 
 void LinuxRender::go(int row, int col)
@@ -115,7 +115,7 @@ void LinuxRender::go(int row, int col)
     cout << "\x1b[" << row + 1 << ";" << col + 1 << "H";
 }
 
-void LinuxRender::renderMino(int row, int col, const mino& tetromino, int type)
+void LinuxRender::render_mino(int row, int col, const Mino& tetromino, int type)
 {
     int wr = row, wc = col;
     string color = color_map[type];
@@ -126,7 +126,7 @@ void LinuxRender::renderMino(int row, int col, const mino& tetromino, int type)
         go(wr + r, wc);
         for (int c = 0; c < MINO_SIZE; ++c)
         {
-            cout << (tetromino[r][c] ? color + "[]" : "  ") << ANSI_RESET;
+            cout << ((tetromino[r][c] != 0) ? color + "[]" : "  ") << ansi_reset;
         }
     }
 }
@@ -134,13 +134,13 @@ void LinuxRender::renderMino(int row, int col, const mino& tetromino, int type)
 /**
  * @brief 게임 로직과 무관한 배경 렌더링
  */
-void LinuxRender::renderBackground() {
+void LinuxRender::render_background() {
     int wr = 0, wc = 0;
     vector<vector<string>> lines;
 
-    for (char c : title) 
+    for (char c : TITLE) 
     {
-        string art = ascii_art.at(c);
+        const string& art = ASCII_ART.at(c);
         stringstream ss(art);
         string line;
         vector<string> v;
@@ -150,10 +150,10 @@ void LinuxRender::renderBackground() {
 
     for (size_t row = 0; row < lines[0].size(); ++row) {
         go(wr + row, wc);
-        for (size_t i = 0; i < title.size(); ++i) {
+        for (size_t i = 0; i < TITLE.size(); ++i) {
             const string& s = lines[i][row];
-            if (!s.empty() && s.back() == '\n') cout << color_map[i % 7] << s.substr(0, s.size() - 1) << ANSI_RESET;
-            else cout << color_map[i % 7] << s << ANSI_RESET;
+            if (!s.empty() && s.back() == '\n') cout << color_map[i % 7] << s.substr(0, s.size() - 1) << ansi_reset;
+            else cout << color_map[i % 7] << s << ansi_reset;
 
             cout << "  ";
         }
@@ -166,7 +166,7 @@ void LinuxRender::renderBackground() {
  * @brief 게임판 렌더링
  * @param 보드 현상태 + 현재 테트로미노 렌더링
  */
-void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
+void LinuxRender::render_board(const Board& board, const Tetromino& tetromino)
 {
     string color;
     int wr = 7, wc = 10; // board 테두리 기준
@@ -185,7 +185,7 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
         for (int c = 0; c < BOARD_COL; ++c)
         {
             color = color_map[board.at(r, c)];
-            cout << (board.is_filled(r, c) ? color + "[]" : "  ") << ANSI_RESET;
+            cout << (board.is_filled(r, c) ? color + "[]" : "  ") << ansi_reset;
         }
         cout << "│";
     }
@@ -199,7 +199,7 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
     if (board.has_active_mino())
     {
         const auto [pos_r, pos_c] = tetromino.get_pos();
-        const mino& m = tetromino.get_shape();
+        const Mino& m = tetromino.get_shape();
         int mino_type = tetromino.get_mino_type();
         const string color = color_map[mino_type];
         int mino_r, mino_c;
@@ -212,7 +212,7 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
             for (int c = 0; c < BOARD_COL; ++c)
             {
                 mino_c = c - pos_c;
-                if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << (m[mino_r][mino_c] ? color + "[]" : "\x1b[2C") << ANSI_RESET;
+                if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << ((m[mino_r][mino_c] != 0) ? color + "[]" : "\x1b[2C") << ansi_reset;
                 else cout << "\x1b[2C";
             }
         }       
@@ -225,7 +225,7 @@ void LinuxRender::renderBoard(const Board& board, const Tetromino& tetromino)
  * @brief 타이머에 현재 시간 렌더링
  * @param 현재시간(초)
  */
-void LinuxRender::renderTimer(const int sec)
+void LinuxRender::render_timer(int sec)
 {
     int wr = 19, wc = 32;
 
@@ -245,12 +245,12 @@ void LinuxRender::renderTimer(const int sec)
  * @brief 다음 블럭 3개 렌더링
  * @param 다음 블럭 3개를 가진 배열 포인터(순서 중요)
  */
-void LinuxRender::renderNextBlock(const int* tetrominoArray)
+void LinuxRender::render_next_block(const int* tetrominoArray)
 {
     int wr = 7, wc = 0;
-    const mino& m1 = TETROMINO[tetrominoArray[0]][0];
-    const mino& m2 = TETROMINO[tetrominoArray[1]][0];
-    const mino& m3 = TETROMINO[tetrominoArray[2]][0];
+    const Mino& m1 = TETROMINO[tetrominoArray[0]][0];
+    const Mino& m2 = TETROMINO[tetrominoArray[1]][0];
+    const Mino& m3 = TETROMINO[tetrominoArray[2]][0];
 
     // border
     go(wr, wc);
@@ -266,11 +266,11 @@ void LinuxRender::renderNextBlock(const int* tetrominoArray)
     cout << "└────────┘";
 
     // next mino
-    renderMino(wr + 1, wc + 1, m1, tetrominoArray[0]);
+    render_mino(wr + 1, wc + 1, m1, tetrominoArray[0]);
 
-    renderMino(wr + 5, wc + 1, m2, tetrominoArray[1]);
+    render_mino(wr + 5, wc + 1, m2, tetrominoArray[1]);
 
-    renderMino(wr + 9, wc + 1, m3, tetrominoArray[2]);
+    render_mino(wr + 9, wc + 1, m3, tetrominoArray[2]);
 
     cout << flush;
 }
@@ -279,7 +279,7 @@ void LinuxRender::renderNextBlock(const int* tetrominoArray)
  * @brief 홀드할 블럭 렌더링
  * @param 홀드할 블럭
  */
-void LinuxRender::renderHold(const Tetromino& tetromino)
+void LinuxRender::render_hold(const Tetromino& tetromino)
 {
     int wr = 7, wc = 32;
     int saved_mino_type = tetromino.get_mino_type();
@@ -299,14 +299,14 @@ void LinuxRender::renderHold(const Tetromino& tetromino)
 
     if (saved_mino_type != -1)
     {
-        const mino& m = TETROMINO[saved_mino_type][0];
-        renderMino(wr + 1, wc + 1, m, saved_mino_type);
+        const Mino& m = TETROMINO[saved_mino_type][0];
+        render_mino(wr + 1, wc + 1, m, saved_mino_type);
     }
 
     cout << flush;
 }
 
-void LinuxRender::renderOtherBoard(packet& pkt)
+void LinuxRender::render_other_board(Packet& pkt)
 {
     string board_color;
     int wr = 7, wc = 50; // board 테두리 기준
@@ -314,7 +314,7 @@ void LinuxRender::renderOtherBoard(packet& pkt)
     int pos_r = pkt.r - 2;
     int pos_c = pkt.c;
     int mino_type = pkt.type;
-    const mino& m = TETROMINO[mino_type][pkt.rotation];
+    const Mino& m = TETROMINO[mino_type][pkt.rotation];
     const string block_color = color_map[mino_type];
     int mino_r, mino_c;
 
@@ -331,7 +331,7 @@ void LinuxRender::renderOtherBoard(packet& pkt)
         for (int c = 0; c < BOARD_COL; ++c)
         {
             board_color = color_map[pkt.board[r][c]];
-            cout << (pkt.board[r][c] != MinoType::NONE ? board_color + "[]" : "  ") << ANSI_RESET;
+            cout << (pkt.board[r][c] != MinoType::NONE ? board_color + "[]" : "  ") << ansi_reset;
         }
         cout << "│";
     }
@@ -352,7 +352,7 @@ void LinuxRender::renderOtherBoard(packet& pkt)
         for (int c = 0; c < BOARD_COL; ++c)
         {
             mino_c = c - pos_c;
-            if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << (m[mino_r][mino_c] ? block_color + "[]" : "\x1b[2C") << ANSI_RESET;
+            if (mino_r >= 0 && mino_r < MINO_SIZE && mino_c >= 0 && mino_c < MINO_SIZE) cout << ((m[mino_r][mino_c] != 0) ? block_color + "[]" : "\x1b[2C") << ansi_reset;
             else cout << "\x1b[2C";
         }
     }       
@@ -360,19 +360,19 @@ void LinuxRender::renderOtherBoard(packet& pkt)
     cout << flush;
 }
 
-void LinuxRender::renderIPRecv()
+void LinuxRender::render_ip_recv()
 {
     cout << "대전 상대의 IP를 입력하세요: ";
     cout << flush;
 }
 
-void LinuxRender::renderChar(char c)
+void LinuxRender::render_char(char c)
 {
     cout << c;
     cout << flush;
 }
 
-void LinuxRender::renderClear()
+void LinuxRender::render_clear()
 {
     cout << "\033[2J\033[H";
     cout << flush;
@@ -382,7 +382,7 @@ void LinuxRender::renderClear()
  * @brief 점수판 렌더링
  * @param 현재 점수
  */
-void LinuxRender::renderScore(const int score)
+void LinuxRender::render_score(int score)
 {
     int wr = 13, wc = 32;
     
@@ -400,7 +400,7 @@ void LinuxRender::renderScore(const int score)
  * @brief 레벨 렌더링
  * @param 현재 레벨
  */
-void LinuxRender::renderLevel(const int level)
+void LinuxRender::render_level(int level)
 {
     int wr = 16, wc = 32;
     
