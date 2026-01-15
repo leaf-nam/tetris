@@ -34,9 +34,10 @@ elseif (WIN32)
 
     # 윈도우 터미널 UI 빌드 -> terminal_main.exe 생성
     else()
-        add_subdirectory(platform/Terminal/input)
-        add_subdirectory(platform/Terminal/render)
-        add_subdirectory(platform/Terminal/main)
+        add_subdirectory(platform/terminal/input)
+        add_subdirectory(platform/terminal/render)
+        add_subdirectory(platform/terminal/main)
+        add_subdirectory(platform/terminal/network)
     endif()
 
 endif()
