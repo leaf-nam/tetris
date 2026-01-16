@@ -1,8 +1,8 @@
-#include "terminal_input.hpp"
+#include "input/window_input.hpp"
 
 #include <conio.h>
 #include <stdio.h>
-char TerminalInput::scan()
+char WindowInput::scan()
 {
     char c = '\0';
 
@@ -12,4 +12,4 @@ char TerminalInput::scan()
     return c;
 }
 
-TerminalInput::~TerminalInput() {}
+WindowInput::~WindowInput() {}

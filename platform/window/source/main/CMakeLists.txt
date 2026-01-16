@@ -1,12 +1,14 @@
-add_executable(main terminal_main.cpp)
-
-target_include_directories(main 
-    PRIVATE ${PROJECT_SOURCE_DIR}/api
-    PRIVATE ${PROJECT_SOURCE_DIR}/core/include
-    PRIVATE ${PROJECT_SOURCE_DIR}/platform/Terminal
+add_executable(tetris
+	tetris.cpp
 )
 
-target_link_libraries(main
+target_include_directories(tetris 
+    PRIVATE ${PROJECT_SOURCE_DIR}/api
+    PRIVATE ${PROJECT_SOURCE_DIR}/core/include
+	PUBLIC ${PROJECT_SOURCE_DIR}/platform/window/include
+)
+
+target_link_libraries(tetris
     PRIVATE
         engine
         input
