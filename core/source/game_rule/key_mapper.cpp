@@ -2,20 +2,20 @@
 
 KeyMapper::KeyMapper()
 {
-    key_map[Arrow::LEFT] = Action::LEFT;
+    key_map[Arrow::KEY_LEFT] = Action::LEFT;
     key_map['a'] = Action::LEFT;
 
-    key_map[Arrow::RIGHT] = Action::RIGHT;
+    key_map[Arrow::KEY_RIGHT] = Action::RIGHT;
     key_map['d'] = Action::RIGHT;
 
-    key_map[Arrow::DOWN] = Action::DROP;
+    key_map[Arrow::KEY_DOWN] = Action::DROP;
     key_map['s'] = Action::DROP;
 
     key_map['z'] = Action::ROTATE_CCW;
     key_map['q'] = Action::ROTATE_CCW;
 
     key_map['x'] = Action::ROTATE_CW;
-    key_map[Arrow::UP] = Action::ROTATE_CW;
+    key_map[Arrow::KEY_UP] = Action::ROTATE_CW;
     key_map['e'] = Action::ROTATE_CW;
 
     key_map[' '] = Action::HARD_DROP;

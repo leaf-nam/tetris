@@ -2,8 +2,8 @@
 #define __KEY_MAPPER_HPP__
 
 #include <unordered_map>
+#include <i_input_handler.hpp>
 #include "util/action.hpp"
-#include "api/i_input_handler.hpp"
 
 class KeyMapper
 {

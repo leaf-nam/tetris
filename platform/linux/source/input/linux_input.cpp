@@ -33,10 +33,10 @@ int LinuxInput::scan()
 
         if (seq[0] == 91) 
         {
-            if (seq[1] == 'A') return Arrow::UP;
-            if (seq[1] == 'B') return Arrow::DOWN;
-            if (seq[1] == 'C') return Arrow::RIGHT;
-            if (seq[1] == 'D') return Arrow::LEFT;
+            if (seq[1] == 'A') return Arrow::KEY_UP;
+            if (seq[1] == 'B') return Arrow::KEY_DOWN;
+            if (seq[1] == 'C') return Arrow::KEY_RIGHT;
+            if (seq[1] == 'D') return Arrow::KEY_LEFT;
         }
     }
 
