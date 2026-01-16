@@ -57,30 +57,29 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        ${{ matrix.os == 'ubuntu-latest' && matrix.c_compiler == 'gcc' && '-DENABLE_COVERAGE=ON' || '' }}
         -S ${{ github.workspace }}
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-    # OS별 테스트 실행
-    - name: Test (Windows)
-      if: matrix.os == 'windows-latest'
+    # 테스트 실행
+    - name: Test
       run: cmake --build build --target windows-test
 
-    - name: Test (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: ctest --test-dir build --output-on-failure
-
-    # 커버리지 생성 (Linux + gcc/clang)
+    # 커버리지 생성 (Linux + gcc)
     - name: Generate coverage
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest' && matrix.c_compiler == 'gcc'
       run: |
         lcov --capture \
              --directory ${{ steps.strings.outputs.build-output-dir }} \
-             --output-file coverage.info
+             --output-file coverage.info \
+             --ignore-errors mismatch \
+             --rc geninfo_unexecuted_blocks=1
 
         lcov --remove coverage.info \
              '/usr/*' \
+             '*/_deps/*' \
              '*/test/*' \
              '*/include/*' \
              --output-file coverage.info
