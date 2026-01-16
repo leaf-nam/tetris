@@ -1,5 +1,6 @@
-#include "terminal_renderer.hpp"
+#include "render/window_renderer.hpp"
 
+#include <conio.h>
 #include <string>
 #include <wtypes.h>
 
@@ -19,14 +20,14 @@ const char* const GRAY = "\x1b[90m";
 const char* const BOLD = "\x1b[1m";
 } // namespace Color
 
-const char* const TT[] = {"█████", "  █  ", "  █  ", "  █  ", "  █  "};
-const char* const EE[] = {"█████", "█    ", "███  ", "█    ", "█████"};
-const char* const RR[] = {"████ ", "█   █", "████ ", "█  █ ", "█   █"};
-const char* const II[] = {"███", " █ ", " █ ", " █ ", "███"};
-const char* const SS[] = {" ████", "█    ", " ███ ", "    █", "████ "};
-const char* const NN[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
-const char* const MM[] = {"█   █", "██ ██", "█ █ █", "█ █ █", "█   █"};
-const char* const YY[] = {"█   █", "█   █", " █ █ ", "  █  ", "  █  "};
+const char* const BIG_T[] = {"█████", "  █  ", "  █  ", "  █  ", "  █  "};
+const char* const BIG_E[] = {"█████", "█    ", "███  ", "█    ", "█████"};
+const char* const BIG_R[] = {"████ ", "█   █", "████ ", "█  █ ", "█   █"};
+const char* const BIG_I[] = {"███", " █ ", " █ ", " █ ", "███"};
+const char* const BIG_S[] = {" ████", "█    ", " ███ ", "    █", "████ "};
+const char* const BIG_N[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
+const char* const BIG_M[] = {"█   █", "██ ██", "█ █ █", "█ █ █", "█   █"};
+const char* const BIG_Y[] = {"█   █", "█   █", " █ █ ", "  █  ", "  █  "};
 
 using namespace std;
 
@@ -54,58 +55,55 @@ const char* get_block_color(int type)
     }
 }
 
-void TerminalRenderer::set_cursor(int x, int y) { printf("\033[%d;%dH", y + 1, x + 1); }
+void WindowRenderer::set_cursor(int x, int y) { printf("\033[%d;%dH", y + 1, x + 1); }
 
-void TerminalRenderer::clear()
+void WindowRenderer::clear()
 {
     printf("\033[2J\033[1;1H");
     fflush(stdout);
     printf("\e[?25l");
 }
 
-void TerminalRenderer::draw_logo()
+void WindowRenderer::draw_logo(int x, int y)
 {
     // 각 글자를 배열로 분리
     hide_cursor();
-
-    int x = logo_x; // 시작 X 좌표
-    int y = 1;      // 시작 Y 좌표
-
     for (int i = 0; i < 5; i++) {
         //
         set_cursor(x, y + i);
         // 순서대로 색상과 함께 출력
-        printf("%s%s ", Color::RED, TT[i]);    // T
-        printf("%s%s ", Color::YELLOW, EE[i]); // E
-        printf("%s%s ", Color::GREEN, TT[i]);  // T
-        printf("%s%s ", Color::CYAN, RR[i]);   // R
-        printf("%s%s ", Color::PURPLE, II[i]); // I
-        printf("%s%s ", Color::RED, SS[i]);    // S
-        printf("%s%s ", Color::YELLOW, SS[i]); // S
-        printf("%s%s ", Color::GREEN, EE[i]);  // E
-        printf("%s%s", Color::CYAN, NN[i]);    // N
+        printf("%s%s ", Color::RED, BIG_T[i]);    // T
+        printf("%s%s ", Color::YELLOW, BIG_E[i]); // E
+        printf("%s%s ", Color::GREEN, BIG_T[i]);  // T
+        printf("%s%s ", Color::CYAN, BIG_R[i]);   // R
+        printf("%s%s ", Color::PURPLE, BIG_I[i]); // I
+        printf("%s%s ", Color::RED, BIG_S[i]);    // S
+        printf("%s%s ", Color::YELLOW, BIG_S[i]); // S
+        printf("%s%s ", Color::GREEN, BIG_E[i]);  // E
+        printf("%s%s", Color::CYAN, BIG_N[i]);    // N
         printf("%s", Color::RESET);
     }
-    if (!is_single) {
-        for (int i = 0; i < 5; i++) {
-            set_cursor(78, y + i);
-            // 순서대로 색상과 함께 출력
 
-            printf("%s%s ", Color::GRAY, EE[i]); // E
-            printf("%s%s ", Color::GRAY, NN[i]); // N
-            printf("%s%s ", Color::GRAY, EE[i]); // E
-            printf("%s%s ", Color::GRAY, MM[i]); // M
-            printf("%s%s ", Color::GRAY, YY[i]); // Y
-
-            printf("%s", Color::RESET);
-        }
-    }
     // v1 출력 (N 글자 아래쪽 끝에 배치)
     set_cursor(x + 52, y + 4);
     printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
 }
+void WindowRenderer::draw_enemy_title(int x, int y)
+{
+    for (int i = 0; i < 5; i++) {
+        set_cursor(78, y + i);
+        // 순서대로 색상과 함께 출력
 
-void TerminalRenderer::render_timer(int totalSec)
+        printf("%s%s ", Color::GRAY, BIG_E[i]); // E
+        printf("%s%s ", Color::GRAY, BIG_N[i]); // N
+        printf("%s%s ", Color::GRAY, BIG_E[i]); // E
+        printf("%s%s ", Color::GRAY, BIG_M[i]); // M
+        printf("%s%s ", Color::GRAY, BIG_Y[i]); // Y
+
+        printf("%s", Color::RESET);
+    }
+}
+void WindowRenderer::render_timer(int totalSec)
 {
     int min = (totalSec / 60);
     int sec = totalSec % 60;
@@ -118,7 +116,7 @@ void TerminalRenderer::render_timer(int totalSec)
     cout << Color::RESET;
 }
 
-void TerminalRenderer::render_next_block(const int* tetrominoArray)
+void WindowRenderer::render_next_block(const int* tetrominoArray)
 {
     for (size_t i = 0; i < 3; ++i) {
         int wr = middle_x + 3, wc = 11;
@@ -135,14 +133,13 @@ void TerminalRenderer::render_next_block(const int* tetrominoArray)
     }
 }
 
-void TerminalRenderer::render_hold(const Tetromino& tetromino)
+void WindowRenderer::render_hold(const Tetromino& tetromino)
 {
     if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
     render_mino_pattern(7, 11, tetromino.get_shape(), get_block_color(tetromino.get_mino_type()));
 }
 
-void TerminalRenderer::draw_ui_box(const string& title, int x, int y, int w, int h,
-                                   const char* color)
+void WindowRenderer::draw_ui_box(const string& title, int x, int y, int w, int h, const char* color)
 {
     set_cursor(x, y);
     cout << color << "┌" << string(w * 2, ' ') << "┐" << Color::RESET;
@@ -157,7 +154,7 @@ void TerminalRenderer::draw_ui_box(const string& title, int x, int y, int w, int
         cout << color << Color::BOLD << "[" << title << "]" << Color::RESET;
     }
 }
-void TerminalRenderer::render_mino_pattern(int x, int y, const Mino& shape, const char* color)
+void WindowRenderer::render_mino_pattern(int x, int y, const Mino& shape, const char* color)
 {
     for (int i = 0; i < 4; i++) {
         set_cursor(x, y + i);
@@ -172,33 +169,33 @@ void TerminalRenderer::render_mino_pattern(int x, int y, const Mino& shape, cons
     }
 }
 
-void TerminalRenderer::render_background()
+void WindowRenderer::render_background()
 {
     fflush(stdout);
-    draw_logo();
+    draw_logo(logo_x, 1);
     draw_ui_box("HOLD", 4, 9, 6, 4, Color::GREEN);
     draw_ui_box("NEXT", middle_x, 9, 6, 15, Color::PURPLE);
     draw_ui_box("#SCORE", 4, 16, 6, 3, Color::CYAN);
     draw_ui_box("LV", 4, 21, 6, 3, Color::CYAN);
     draw_ui_box("TIME", middle_x, 2, 6, 3, Color::RESET);
 }
-void TerminalRenderer::draw_hold(const Mino& hold_shape)
+void WindowRenderer::draw_hold(const Mino& hold_shape)
 {
     render_mino_pattern(16, 3, hold_shape, Color::YELLOW);
 }
-void TerminalRenderer::render_score(int score)
+void WindowRenderer::render_score(int score)
 {
     set_cursor(8, 18);
     printf("%s%06d%s", Color::BOLD, score, Color::RESET);
 }
-void TerminalRenderer::render_level(int level)
+void WindowRenderer::render_level(int level)
 {
     set_cursor(10, 23);
     printf("%s%02d%s", Color::BOLD, level, Color::RESET);
 }
-TerminalRenderer::~TerminalRenderer() {}
+WindowRenderer::~WindowRenderer() {}
 
-void TerminalRenderer::hide_cursor()
+void WindowRenderer::hide_cursor()
 {
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO info;
@@ -207,7 +204,7 @@ void TerminalRenderer::hide_cursor()
     SetConsoleCursorInfo(console_handle, &info);
 }
 
-void TerminalRenderer::show_cursor()
+void WindowRenderer::show_cursor()
 {
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO info;
@@ -215,12 +212,12 @@ void TerminalRenderer::show_cursor()
     info.bVisible = TRUE; // 다시 보이게 설정
     SetConsoleCursorInfo(console_handle, &info);
 }
-void TerminalRenderer::render_game_over()
+void WindowRenderer::render_game_over()
 {
     set_cursor(43, 16);
     printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
 }
-void TerminalRenderer::render_board(const Board& board, const Tetromino& tetromino)
+void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
 {
     int start_x = board_x;
     int start_y = 7;
@@ -285,7 +282,7 @@ void TerminalRenderer::render_board(const Board& board, const Tetromino& tetromi
     set_cursor(start_x, start_y + 21);
     cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 }
-void TerminalRenderer::render_other_board(Packet& pkt)
+void WindowRenderer::render_other_board(Packet& pkt)
 {
     int start_x = 80; // wc (원래 코드의 50)
     int start_y = 7;  // wr (원래 코드의 7)
@@ -352,12 +349,60 @@ void TerminalRenderer::render_other_board(Packet& pkt)
     cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 }
 
-void TerminalRenderer::render_ip_recv()
+void WindowRenderer::render_ip_recv()
 {
     set_cursor(0, 0); // 적절한 위치로 수정 필요
     cout << "대전 상대의 IP를 입력하세요: ";
 }
 
-void TerminalRenderer::render_char(char c) { cout << c; }
+void WindowRenderer::render_char(char c) { cout << c; }
 
-void TerminalRenderer::render_clear() { system("cls"); }
+void WindowRenderer::render_clear() { system("cls"); }
+
+void WindowRenderer::render_menu()
+{
+    int menu_num = 0;
+    bool running = true;
+
+    while (running) {
+        clear();
+
+        draw_logo(20, 10);
+        bool is_solo = true;
+        // 2. 메뉴 출력부 (반복문을 사용하면 훨씬 깔끔합니다)
+        const char* menu_items[] = {"Single Play", "Multi Play", "Settings", "Exit"};
+
+        for (int i = 0; i < 4; ++i) {
+            set_cursor(30, 20 + (i * 2));
+            if (menu_num == i) {
+                std::cout << Color::BOLD << "> " << menu_items[i] << " <" << Color::RESET;
+            }
+            else {
+                std::cout << "  " << menu_items[i] << "  ";
+            }
+        }
+
+        // 3. 키 입력 처리
+        int c = _getch();
+        if (c == 9) { // Tab 키의 ASCII 값
+            menu_num = (menu_num + 1) % 4;
+        }
+        else if (c == 13) { // Enter 키
+            switch (menu_num) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            default:
+                running = false;
+                break;
+            }
+        }
+    }
+}
+void WindowRenderer::render_solo() { render_background(); }
+void WindowRenderer::render_multi() {}

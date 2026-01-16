@@ -1,11 +1,11 @@
-#include "terminal_network.hpp" // 헤더 파일 경로에 맞게 수정하세요
+#include "network/window_network.hpp"
 
 #include <iostream>
 
 using namespace std;
 
-// [Terminal] 생성자
-TerminalNetwork::TerminalNetwork()
+// [window] 생성자
+WindowNetwork::WindowNetwork()
 {
     // 1. 윈도우 소켓 초기화 (필수)
     WSADATA wsa_data;
@@ -55,14 +55,14 @@ TerminalNetwork::TerminalNetwork()
     // 대신 recv_udp에서 논블로킹 소켓의 특성을 이용합니다.
 }
 
-void TerminalNetwork::write_32b(uint8_t*& p, int32_t v)
+void WindowNetwork::write_32b(uint8_t*& p, int32_t v)
 {
     int32_t n = htonl(v);
     memcpy(p, &n, 4);
     p += 4;
 }
 
-void TerminalNetwork::serialize(uint8_t* buf, const Packet& pkt)
+void WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
 {
     uint8_t* p = buf;
 
@@ -77,7 +77,7 @@ void TerminalNetwork::serialize(uint8_t* buf, const Packet& pkt)
     write_32b(p, pkt.deleted_line);
 }
 
-int32_t TerminalNetwork::read_32b(const uint8_t*& p)
+int32_t WindowNetwork::read_32b(const uint8_t*& p)
 {
     int32_t n;
     memcpy(&n, p, 4);
@@ -85,7 +85,7 @@ int32_t TerminalNetwork::read_32b(const uint8_t*& p)
     return ntohl(n);
 }
 
-void TerminalNetwork::deserialize(const uint8_t* buf, Packet& pkt)
+void WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 {
     const uint8_t* p = buf;
 
@@ -100,8 +100,8 @@ void TerminalNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     pkt.deleted_line = read_32b(p);
 }
 
-void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino,
-                               int deleted_line, const char* another_user_ip)
+void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line,
+                             const char* another_user_ip)
 {
     Packet pkt;
     auto [pos_r, pos_c] = tetromino.get_pos();
@@ -111,7 +111,7 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino,
     another_user.sin_family = AF_INET;
     another_user.sin_port = htons(PORT);
 
-    // Terminal에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
+    // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
     inet_pton(AF_INET, another_user_ip, &another_user.sin_addr);
 
     // 보드 데이터 복사
@@ -135,14 +135,14 @@ void TerminalNetwork::send_udp(const Board& board, const Tetromino& tetromino,
     }
 }
 
-bool TerminalNetwork::recv_udp(Packet& recv_pkt)
+bool WindowNetwork::recv_udp(Packet& recv_pkt)
 {
     uint8_t buf[PACKET_SIZE];
     bool data_received = false;
     SOCKADDR_IN client_addr;
     int addr_len = sizeof(client_addr);
 
-    // [Terminal Non-blocking 처리]
+    // [window Non-blocking 처리]
     // epoll 대신 루프를 돌며 쌓인 패킷을 모두 처리하고 가장 최신 것을 가져옵니다.
     while (true) {
         int r =
@@ -169,7 +169,7 @@ bool TerminalNetwork::recv_udp(Packet& recv_pkt)
     return data_received;
 }
 
-TerminalNetwork::~TerminalNetwork()
+WindowNetwork::~WindowNetwork()
 {
     // 소켓 닫기
     if (client_sock != INVALID_SOCKET) closesocket(client_sock);

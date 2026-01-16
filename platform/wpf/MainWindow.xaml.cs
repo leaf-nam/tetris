@@ -264,7 +264,7 @@ namespace wpf
         }
 
         // 게임 종료
-        void  GameFinish()
+        void GameFinish()
         {
             try
             {

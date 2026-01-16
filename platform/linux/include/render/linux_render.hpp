@@ -71,7 +71,7 @@ public:
     
     void render_mino(int row, int col, const Mino& tetromino, int type);
 
-    void restore_terminal();
+    void restore_window();
 
     ~LinuxRender();
 };

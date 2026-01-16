@@ -12,7 +12,7 @@ main, develop 제외한 나머지 브랜치 리무브 예정!
 서로 다른 플랫폼에서 공통 API를 통해 동일한 게임 로직을 재사용할 수 있도록 설계되었습니다.
 
 **Supported Platforms:**
-Windows (WPF, Terminal) · Linux (Terminal) · Web *(추가예정)*
+Windows (WPF, window) · Linux (window) · Web *(추가예정)*
 
 ---
 

@@ -96,7 +96,7 @@ LinuxRender::LinuxRender()
     std::cout << std::flush;
 }
 
-void LinuxRender::restore_terminal()
+void LinuxRender::restore_window()
 {
     std::cout << "\x1b[?25h";
     std::cout << "\x1b[2J";
@@ -107,7 +107,7 @@ void LinuxRender::restore_terminal()
 
 LinuxRender::~LinuxRender()
 {
-    restore_terminal();
+    restore_window();
 }
 
 void LinuxRender::go(int row, int col)
