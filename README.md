@@ -63,6 +63,9 @@ Windows (WPF, Terminal) · Linux (Terminal) · Web *(추가예정)*
 - 타이머 보드
 - 스코어 보드
 
+## Coverage
+![Coverage](https://codecov.io/gh/leaf-nam/tetris/branch/main/graph/badge.svg)
+
 ---
 
 ## ⚙️ 옵션 설정
