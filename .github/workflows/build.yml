@@ -89,8 +89,9 @@ jobs:
     # Codecov 업로드
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         files: coverage.info
         flags: unittests
         name: linux-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
