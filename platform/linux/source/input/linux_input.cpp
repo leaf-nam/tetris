@@ -9,8 +9,12 @@
 static struct termios initial_settings, new_settings;
 
 LinuxInput::LinuxInput()
-{   
+{
     tcgetattr(0, &initial_settings);
+}
+
+void LinuxInput::init()
+{
     new_settings = initial_settings;
 
     new_settings.c_lflag &= ~(ICANON | ECHO);

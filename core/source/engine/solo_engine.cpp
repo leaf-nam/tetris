@@ -33,6 +33,8 @@ void SoloEngine::run()
     int index = 0;
     char another_user_ip[1024];
     char c;
+    
+    input_handler->init();
 
     renderer->render_background();
     renderer->render_board(board, board.get_active_mino());

@@ -5,6 +5,11 @@ class IInputHandler
 {
   public:
     /**
+     * @brief input을 위한 설정 초기화
+     */
+    virtual void init() = 0;
+    
+    /**
      * @brief 버퍼로부터 문자열 입력 받기
      * @return 입력 없을 때 "\0", 입력 있을 때 해당 문자열 반환
      */
