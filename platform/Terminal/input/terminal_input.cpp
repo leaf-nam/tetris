@@ -2,13 +2,24 @@
 
 #include <conio.h>
 #include <stdio.h>
-char TerminalInput::scan()
+
+int TerminalInput::scan()
 {
     char c = '\0';
 
     while (_kbhit() != 0) {
-        c = _getch(); // ÀÔ·Â¹öÆÛ¸¦ Áö¿ì¸ç ¸¶Áö¸· °ª¸¸ ¹ÝÈ¯
+        c = _getch(); // ï¿½Ô·Â¹ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+
+        if (c == 224)
+        {
+            c = _getch();
+            if (c == 72) return Arrow::KEY_UP;
+            if (c == 80) return Arrow::KEY_DOWN;
+            if (c == 75) return Arrow::KEY_LEFT;
+            if (c == 77) return Arrow::KEY_RIGHT;
+        } 
     }
+
     return c;
 }
 

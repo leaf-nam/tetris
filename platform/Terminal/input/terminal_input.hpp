@@ -5,8 +5,8 @@
 class TerminalInput : public IInputHandler
 {
     public:
-        //¹öÆÛ¿¡ °ªÀÌ ÀÖÀ¸¸é char ·Î ³Ñ°ÜÁÖ°í ¾øÀ¸¸é -1 ¹ÝÈ¯
-        char scan();
+        //ï¿½ï¿½ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ char ï¿½ï¿½ ï¿½Ñ°ï¿½ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -1 ï¿½ï¿½È¯
+        int scan();
 
         ~TerminalInput();
 };

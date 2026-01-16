@@ -2,6 +2,7 @@
 
 #include "board/board.hpp"
 #include "game_rule/rule_factory.hpp"
+#include "game_rule/key_mapper.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/action.hpp"
 #include "util/timer.hpp"
@@ -24,6 +25,7 @@ void SoloEngine::run()
     unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
+    KeyMapper key_mapper;
 
     int curr_mino = 0;
     int action;
@@ -58,36 +60,7 @@ void SoloEngine::run()
         }
 
         key = input_handler->scan();
-        if (key != 0) {
-            switch (key) {
-            case 'a':
-                action = Action::LEFT;
-                break;
-            case 's':
-                action = Action::DROP;
-                break;
-            case 'd':
-                action = Action::RIGHT;
-                break;
-            case 'q':
-                action = Action::ROTATE_CCW;
-                break;
-            case 'e':
-                action = Action::ROTATE_CW;
-                break;
-            case 'f':
-                action = Action::HARD_DROP;
-                break;
-            case 'w':
-                action = Action::SWAP;
-                break;
-            default:
-                action = -1;
-                break;
-            }
-        }
-        else
-            action = -1;
+        action = key_mapper.map_key(key);
 
         if (action != -1) {
             rule->process(action);
