@@ -28,7 +28,7 @@ const char* const BIG_S[] = {" ████", "█    ", " ███ ", "    █
 const char* const BIG_N[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
 const char* const BIG_M[] = {"█   █", "██ ██", "█ █ █", "█ █ █", "█   █"};
 const char* const BIG_Y[] = {"█   █", "█   █", " █ █ ", "  █  ", "  █  "};
-const char* const BIG_G[] = {" ███ ", "█   █", "█  ██", "█   █", " ████"};
+const char* const BIG_G[] = {" ███ ", "█    ", "█  ██", "█   █", " ████"};
 
 using namespace std;
 
@@ -392,7 +392,7 @@ void WindowRenderer::render_settings()
     render_clear();
     for (int i = 0; i < 5; i++) {
         //
-        set_cursor(15, 2 + i);
+        set_cursor(22, 2 + i);
         // 순서대로 색상과 함께 출력
 
         printf("%s%s ", Color::GRAY, BIG_S[i]); // S
@@ -402,6 +402,7 @@ void WindowRenderer::render_settings()
         printf("%s%s ", Color::GRAY, BIG_I[i]); // I
         printf("%s%s ", Color::GRAY, BIG_N[i]); // N
         printf("%s%s ", Color::GRAY, BIG_G[i]); // G
+        printf("%s%s ", Color::GRAY, BIG_S[i]); // S
 
         printf("%s", Color::RESET);
     }
