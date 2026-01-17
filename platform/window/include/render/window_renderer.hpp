@@ -88,15 +88,14 @@ class WindowRenderer : public IRenderer
 
     void render_game_over();
 
-    void set_cursor(int x, int y);
-    void render_menu();
-    void render_solo();
-    void render_multi();
+    void render_menu(int menu_num);
+    void render_settings();
+    void render_solo_background();
+    void draw_logo(int x, int y);
 
   private:
     void clear();
     // display
-    void draw_logo(int x, int y);
     void draw_enemy_title(int x, int y);
     void draw_ui_box(const string& title, int x, int y, int w, int h, const char* color);
 
@@ -106,6 +105,10 @@ class WindowRenderer : public IRenderer
     // hide, show cursor
     void show_cursor();
     void hide_cursor();
+
+    void setting_arrow(int point_cur_setting);
+
+    void set_cursor(int x, int y);
 };
 
 #endif

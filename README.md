@@ -1,3 +1,8 @@
+![Build](https://github.com/leaf-nam/tetris/actions/workflows/build.yml/badge.svg)
+![Coverage](https://codecov.io/gh/leaf-nam/tetris/branch/develop/graph/badge.svg)
+![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg?logo=c%2B%2B)
+![C#](https://img.shields.io/badge/C%23-.NET-blueviolet.svg?logo=csharp)
+
 ### 📢 Branch Maintenance Notice
 main, develop 제외한 나머지 브랜치 리무브 예정!
 

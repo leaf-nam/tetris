@@ -2,14 +2,24 @@
 
 #include <conio.h>
 #include <stdio.h>
-char WindowInput::scan()
+
+int WindowInput::scan()
 {
-    char c = '\0';
+    int c = '\0';
 
     while (_kbhit() != 0) {
-        c = _getch(); // 입력버퍼를 지우며 마지막 값만 반환
+        c = _getch();
+
+        if (c == 224) {
+            c = _getch();
+            if (c == 72) return Arrow::KEY_UP;
+            if (c == 80) return Arrow::KEY_DOWN;
+            if (c == 75) return Arrow::KEY_LEFT;
+            if (c == 77) return Arrow::KEY_RIGHT;
+        }
     }
-    return c;
+
+    return (int) c;
 }
 
 WindowInput::~WindowInput() {}

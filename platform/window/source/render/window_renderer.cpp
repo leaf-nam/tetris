@@ -28,6 +28,7 @@ const char* const BIG_S[] = {" ████", "█    ", " ███ ", "    █
 const char* const BIG_N[] = {"██  █", "█ █ █", "█  ██", "█   █", "█   █"};
 const char* const BIG_M[] = {"█   █", "██ ██", "█ █ █", "█ █ █", "█   █"};
 const char* const BIG_Y[] = {"█   █", "█   █", " █ █ ", "  █  ", "  █  "};
+const char* const BIG_G[] = {" ███ ", "█   █", "█  ██", "█   █", " ████"};
 
 using namespace std;
 
@@ -178,6 +179,11 @@ void WindowRenderer::render_background()
     draw_ui_box("#SCORE", 4, 16, 6, 3, Color::CYAN);
     draw_ui_box("LV", 4, 21, 6, 3, Color::CYAN);
     draw_ui_box("TIME", middle_x, 2, 6, 3, Color::RESET);
+
+    set_cursor(board_x, 7);
+    cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
+    set_cursor(board_x, 28);
+    cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 }
 void WindowRenderer::draw_hold(const Mino& hold_shape)
 {
@@ -214,7 +220,7 @@ void WindowRenderer::show_cursor()
 }
 void WindowRenderer::render_game_over()
 {
-    set_cursor(43, 16);
+    set_cursor(33, 17);
     printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
 }
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
@@ -228,9 +234,6 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
     // 2. 현재 떨어지는 미노 정보 가져오기
     auto [pos_r, pos_c] = tetromino.get_pos(); // 현재 위치 (Top-Left)
     const Mino& shape = tetromino.get_shape(); // 현재 회전 상태의 4x4 배열 (int[4][4])
-
-    set_cursor(start_x, start_y);
-    cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
 
     // 행 루프 (2~21)
     for (int r = 2; r < 22; ++r) {
@@ -278,9 +281,6 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
 
         cout << Color::BOLD << " ┃" << Color::RESET;
     }
-
-    set_cursor(start_x, start_y + 21);
-    cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
 }
 void WindowRenderer::render_other_board(Packet& pkt)
 {
@@ -359,50 +359,132 @@ void WindowRenderer::render_char(char c) { cout << c; }
 
 void WindowRenderer::render_clear() { system("cls"); }
 
-void WindowRenderer::render_menu()
+void WindowRenderer::render_menu(int menu_num)
 {
-    int menu_num = 0;
-    bool running = true;
-
-    while (running) {
-        clear();
-
-        draw_logo(20, 10);
-        bool is_solo = true;
-        // 2. 메뉴 출력부 (반복문을 사용하면 훨씬 깔끔합니다)
-        const char* menu_items[] = {"Single Play", "Multi Play", "Settings", "Exit"};
-
-        for (int i = 0; i < 4; ++i) {
-            set_cursor(30, 20 + (i * 2));
-            if (menu_num == i) {
-                std::cout << Color::BOLD << "> " << menu_items[i] << " <" << Color::RESET;
-            }
-            else {
-                std::cout << "  " << menu_items[i] << "  ";
-            }
-        }
-
-        // 3. 키 입력 처리
-        int c = _getch();
-        if (c == 9) { // Tab 키의 ASCII 값
-            menu_num = (menu_num + 1) % 4;
-        }
-        else if (c == 13) { // Enter 키
-            switch (menu_num) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                running = false;
-                break;
-            }
-        }
+    if (menu_num == 0) {
+        render_clear();
+        draw_logo(20, 7);
+    }
+    string menu_string[4] = {"single play", "multi play", "settings", "exit"};
+    for (int i = 0; i < 4; i++) {
+        set_cursor(25, 18 + i * 2);
+        if (menu_num % 4 == i)
+            cout << Color::BOLD << "> " << menu_string[i];
+        else
+            cout << "  " << menu_string[i] << '\n';
+        printf(Color::RESET);
     }
 }
-void WindowRenderer::render_solo() { render_background(); }
-void WindowRenderer::render_multi() {}
+void WindowRenderer::setting_arrow(int point_cur_setting)
+{ // 현재 수정중인 메뉴 화살표 출력 및 다른 설정 화살표 지우기
+    int x = 60;
+    int setting_y_list[2] = {10, 15};
+    for (int i = 0; i < 2; i++) {
+        set_cursor(x, setting_y_list[i]);
+        if (point_cur_setting == i)
+            cout << "<-";
+        else
+            cout << "  ";
+    }
+}
+void WindowRenderer::render_settings()
+{
+    render_clear();
+    for (int i = 0; i < 5; i++) {
+        //
+        set_cursor(15, 2 + i);
+        // 순서대로 색상과 함께 출력
+
+        printf("%s%s ", Color::GRAY, BIG_S[i]); // S
+        printf("%s%s ", Color::GRAY, BIG_E[i]); // E
+        printf("%s%s ", Color::GRAY, BIG_T[i]); // T
+        printf("%s%s ", Color::GRAY, BIG_T[i]); // T
+        printf("%s%s ", Color::GRAY, BIG_I[i]); // I
+        printf("%s%s ", Color::GRAY, BIG_N[i]); // N
+        printf("%s%s ", Color::GRAY, BIG_G[i]); // G
+
+        printf("%s", Color::RESET);
+    }
+    // 왼쪽 블럭 그리기
+    int x = 2;
+    int y = 2;
+    Tetromino* tetromino = new Tetromino();
+    tetromino->set_mino_type(0);
+    render_mino_pattern(x, y + 4, tetromino->get_shape(),
+                        get_block_color(tetromino->get_mino_type()));
+    for (int i = 1; i < 3; i++) {
+        tetromino->set_mino_type(i);
+
+        render_mino_pattern(x, y + 9 * i + 3, tetromino->get_shape(),
+                            get_block_color(tetromino->get_mino_type()));
+    }
+    // 오른쪽 블럭 그리기
+    x = 80;
+    for (int i = 3; i < 7; i++) {
+        tetromino->set_mino_type(i);
+
+        render_mino_pattern(x, y + 7 * (i - 3), tetromino->get_shape(),
+                            get_block_color(tetromino->get_mino_type()));
+    }
+    // setting theme.
+
+    int theme_num = 0;
+    char c;
+    set_cursor(30, 10);
+    cout << "theme :  " << theme_num % 4 + 1;
+    setting_arrow(0);
+    set_cursor(30, 15);
+    cout << "ghost :  " << "on" << "         ";
+    while (true) {
+        c = _getch();
+        if (c == '\r') {
+            set_cursor(59, 10);
+            cout << "     ";
+            break;
+        };
+        if (c == '\t') {
+            theme_num++;
+            set_cursor(30, 10);
+            cout << "theme :  " << theme_num % 4 + 1;
+            setting_arrow(0);
+        }
+        /*
+        theme 설정
+        블럭 다시 그리기
+        */
+    }
+
+    // setting ghost
+    bool is_ghost = true;
+    set_cursor(30, 15);
+
+    cout << "ghost :  " << "on ";
+    setting_arrow(1);
+    while (true) {
+        c = _getch();
+        if (c == '\r') {
+            render_clear();
+            draw_logo(20, 7);
+
+            render_menu(2);
+            break;
+        };
+        if (c == '\t') {
+            theme_num++;
+            set_cursor(30, 15);
+            if (!is_ghost) {
+                cout << "ghost :  " << "on ";
+                is_ghost = true;
+            }
+
+            else {
+                cout << "ghost :  " << "off";
+                is_ghost = false;
+            }
+        }
+        /*
+        ghost 설정
+        블럭 다시 그리기
+        */
+    }
+}
