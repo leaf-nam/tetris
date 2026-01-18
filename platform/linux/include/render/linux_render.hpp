@@ -63,10 +63,15 @@ public:
     
     void render_other_board(Packet& pkt) override;
 
-    void render_ip_recv() override;
+    /**
+     * @brief 상대방 ip 주소 입력 받는 창 렌더링
+     * @param 상대방의 ip 주소를 저장할 문자 배열
+     */
+    void render_ip_recv(char* ip_address) override;
     
-    void render_char(char c) override;
-    
+    /**
+     * @brief 터미널 화면 초기화
+     */
     void render_clear() override;
     
     void render_mino(int row, int col, const Mino& tetromino, int type);

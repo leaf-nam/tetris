@@ -5,8 +5,6 @@
 #include "tetromino/tetromino.hpp"
 #include "util/network_packet.hpp"
 
-#include <string>
-
 class IRenderer
 {
   public:
@@ -53,10 +51,15 @@ class IRenderer
      */
     virtual void render_level(int level) = 0;
 
-    virtual void render_ip_recv() = 0;
-
-    virtual void render_char(char c) = 0;
-
+    /**
+     * @brief 상대방 ip 주소 입력 받는 창 렌더링
+     * @param 상대방의 ip 주소를 저장할 문자 배열
+     */
+    virtual void render_ip_recv(char* ip_address) = 0;
+    
+    /**
+     * @brief 터미널 화면 초기화
+     */
     virtual void render_clear() = 0;
 
     /**

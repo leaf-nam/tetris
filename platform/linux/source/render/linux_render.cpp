@@ -1,6 +1,7 @@
 #include "tetromino/tetromino.hpp"
 #include "board/board.hpp"
 #include "render/linux_render.hpp"
+#include <string>
 
 using namespace std;
 
@@ -360,18 +361,25 @@ void LinuxRender::render_other_board(Packet& pkt)
     cout << flush;
 }
 
-void LinuxRender::render_ip_recv()
+/**
+ * @brief 상대방 ip 주소 입력 받는 창 렌더링
+ * @param 상대방의 ip 주소를 저장할 문자 배열
+ */
+void LinuxRender::render_ip_recv(char* ip_address)
 {
-    cout << "대전 상대의 IP를 입력하세요: ";
-    cout << flush;
+    string temp_ip_address;
+    cout << "대전 상대의 IP를 입력하세요" << '\n';
+    cin >> temp_ip_address;
+    
+    for(int i = 0; i < 15; ++i)
+        ip_address[i] = temp_ip_address[i];
+
+    ip_address[15] = '\0';
 }
 
-void LinuxRender::render_char(char c)
-{
-    cout << c;
-    cout << flush;
-}
-
+/**
+ * @brief 터미널 화면 초기화
+ */
 void LinuxRender::render_clear()
 {
     cout << "\033[2J\033[H";

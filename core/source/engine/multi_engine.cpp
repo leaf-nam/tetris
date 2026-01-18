@@ -27,26 +27,16 @@ void MultiEngine::run()
     int curr_mino = 0;
     int action;
     int attack = 0;
-    bool is_line_fill_complete = false;
+    bool is_line_fill_complete = false, is_tetromino_or_board_change = false;
     int key;
     int index = 0;
     char another_user_ip[1024];
     char c;
 
-    renderer->render_ip_recv();
-    while(true)
-    {
-        c = input_handler->scan();
-        if(c == '\n' || c == '\r')
-            break;
-        if(c != 0)
-        {
-            renderer->render_char(c);
-            another_user_ip[index++] = c;
-        }
-    }
-    another_user_ip[index] = '\0';
+    renderer->render_ip_recv(another_user_ip);
     renderer->render_clear();
+
+    input_handler->init();
 
     renderer->render_background();
     renderer->render_board(board, board.get_active_mino());
@@ -57,20 +47,22 @@ void MultiEngine::run()
 
     while (1)
     {
+        is_tetromino_or_board_change = false;
+
         if(!board.has_active_mino())
         {
             if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
             renderer->render_next_block(tetromino_queue.get_tetrominos());
+            is_tetromino_or_board_change = true;
         }
 
         timer.set_curr_time();
         if (timer.check_500ms_time())
         {
             rule->process(Action::DROP);
-            renderer->render_board(board, board.get_active_mino());
-            renderer->render_hold(board.get_saved_mino());
             renderer->render_level(rule->get_level());
             renderer->render_timer(timer.get_seconds());
+            is_tetromino_or_board_change = true;
         }
 
         key = input_handler->scan();
@@ -80,13 +72,17 @@ void MultiEngine::run()
         {
             rule->process(action);
             renderer->render_next_block(tetromino_queue.get_tetrominos());
-            renderer->render_board(board, board.get_active_mino());
-            renderer->render_hold(board.get_saved_mino());
+            is_tetromino_or_board_change = true;
         }
         
         attack = rule->update_score();
         
-        network->send_udp(board, board.get_active_mino(), attack, another_user_ip);
+        if (is_tetromino_or_board_change)
+        {
+            renderer->render_board(board, board.get_active_mino());
+            renderer->render_hold(board.get_saved_mino());
+            network->send_udp(board, board.get_active_mino(), attack, another_user_ip);
+        }
 
         if (attack > 0) renderer->render_score(attack);
 
