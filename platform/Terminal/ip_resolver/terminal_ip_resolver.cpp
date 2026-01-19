@@ -19,6 +19,7 @@ void TerminalIpResolver::open_server(bool is_open_server)
     uint8_t buf[1024];
     SOCKADDR_IN client_addr;
     SOCKADDR_IN another_user;
+    SOCKET client_sock;
     int addr_len = sizeof(client_addr);
     int index = 0;
 
@@ -32,7 +33,7 @@ void TerminalIpResolver::open_server(bool is_open_server)
     another_user.sin_family = AF_INET;
     another_user.sin_port = htons(ROOM_PORT);
     if (is_open_server) {
-        SOCKET client_sock = socket(AF_INET, SOCK_DGRAM, 0);
+        client_sock = socket(AF_INET, SOCK_DGRAM, 0);
         if (client_sock == INVALID_SOCKET) {
             cerr << "client socket creation failed: " << WSAGetLastError() << "\n";
             WSACleanup();
