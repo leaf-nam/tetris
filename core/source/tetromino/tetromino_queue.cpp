@@ -1,7 +1,4 @@
 #include "tetromino/tetromino_queue.hpp"
-#include "tetromino/tetromino.hpp"
-#include "util/rand_gen.hpp"
-#include <iostream>
 
 using namespace std;
 
@@ -9,14 +6,15 @@ TetrominoQueue::TetrominoQueue()
 {
     draw_count = 0;
 
-    int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
+    int size_of_tetrominos = sizeof(curr_tetrominos) / sizeof(curr_tetrominos[0]);
     for (int i = 0; i < size_of_tetrominos; ++i)
     {
-        tetrominos[i] = i;
+        curr_tetrominos[i] = i;
+        next_tetrominos[i] = i;
     }
     
-    mt19937 rng(random_device{}());
-    shuffle(tetrominos, tetrominos + size_of_tetrominos, rng);
+    shuffle(curr_tetrominos, curr_tetrominos + size_of_tetrominos, rng);
+    shuffle(next_tetrominos, next_tetrominos + size_of_tetrominos, rng);
 }
 
 TetrominoQueue& TetrominoQueue::get_instance()
@@ -27,24 +25,23 @@ TetrominoQueue& TetrominoQueue::get_instance()
 
 int TetrominoQueue::get_new_tetromino()
 {
-    int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
+    int size_of_tetrominos = sizeof(curr_tetrominos) / sizeof(curr_tetrominos[0]);
     int new_tetromino;
 
     if (draw_count >= size_of_tetrominos)
     {
-        mt19937 rng(random_device{}());
-        shuffle(tetrominos, tetrominos + size_of_tetrominos, rng);
+        shuffle(next_tetrominos, next_tetrominos + size_of_tetrominos, rng);
         draw_count = 0;
     }
 
-    new_tetromino = tetrominos[0];
+    new_tetromino = curr_tetrominos[0];
 
     for (int i = 1; i < size_of_tetrominos; ++i)
     {
-        tetrominos[i - 1] = tetrominos[i];
+        curr_tetrominos[i - 1] = curr_tetrominos[i];
     }
 
-    tetrominos[size_of_tetrominos - 1] = new_tetromino;
+    curr_tetrominos[size_of_tetrominos - 1] = next_tetrominos[draw_count];
     draw_count++;
 
     return new_tetromino;
@@ -52,20 +49,20 @@ int TetrominoQueue::get_new_tetromino()
 
 void TetrominoQueue::set_new_tetromino(int new_tetromino)
 {
-    int size_of_tetrominos = sizeof(tetrominos) / sizeof(tetrominos[0]);
+    int size_of_tetrominos = sizeof(curr_tetrominos) / sizeof(curr_tetrominos[0]);
 
     for(int i = 0; i < size_of_tetrominos; ++i)
     {
-        if (new_tetromino == tetrominos[i])
+        if (new_tetromino == curr_tetrominos[i])
         {
-            int temp = tetrominos[0];
-            tetrominos[0] = new_tetromino;
-            tetrominos[i] = temp;
+            int temp = curr_tetrominos[0];
+            curr_tetrominos[0] = new_tetromino;
+            curr_tetrominos[i] = temp;
         }
     }
 }
 
 const int* TetrominoQueue::get_tetrominos()
 {
-    return tetrominos;
+    return curr_tetrominos;
 }

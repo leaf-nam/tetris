@@ -1,14 +1,18 @@
 #ifndef __TETROMINOQUEUE_HPP__
 #define __TETROMINOQUEUE_HPP__
 
+#include "tetromino/tetromino.hpp"
+#include "util/rand_gen.hpp"
 #include <algorithm>
 #include <random>
 
 class TetrominoQueue
 {
     private:
-    int tetrominos[7];
+    int curr_tetrominos[7];
+    int next_tetrominos[7];
     int draw_count;
+    std::mt19937 rng{std::random_device{}()};
     TetrominoQueue();
 
     public:
