@@ -6,6 +6,7 @@
 #include <string.h>
 #include <cstdint>
 #include <iostream>
+#include <chrono>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ void TerminalIpResolver::open_server(bool is_open_server)
     WSADATA wsa_data;
     uint8_t buf[1024];
     SOCKADDR_IN client_addr;
+    SOCKADDR_IN another_user;
     int addr_len = sizeof(client_addr);
     int index = 0;
 
@@ -25,14 +27,28 @@ void TerminalIpResolver::open_server(bool is_open_server)
         exit(0);
     }
 
-    // 2. Server Socket 생성 (수신용)
+    // 2. Client Socket 생성 (송신용)
+    ZeroMemory(&another_user, sizeof(another_user));
+    another_user.sin_family = AF_INET;
+    another_user.sin_port = htons(ROOM_PORT);
+    if (is_open_server) {
+        SOCKET client_sock = socket(AF_INET, SOCK_DGRAM, 0);
+        if (client_sock == INVALID_SOCKET) {
+            cerr << "client socket creation failed: " << WSAGetLastError() << "\n";
+            WSACleanup();
+            exit(0);
+        }
+    }
+    inet_pton(AF_INET, "255.255.255.255", &another_user.sin_addr);
+
+    // 3. Server Socket 생성 (수신용)
     SOCKET server_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (server_sock == INVALID_SOCKET) {
         WSACleanup();
         exit(0);
     }
 
-    // 3. Server Socket을 Non-blocking 모드로 설정
+    // 4. Server Socket을 Non-blocking 모드로 설정
     // (리눅스의 SOCK_NONBLOCK 대체)
     u_long mode = 1; // 1: Non-blocking, 0: Blocking
     if (ioctlsocket(server_sock, FIONBIO, &mode) == SOCKET_ERROR) {
@@ -40,7 +56,7 @@ void TerminalIpResolver::open_server(bool is_open_server)
         exit(0);
     }
 
-    // 4. Bind
+    // 5. Bind
     SOCKADDR_IN addr;
     ZeroMemory(&addr, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -54,6 +70,7 @@ void TerminalIpResolver::open_server(bool is_open_server)
 
     // [Terminal Non-blocking 처리]
     // epoll 대신 루프를 돌며 쌓인 패킷을 모두 처리하고 가장 최신 것을 가져옵니다.
+    auto base_time = std::chrono::steady_clock::now();
     while (index < 4 || !is_open_server) {
         if (_kbhit() != 0 && !is_open_server) {
             cin >> selected_server_ip_address;
@@ -64,6 +81,12 @@ void TerminalIpResolver::open_server(bool is_open_server)
 
         int r =
             recvfrom(server_sock, (char*) buf, 1024, 0, (SOCKADDR*) &client_addr, &addr_len);
+
+        if (std::chrono::steady_clock::now() - base_time >= std::chrono::milliseconds(500)) {
+            base_time = std::chrono::steady_clock::now();
+            int send_result = sendto(client_sock, (char*) buf, 1024, 0, (SOCKADDR*) &another_user,
+                                     sizeof(another_user));
+        }
 
         if (r == SOCKET_ERROR) {
             int err = WSAGetLastError();
