@@ -22,6 +22,7 @@ typedef struct _room_data
     bool is_game_start;
     bool is_broadcast;
     bool is_update;
+    bool is_broadcast_delete;
 }room_data;
 #pragma pack(pop)
 

@@ -146,6 +146,12 @@ void TerminalIpResolver::open_room()
                 sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                        (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
             }
+            room_data send_room_data{};
+            snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
+                     open_room_id);
+            send_room_data.is_broadcast_delete = true;
+            sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
+                   (SOCKADDR*) &broadcast_addr, sizeof(broadcast_addr));
             break;
         }
 
@@ -188,7 +194,8 @@ void TerminalIpResolver::open_room()
         user_data received_data;
         memcpy(&received_data, buffer, sizeof(received_data));
         received_data.id[sizeof(received_data.id) - 1] = '\0';
-        if (index >= 4 || client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()) {
+        if (index >= 4 || (received_data.is_enter == true && client_ip_address.find(
+                               std::string(received_data.id)) != client_ip_address.end())) {
             ZeroMemory(&other_user_addr, sizeof(other_user_addr));
             other_user_addr_len = sizeof(other_user_addr);
             other_user_addr.sin_family = AF_INET;
@@ -279,7 +286,7 @@ void TerminalIpResolver::enter_room()
         exit(0);
     }
 
-    // 3. Room Socket을 Non-blocking 모드로 설정
+    // 3. Enter Socket을 Non-blocking 모드로 설정
     u_long mode = 1; // 1: Non-blocking, 0: Blocking
     if (ioctlsocket(enter_sock, FIONBIO, &mode) == SOCKET_ERROR) {
         cerr << "ioctlsocket failed: " << WSAGetLastError() << "\n";
@@ -308,6 +315,8 @@ void TerminalIpResolver::enter_room()
         if (_kbhit() != 0) {
             if (is_in_room)
             {
+                while (_kbhit())
+                    _getch();
                 ZeroMemory(&room_send_addr, sizeof(room_send_addr));
                 room_send_addr_len = sizeof(room_send_addr);
                 room_send_addr.sin_family = AF_INET;
@@ -328,6 +337,8 @@ void TerminalIpResolver::enter_room()
             else
             {
                 cin >> server_ip;
+                while (_kbhit())
+                    _getch();
                 if (server_ip_address.find(server_ip) == server_ip_address.end()) continue;
                 ZeroMemory(&room_send_addr, sizeof(room_send_addr));
                 room_send_addr_len = sizeof(room_send_addr);
@@ -379,6 +390,17 @@ void TerminalIpResolver::enter_room()
             server_ip_address[std::string(room_ip)] = std::string(received_data.room_master_id);
             if (is_in_room == false)
             {
+                cout << "\033[2J\033[1;1H";
+                cout << flush;
+                for (const auto& [key, value] : server_ip_address)
+                    cout << value << " : " << key << '\n';
+                cout << "Get Room constantly..." << '\n';
+            }
+        }
+        else if (received_data.is_broadcast_delete)
+        {
+            server_ip_address.erase(std::string(room_ip));
+            if (is_in_room == false) {
                 cout << "\033[2J\033[1;1H";
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
