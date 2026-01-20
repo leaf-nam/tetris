@@ -207,6 +207,7 @@ void TerminalIpResolver::open_room()
                 client_ip_address[std::string(received_data.id)] = std::string(ip);
             else
                 client_ip_address.erase(std::string(received_data.id));
+            index = client_ip_address.size();
             cout << "\033[2J\033[1;1H";
             cout << flush;
             cout << open_room_id << '\n';
@@ -233,7 +234,6 @@ void TerminalIpResolver::open_room()
                 sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                        (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
             }
-            index = client_ip_address.size();
         }
     }
 
@@ -319,6 +319,11 @@ void TerminalIpResolver::enter_room()
                 sendto(enter_sock, (char*) &send_user_data, sizeof(send_user_data), 0,
                        (SOCKADDR*) &room_send_addr, sizeof(room_send_addr));
                 is_in_room = false;
+                cout << "\033[2J\033[1;1H";
+                cout << flush;
+                for (const auto& [key, value] : server_ip_address)
+                    cout << value << " : " << key << '\n';
+                cout << "Get Room constantly..." << '\n';
             }
             else
             {
