@@ -6,14 +6,15 @@ using namespace std;
 
 enum ColorTheme : uint8_t
 {
-	DRACULA = 0,
-	MONOKAI,
-	NORD,
-	SOLARIZED_DARK
+    DRACULA = 0,
+    MONOKAI,
+    NORD,
+    SOLARIZED_DARK
 };
 
 class Setting
 {
+  public:
     ColorTheme color_theme;
     bool shadow_on;
     string nick_name;

@@ -1,20 +1,22 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include <i_input_handler.hpp>
-#include <i_renderer.hpp>
-#include <i_network.hpp>
 #include "util/setting.hpp"
 
-class Engine {
-    protected:
-    Setting setting;
+#include <i_input_handler.hpp>
+#include <i_network.hpp>
+#include <i_renderer.hpp>
+
+class Engine
+{
+  protected:
+    Setting* setting;
     IInputHandler* input_handler;
-    IRenderer* renderer;    
-    INetwork* network;    
+    IRenderer* renderer;
+    INetwork* network;
 
-    public:
-
+  public:
+    Engine(Setting*, IInputHandler*, IRenderer*, INetwork*);
     /**
      * @brief 게임 메인루프
      */

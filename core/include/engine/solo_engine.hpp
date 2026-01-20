@@ -10,7 +10,7 @@ class SoloEngine : public Engine {
      * @param 플랫폼 종속 인터페이스
      * @return 게임엔진
      */
-    SoloEngine(IInputHandler* input_handler, IRenderer* renderer);
+    SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer);
 
     /**
      * @brief 게임 메인루프

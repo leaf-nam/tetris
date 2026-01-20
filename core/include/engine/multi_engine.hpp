@@ -10,7 +10,7 @@ class MultiEngine : public Engine {
      * @param 플랫폼 종속 인터페이스
      * @return 게임엔진
      */
-    MultiEngine(IInputHandler* input_handler, IRenderer* renderer, INetwork* network);
+    MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network);
 
     /**
      * @brief 게임 메인루프
