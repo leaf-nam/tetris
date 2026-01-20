@@ -1,12 +1,13 @@
-#include <gtest/gtest.h>
-#include "util/timer.hpp"
 #include "util/rand_gen.hpp"
-#include <thread>
+#include "util/timer.hpp"
+
 #include <chrono>
+#include <gtest/gtest.h>
+#include <thread>
 
 TEST(TimerTest, all)
 {
-    Timer &t = Timer::get_instance();
+    Timer& t = Timer::get_instance();
     t.set_curr_time();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     t.set_curr_time();
@@ -27,7 +28,7 @@ TEST(TimerTest, all)
 
 TEST(RandGenTest, all)
 {
-    RandGen &r = RandGen::get_instance();
+    RandGen& r = RandGen::get_instance();
     int rand_num = r.get_rand_int();
     EXPECT_TRUE((rand_num >= 0) && (rand_num <= 10000));
 }
