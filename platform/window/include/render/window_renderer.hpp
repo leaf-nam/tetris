@@ -1,12 +1,12 @@
-#ifndef TERMINAL_RENDERER_H
-#define TERMINAL_RENDERER_H
+#ifndef __WINDOW_RENDERER_H__
+#define __WINDOW_RENDERER_H__
 
-#include <i_renderer.hpp>
 #include "board/board.hpp"
 #include "tetromino/tetromino.hpp"
 
 #include <cstdint>
 #include <cstdio>
+#include <i_renderer.hpp>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -30,7 +30,7 @@ extern const char* const GRAY;
 extern const char* const BOLD;
 } // namespace Color
 
-class TerminalRenderer : public IRenderer
+class WindowRenderer : public IRenderer
 {
   public:
     /**
@@ -77,7 +77,7 @@ class TerminalRenderer : public IRenderer
     /**
      * @brief 소멸자
      */
-    virtual ~TerminalRenderer() override;
+    virtual ~WindowRenderer() override;
 
     void render_other_board(Packet& pkt) override;
     void render_ip_recv() override;
@@ -88,11 +88,15 @@ class TerminalRenderer : public IRenderer
 
     void render_game_over();
 
+    void render_menu(int menu_num);
+    void render_settings();
+    void render_solo_background();
+    void draw_logo(int x, int y);
+
   private:
     void clear();
-    void set_cursor(int x, int y);
     // display
-    void draw_logo();
+    void draw_enemy_title(int x, int y);
     void draw_ui_box(const string& title, int x, int y, int w, int h, const char* color);
 
     // draw
@@ -101,6 +105,10 @@ class TerminalRenderer : public IRenderer
     // hide, show cursor
     void show_cursor();
     void hide_cursor();
+
+    void setting_arrow(int point_cur_setting);
+
+    void set_cursor(int x, int y);
 };
 
 #endif
