@@ -5,10 +5,13 @@
 
 #include "i_ip_resolver.hpp"
 
-#pragma comment(lib, "ws2_32.lib")
-
 class TerminalIpResolver : public IIpResolver
 {
+  private:
+    /**
+     * @brief (서버)브로드캐스트 주소를 찾는 함수
+     */
+    void find_broadcast_ip(char* broadcast_ip);
   public:
     /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수

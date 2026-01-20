@@ -1,5 +1,6 @@
 #include "terminal_ip_resolver.hpp"
 #include <WinSock2.h>
+#include <iphlpapi.h>
 #include <conio.h>
 #include <WS2tcpip.h>
 #include <stdio.h>
@@ -11,6 +12,48 @@
 
 using namespace std;
 
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "ws2_32.lib")
+
+/**
+ * @brief (서버)브로드캐스트 주소를 찾는 함수
+ */
+void TerminalIpResolver::find_broadcast_ip(char* broadcast_ip)
+{
+    ULONG size = 0;
+    GetAdaptersAddresses(AF_INET, 0, nullptr, nullptr, &size);
+
+    IP_ADAPTER_ADDRESSES* adapters = (IP_ADAPTER_ADDRESSES*) malloc(size);
+
+    if (GetAdaptersAddresses(AF_INET, 0, nullptr, adapters, &size) != NO_ERROR) return;
+
+    for (auto a = adapters; a; a = a->Next) {
+        if (a->OperStatus != IfOperStatusUp) continue;
+
+        if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK) continue;
+
+        if (a->PhysicalAddressLength == 0) continue;
+
+        for (auto u = a->FirstUnicastAddress; u; u = u->Next) {
+            SOCKADDR_IN* sa = (SOCKADDR_IN*) u->Address.lpSockaddr;
+
+            uint32_t ip = ntohl(sa->sin_addr.s_addr);
+            uint32_t mask = (
+                u->OnLinkPrefixLength == 0 ? 0 : (0xFFFFFFFF << (32 - u->OnLinkPrefixLength)));
+            uint32_t broadcast = ip | ~mask;
+            broadcast = htonl(broadcast);
+
+            IN_ADDR b;
+            b.s_addr = broadcast;
+
+            inet_ntop(AF_INET, &b, broadcast_ip, 16);
+            return;
+        }
+    }
+
+    free(adapters);
+}
+
 /**
  * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
  */
@@ -21,7 +64,6 @@ void TerminalIpResolver::open_room()
     SOCKADDR_IN broadcast_addr;
     SOCKADDR_IN other_user_addr;
     SOCKADDR_IN room_addr;
-    SOCKADDR_IN my_addr;
     int other_user_addr_len;
     SOCKET room_sock;
     char open_room_id[9];
@@ -68,7 +110,9 @@ void TerminalIpResolver::open_room()
     ZeroMemory(&broadcast_addr, sizeof(broadcast_addr));
     broadcast_addr.sin_family = AF_INET;
     broadcast_addr.sin_port = htons(ROOM_PORT);
-    inet_pton(AF_INET, "255.255.255.255", &broadcast_addr.sin_addr);
+    char broadcast_ip[16];
+    find_broadcast_ip(broadcast_ip);
+    inet_pton(AF_INET, broadcast_ip, &broadcast_addr.sin_addr);
 
     // 7. Bind
     if (bind(room_sock, (SOCKADDR*) &room_addr, sizeof(room_addr)) == SOCKET_ERROR) {
