@@ -1,17 +1,39 @@
 #ifndef __I_IP_RESOLVER_HPP__
 #define __I_IP_RESOLVER_HPP__
 
+#include <unordered_map>
+#include <string>
+
+#pragma pack(push, 1)
+typedef struct _user_data
+{
+    char id[9];
+    bool is_enter; // true == enter, false == out
+}user_data;
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+typedef struct _room_data
+{
+    char room_master_id[9];
+    char id[4][9];
+    bool is_enter_success;
+    bool is_game_start;
+    bool is_broadcast;
+}room_data;
+#pragma pack(pop)
+
 class IIpResolver
 {
   protected:
-    char server_ip_address[1024][16];
-    char client_ip_address[4][16];
+    std::unordered_map<std::string, std::string> server_ip_address;
+    std::unordered_map<std::string, std::string> client_ip_address;
     int selected_server_ip_address;
   public:
     /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
      */
-    virtual void open_server(bool is_open_server) = 0;
+    virtual void open_room() = 0;
 
     /**
      * @brief (클라이언트)방에 입장하는 함수

@@ -13,7 +13,7 @@ class TerminalIpResolver : public IIpResolver
     /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
      */
-    void open_server(bool is_open_server) override;
+    void open_room() override;
 
     /**
      * @brief (클라이언트)방에 입장하는 함수
