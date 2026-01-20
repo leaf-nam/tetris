@@ -10,6 +10,7 @@
 #include "render/window_multi_renderer.hpp"
 #include "render/window_renderer.hpp"
 #include "util/setting_storage.hpp"
+#include "ip_resolver/window_ip_resolver.hpp"
 
 #include <Windows.h>
 #include <chrono>
@@ -286,10 +287,14 @@ AppState run_multi_game()
     renderer = &window_renderer;
     input = new WindowInput();
     network = new WindowNetwork();
-    engine = new MultiEngine(setting, input, renderer, network);
+    IIpResolver* ip_resolver = new WindowIpResolver();
+    engine = new MultiEngine(setting, input, renderer, network, ip_resolver);
 
     renderer->render_clear();
     renderer->render_background();
+    engine->run();
+    engine->finish();
+    menu_renderer->render_game_over();
 
     (void) _getch();
 

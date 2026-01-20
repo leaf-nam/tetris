@@ -1,4 +1,4 @@
-#include "window_ip_resolver.hpp"
+#include "ip_resolver/window_ip_resolver.hpp"
 #include <WinSock2.h>
 #include <iphlpapi.h>
 #include <conio.h>
