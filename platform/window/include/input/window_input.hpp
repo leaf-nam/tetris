@@ -1,5 +1,5 @@
-#ifndef __window_INPUT_HPP__
-#define __window_INPUT_HPP__
+#ifndef __WINDOW_INPUT_HPP__
+#define __WINDOW_INPUT_HPP__
 #include <i_input_handler.hpp>
 
 class WindowInput : public IInputHandler

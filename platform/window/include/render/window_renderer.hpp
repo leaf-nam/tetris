@@ -1,5 +1,5 @@
-#ifndef window_RENDERER_H
-#define window_RENDERER_H
+#ifndef __WINDOW_RENDERER_H__
+#define __WINDOW_RENDERER_H__
 
 #include "board/board.hpp"
 #include "tetromino/tetromino.hpp"

@@ -1,5 +1,5 @@
-#ifndef __window_NETWORK_HPP__
-#define __window_NETWORK_HPP__
+#ifndef __WINDOW_NETWORK_HPP__
+#define __WINDOW_NETWORK_HPP__
 
 #include <i_network.hpp>
 
