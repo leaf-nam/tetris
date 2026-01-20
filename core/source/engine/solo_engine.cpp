@@ -14,7 +14,7 @@
 
 using namespace std;
 
-SoloEngine::SoloEngine(IInputHandler* input_handler, IRenderer* renderer)
+SoloEngine::SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer)
     : Engine(input_handler, renderer, nullptr)
 {
 }
