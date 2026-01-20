@@ -17,18 +17,20 @@ typedef struct _room_data
 {
     char room_master_id[9];
     char id[4][9];
-    bool is_enter_success;
+    int id_len;
+    bool is_enter_not_success;
     bool is_game_start;
     bool is_broadcast;
+    bool is_update;
 }room_data;
 #pragma pack(pop)
 
 class IIpResolver
 {
   protected:
-    std::unordered_map<std::string, std::string> server_ip_address;
-    std::unordered_map<std::string, std::string> client_ip_address;
-    int selected_server_ip_address;
+    std::unordered_map<std::string, std::string> server_ip_address; // key=>ip, value=>id
+    std::unordered_map<std::string, std::string> client_ip_address; // server: key=>id, value=>ip / client: key=>room_host_id, value=>room_user_id
+    char selected_server_ip_address[16];
   public:
     /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수

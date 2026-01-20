@@ -33,7 +33,7 @@ void TerminalIpResolver::open_room()
     cout << "\033[2J\033[1;1H";
     cout << flush;
     cout << "\e[?25l";
-    cout << "Please enter USER ID: ";
+    cout << "Please enter USER ID(8): ";
     cout << flush;
     cin >> open_room_id;
 
@@ -89,16 +89,16 @@ void TerminalIpResolver::open_room()
                 other_user_addr.sin_port = htons(ROOM_PORT);
                 inet_pton(AF_INET, value.c_str(), &other_user_addr.sin_addr);
                 room_data send_room_data{};
-                send_room_data.is_enter_success = false;
                 send_room_data.is_game_start = true;
                 snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
                          open_room_id);
                 room_user_index = 0;
-                for (const auto& [key, value] : client_ip_address) {
+                for (const auto& [key2, value2] : client_ip_address) {
                     if (room_user_index >= 4) break;
                     snprintf(send_room_data.id[room_user_index++], sizeof(send_room_data.id[0]),
-                             "%s", key.c_str());
+                             "%s", key2.c_str());
                 }
+                send_room_data.id_len = room_user_index;
                 sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                        (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
             }
@@ -144,7 +144,7 @@ void TerminalIpResolver::open_room()
         user_data received_data;
         memcpy(&received_data, buffer, sizeof(received_data));
         received_data.id[sizeof(received_data.id) - 1] = '\0';
-        if (index >= 4) {
+        if (index >= 4 || client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()) {
             ZeroMemory(&other_user_addr, sizeof(other_user_addr));
             other_user_addr_len = sizeof(other_user_addr);
             other_user_addr.sin_family = AF_INET;
@@ -153,8 +153,7 @@ void TerminalIpResolver::open_room()
             room_data send_room_data{};
             snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
                      open_room_id);
-            send_room_data.is_enter_success = false;
-            send_room_data.is_game_start = false;
+            send_room_data.is_enter_not_success = true;
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                    (SOCKADDR*) &other_user_addr,
                    sizeof(other_user_addr));
@@ -164,29 +163,32 @@ void TerminalIpResolver::open_room()
                 client_ip_address[std::string(received_data.id)] = std::string(ip);
             else
                 client_ip_address.erase(std::string(received_data.id));
-            ZeroMemory(&other_user_addr, sizeof(other_user_addr));
-            other_user_addr_len = sizeof(other_user_addr);
-            other_user_addr.sin_family = AF_INET;
-            other_user_addr.sin_port = htons(ROOM_PORT);
-            inet_pton(AF_INET, ip, &other_user_addr.sin_addr);
-            room_data send_room_data{};
-            snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id),
-                          "%s", open_room_id);
-            send_room_data.is_enter_success = true;
-            send_room_data.is_game_start = false;
-            room_user_index = 0;
             cout << "\033[2J\033[1;1H";
             cout << flush;
             cout << open_room_id << '\n';
-            for (const auto& [key, value] : client_ip_address) {
-                if (room_user_index >= 4) break;
+            for (const auto& [key, value] : client_ip_address)
                 cout << key << '\n';
-                snprintf(send_room_data.id[room_user_index++], sizeof(send_room_data.id[0]), "%s",
-                         key.c_str());
-            }
             cout << "Press Key for start game" << '\n';
-            sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
-                   (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
+            for (const auto& [key, value] : client_ip_address) {
+                ZeroMemory(&other_user_addr, sizeof(other_user_addr));
+                other_user_addr_len = sizeof(other_user_addr);
+                other_user_addr.sin_family = AF_INET;
+                other_user_addr.sin_port = htons(ROOM_PORT);
+                inet_pton(AF_INET, value.c_str(), &other_user_addr.sin_addr);
+                room_data send_room_data{};
+                send_room_data.is_update = true;
+                snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
+                         open_room_id);
+                room_user_index = 0;
+                for (const auto& [key2, value2] : client_ip_address) {
+                    if (room_user_index >= 4) break;
+                    snprintf(send_room_data.id[room_user_index++], sizeof(send_room_data.id[0]),
+                             "%s", key2.c_str());
+                }
+                send_room_data.id_len = room_user_index;
+                sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
+                       (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
+            }
             index = client_ip_address.size();
         }
     }
@@ -199,29 +201,176 @@ void TerminalIpResolver::open_room()
  */
 void TerminalIpResolver::enter_room()
 {
-    //char buf[1024];
-    //SOCKADDR_IN another_user;
-    //ZeroMemory(&another_user, sizeof(another_user));
-    //another_user.sin_family = AF_INET;
-    //another_user.sin_port = htons(ROOM_PORT);
+    WSADATA wsa_data;
+    char buffer[1024];
+    SOCKADDR_IN room_send_addr;
+    SOCKADDR_IN room_recv_addr;
+    SOCKADDR_IN enter_addr;
+    int room_recv_addr_len;
+    int room_send_addr_len;
+    SOCKET enter_sock;
+    char my_id[9];
+    int room_user_index = 0;
+    BOOL enable = TRUE;
+    bool is_in_room = false;
+    string server_ip;
 
-    //// 1. Client Socket 생성 (송신용)
-    //SOCKET client_sock = socket(AF_INET, SOCK_DGRAM, 0);
-    //if (client_sock == INVALID_SOCKET) {
-    //    cerr << "client socket creation failed: " << WSAGetLastError() << "\n";
-    //    WSACleanup();
-    //    exit(0);
-    //}
+    cout << "\033[2J\033[1;1H";
+    cout << flush;
+    cout << "\e[?25l";
+    cout << "Please enter USER ID(8): ";
+    cout << flush;
+    cin >> my_id;
 
-    //// Terminal에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
-    //inet_pton(AF_INET, server_ip_address[selected_server_ip_address], &another_user.sin_addr);
+    // 1. 윈도우 소켓 초기화 (필수)
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        exit(0);
+    }
 
-    //int send_result = sendto(client_sock, (char*) buf, 1024, 0, (SOCKADDR*) &another_user,
-    //                         sizeof(another_user));
+    // 2. Enter Socket 생성 (수신용)
+    enter_sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (enter_sock == INVALID_SOCKET) {
+        cerr << "socket failed: " << WSAGetLastError() << "\n";
+        WSACleanup();
+        exit(0);
+    }
 
-    //if (send_result == SOCKET_ERROR) {
-    //    cerr << "sendto failed: " << WSAGetLastError() << "\n";
-    //}
+    // 3. Room Socket을 Non-blocking 모드로 설정
+    u_long mode = 1; // 1: Non-blocking, 0: Blocking
+    if (ioctlsocket(enter_sock, FIONBIO, &mode) == SOCKET_ERROR) {
+        cerr << "ioctlsocket failed: " << WSAGetLastError() << "\n";
+        exit(0);
+    }
+    // 5. Bind data setting
+    ZeroMemory(&enter_addr, sizeof(enter_addr));
+    enter_addr.sin_family = AF_INET;
+    enter_addr.sin_port = htons(ROOM_PORT);
+    enter_addr.sin_addr.s_addr = INADDR_ANY;
+
+    // 6. BroadCast settting
+    enable = TRUE;
+    setsockopt(enter_sock, SOL_SOCKET, SO_BROADCAST, (char*) &enable, sizeof(enable));
+
+    // 7. Bind
+    if (bind(enter_sock, (SOCKADDR*) &enter_addr, sizeof(enter_addr)) == SOCKET_ERROR) {
+        cerr << "bind failed: " << WSAGetLastError() << "\n";
+        exit(0);
+    }
+
+    cout << "\033[2J\033[1;1H";
+    cout << flush;
+    cout << "Press Key for start game" << '\n';
+    while (true) {
+        if (_kbhit() != 0) {
+            if (is_in_room)
+            {
+                ZeroMemory(&room_send_addr, sizeof(room_send_addr));
+                room_send_addr_len = sizeof(room_send_addr);
+                room_send_addr.sin_family = AF_INET;
+                room_send_addr.sin_port = htons(ROOM_PORT);
+                inet_pton(AF_INET, selected_server_ip_address, &room_send_addr.sin_addr);
+                user_data send_user_data{};
+                snprintf(send_user_data.id, sizeof(send_user_data.id), "%s", my_id);
+                send_user_data.is_enter = false;
+                sendto(enter_sock, (char*) &send_user_data, sizeof(send_user_data), 0,
+                       (SOCKADDR*) &room_send_addr, sizeof(room_send_addr));
+                is_in_room = false;
+            }
+            else
+            {
+                cin >> server_ip;
+                if (server_ip_address.find(server_ip) == server_ip_address.end()) continue;
+                ZeroMemory(&room_send_addr, sizeof(room_send_addr));
+                room_send_addr_len = sizeof(room_send_addr);
+                room_send_addr.sin_family = AF_INET;
+                room_send_addr.sin_port = htons(ROOM_PORT);
+                inet_pton(AF_INET, server_ip.c_str(), &room_send_addr.sin_addr);
+                user_data send_user_data{};
+                snprintf(send_user_data.id, sizeof(send_user_data.id), "%s", my_id);
+                send_user_data.is_enter = true;
+                sendto(enter_sock, (char*) &send_user_data, sizeof(send_user_data), 0,
+                       (SOCKADDR*) &room_send_addr, sizeof(room_send_addr));
+                is_in_room = true;
+            }
+        }
+
+        ZeroMemory(&room_recv_addr, sizeof(room_recv_addr));
+        room_recv_addr_len = sizeof(room_recv_addr);
+        memset(buffer, 0, sizeof(buffer));
+        int r = recvfrom(enter_sock, buffer, sizeof(buffer) - 1, 0, (SOCKADDR*) &room_recv_addr,
+                         &room_recv_addr_len);
+
+        int err = (r == SOCKET_ERROR) ? WSAGetLastError() : 0;
+
+        if (r == SOCKET_ERROR) {
+            if (err == WSAEWOULDBLOCK) {
+                // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
+                continue;
+            }
+            else {
+                // 진짜 에러 발생
+                cerr << "recvfrom failed: " << err << "\n";
+                return;
+            }
+        }
+        else if (r != sizeof(room_data))
+            continue;
+
+        // 데이터 수신 성공
+        char room_ip[16];
+        inet_ntop(AF_INET, &room_recv_addr.sin_addr, room_ip, sizeof(room_ip));
+        room_data received_data;
+        memcpy(&received_data, buffer, sizeof(received_data));
+        received_data.room_master_id[sizeof(received_data.room_master_id) - 1] = '\0';
+        for (int i = 0; i < received_data.id_len; ++i)
+            received_data.id[i][sizeof(received_data.id[0]) - 1] = '\0';
+        if (received_data.is_broadcast &&
+            server_ip_address.find(std::string(room_ip)) ==
+            server_ip_address.end()) {
+            server_ip_address[std::string(room_ip)] = std::string(received_data.room_master_id);
+            if (is_in_room == false)
+            {
+                cout << "\033[2J\033[1;1H";
+                cout << flush;
+                for (const auto& [key, value] : server_ip_address)
+                    cout << value << " : " << key << '\n';
+            }
+        }
+        else if (received_data.is_update) {
+            memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
+            snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s", room_ip);
+            client_ip_address.clear();
+            for (int i = 0; i < received_data.id_len; ++i)
+                client_ip_address[std::string(received_data.room_master_id)] =
+                    std::string(received_data.id[i]);
+            cout << "\033[2J\033[1;1H";
+            cout << flush;
+            cout << "ROOM HOST: " << received_data.room_master_id << '\n';
+            for (const auto& [key, value] : client_ip_address)
+                cout << value << '\n';
+            cout << "Press Any key for get out room" << '\n';
+            is_in_room = true;
+        }
+        else if (received_data.is_enter_not_success) {
+            server_ip_address.erase(std::string(room_ip));
+            cout << "\033[2J\033[1;1H";
+            cout << flush;
+            for (const auto& [key, value] : server_ip_address)
+                cout << value << " : " << key << '\n';
+            is_in_room = false;
+        }
+        else if (received_data.is_game_start) {
+            memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
+            snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s", room_ip);
+            client_ip_address.clear();
+            for (int i = 0; i < received_data.id_len; ++i)
+                client_ip_address[std::string(received_data.room_master_id)] =
+                    std::string(received_data.id[i]);
+            break;
+        }
+    }
+
+    closesocket(enter_sock);
 }
 
 /**
