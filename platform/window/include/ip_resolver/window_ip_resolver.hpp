@@ -1,11 +1,11 @@
-#ifndef __TERMINAL_IP_RESOLVER_HPP__
-#define __TERMINAL_IP_RESOLVER_HPP__
+#ifndef __WINDOW_IP_RESOLVER_HPP__
+#define __WINDOW_IP_RESOLVER_HPP__
 
 #define ROOM_PORT 44321
 
 #include "i_ip_resolver.hpp"
 
-class TerminalIpResolver : public IIpResolver
+class WindowIpResolver : public IIpResolver
 {
   private:
     /**

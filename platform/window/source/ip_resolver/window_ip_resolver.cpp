@@ -1,4 +1,4 @@
-#include "terminal_ip_resolver.hpp"
+#include "window_ip_resolver.hpp"
 #include <WinSock2.h>
 #include <iphlpapi.h>
 #include <conio.h>
@@ -18,7 +18,7 @@ using namespace std;
 /**
  * @brief (서버)브로드캐스트 주소를 찾는 함수
  */
-void TerminalIpResolver::find_broadcast_ip(char* broadcast_ip)
+void WindowIpResolver::find_broadcast_ip(char* broadcast_ip)
 {
     ULONG size = 0;
     GetAdaptersAddresses(AF_INET, 0, nullptr, nullptr, &size);
@@ -57,7 +57,7 @@ void TerminalIpResolver::find_broadcast_ip(char* broadcast_ip)
 /**
  * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
  */
-void TerminalIpResolver::open_room()
+void WindowIpResolver::open_room()
 {
     WSADATA wsa_data;
     char buffer[1024];
@@ -250,7 +250,7 @@ void TerminalIpResolver::open_room()
 /**
  * @brief (클라이언트)방에 입장하는 함수
  */
-void TerminalIpResolver::enter_room()
+void WindowIpResolver::enter_room()
 {
     WSADATA wsa_data;
     char buffer[1024];
@@ -448,7 +448,7 @@ void TerminalIpResolver::enter_room()
 /**
  * @brief 저장된 클라이언트 ip 주소들을 반환하는 함수
  */
-char (*TerminalIpResolver::get_client_ip_address())[16]
+char (*WindowIpResolver::get_client_ip_address())[16]
 {
     return nullptr; // client_ip_address;
 }
@@ -456,7 +456,7 @@ char (*TerminalIpResolver::get_client_ip_address())[16]
 /**
  * @brief 저장된 서버 ip 주소를 반환하는 함수
  */
-char (*TerminalIpResolver::get_server_ip_address())[16]
+char (*WindowIpResolver::get_server_ip_address())[16]
 {
     return nullptr; // server_ip_address;
 }
