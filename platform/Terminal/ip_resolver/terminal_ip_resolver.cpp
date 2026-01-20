@@ -33,7 +33,7 @@ void TerminalIpResolver::open_room()
     cout << "\033[2J\033[1;1H";
     cout << flush;
     cout << "\e[?25l";
-    cout << "사용자 ID를 입력해주세요(최대 8자): ";
+    cout << "Please enter USER ID: ";
     cout << flush;
     cin >> open_room_id;
 
@@ -76,6 +76,9 @@ void TerminalIpResolver::open_room()
         exit(0);
     }
 
+    cout << "\033[2J\033[1;1H";
+    cout << flush;
+    cout << "Press Key for start game" << '\n';
     base_time = std::chrono::steady_clock::now();
     while (true) {
         if (_kbhit() != 0) {
@@ -88,6 +91,8 @@ void TerminalIpResolver::open_room()
                 room_data send_room_data{};
                 send_room_data.is_enter_success = false;
                 send_room_data.is_game_start = true;
+                snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
+                         open_room_id);
                 room_user_index = 0;
                 for (const auto& [key, value] : client_ip_address) {
                     if (room_user_index >= 4) break;
@@ -98,16 +103,6 @@ void TerminalIpResolver::open_room()
                        (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
             }
             break;
-        }
-        else
-        {
-            cout << "\033[2J\033[1;1H";
-            cout << flush;
-            cout << "\e[?25l";
-            cout << open_room_id << '\n';
-            for (const auto& [key, value] : client_ip_address)
-                cout << key << '\n';
-            cout << "게임 시작을 원하시면 아무키나 눌러주세요" << '\n';
         }
 
         ZeroMemory(&other_user_addr, sizeof(other_user_addr));
@@ -121,6 +116,8 @@ void TerminalIpResolver::open_room()
         if (std::chrono::steady_clock::now() - base_time >= std::chrono::milliseconds(5000)) {
             base_time = std::chrono::steady_clock::now();
             room_data send_room_data{};
+            snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
+                     open_room_id);
             send_room_data.is_broadcast = true;
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                    (SOCKADDR*) &broadcast_addr,
@@ -154,6 +151,8 @@ void TerminalIpResolver::open_room()
             other_user_addr.sin_port = htons(ROOM_PORT);
             inet_pton(AF_INET, ip, &other_user_addr.sin_addr);
             room_data send_room_data{};
+            snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
+                     open_room_id);
             send_room_data.is_enter_success = false;
             send_room_data.is_game_start = false;
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
@@ -176,11 +175,16 @@ void TerminalIpResolver::open_room()
             send_room_data.is_enter_success = true;
             send_room_data.is_game_start = false;
             room_user_index = 0;
+            cout << "\033[2J\033[1;1H";
+            cout << flush;
+            cout << open_room_id << '\n';
             for (const auto& [key, value] : client_ip_address) {
                 if (room_user_index >= 4) break;
+                cout << key << '\n';
                 snprintf(send_room_data.id[room_user_index++], sizeof(send_room_data.id[0]), "%s",
                          key.c_str());
             }
+            cout << "Press Key for start game" << '\n';
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                    (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
             index = client_ip_address.size();
