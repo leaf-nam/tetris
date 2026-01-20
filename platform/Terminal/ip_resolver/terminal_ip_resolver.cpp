@@ -259,7 +259,7 @@ void TerminalIpResolver::enter_room()
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
-    cout << "Press Key for start game" << '\n';
+    cout << "Get Room constantly..." << '\n';
     while (true) {
         if (_kbhit() != 0) {
             if (is_in_room)
@@ -334,6 +334,7 @@ void TerminalIpResolver::enter_room()
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
+                cout << "Get Room constantly..." << '\n';
             }
         }
         else if (received_data.is_update) {
