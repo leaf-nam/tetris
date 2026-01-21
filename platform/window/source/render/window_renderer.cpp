@@ -17,9 +17,9 @@ WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, 
 
 WindowRenderer::WindowRenderer()
 { 
-    other_render_loc_array[0] = std::make_pair(76, 1);
-    other_render_loc_array[1] = std::make_pair(87, 1);
-    other_render_loc_array[2] = std::make_pair(98, 1);
+    other_render_loc_array[0] = std::make_pair(73, 1);
+    other_render_loc_array[1] = std::make_pair(85, 1);
+    other_render_loc_array[2] = std::make_pair(97, 1);
     other_render_loc_array[3] = std::make_pair(109, 1);
 
     other_render_index = 0;
