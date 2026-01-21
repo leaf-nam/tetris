@@ -6,21 +6,29 @@
 #include <i_input_handler.hpp>
 #include <i_network.hpp>
 #include <i_renderer.hpp>
+#include <i_ip_resolver.hpp>
 
 class Engine
 {
   protected:
     Setting* setting;
     IInputHandler* input_handler;
-    IRenderer* renderer;
+    IRenderer* renderer;    
     INetwork* network;
+    IIpResolver* ip_resolver;
 
   public:
-    Engine(Setting*, IInputHandler*, IRenderer*, INetwork*);
+    /**
+     * @brief 게임 수행 전 필드 초기화(생성자)
+     * @param 핸들러, 렌더러, 네트워크 인터페이스
+     * @return 게임엔진
+     */
+    Engine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, IIpResolver* ip_resolver);
+    
     /**
      * @brief 게임 메인루프
      */
-    virtual void run() = 0;
+    virtual void run(bool is_server) = 0;
 
     /**
      * @brief 게임 메인루프 정지

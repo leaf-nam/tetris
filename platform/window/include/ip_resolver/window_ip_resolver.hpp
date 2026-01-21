@@ -24,14 +24,24 @@ class WindowIpResolver : public IIpResolver
     void enter_room() override;
 
     /**
-     * @brief 저장된 클라이언트 ip 주소들을 반환하는 함수
+     * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수
      */
-    char (*get_client_ip_address())[16] override;
+    const char* get_client_ip_address(std::string key) override;
+
+    /**
+     * @brief 저장된 클라이언트 id들을 반환하는 함수
+     */
+    std::vector<std::string> get_client_ids() override;
 
     /**
      * @brief 저장된 서버 ip 주소를 반환하는 함수
      */
-    char (*get_server_ip_address())[16] override;
+    const char* get_server_ip_address() override;
+
+    /**
+     * @brief 저장된 내 id를 반환하는 함수
+     */
+    const char* get_my_id() override;
 };
 
 #endif

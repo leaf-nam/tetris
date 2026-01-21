@@ -12,8 +12,5 @@
 #include <random>
 #include <thread>
 
-Engine::Engine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer,
-               INetwork* network)
-    : setting(setting), input_handler(input_handler), renderer(renderer), network(network)
-{
-}
+Engine::Engine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, IIpResolver* ip_resolver) : 
+	setting(setting), input_handler(input_handler), renderer(renderer), network(network), ip_resolver(ip_resolver) {}

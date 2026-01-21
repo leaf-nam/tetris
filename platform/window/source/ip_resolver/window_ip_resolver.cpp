@@ -66,7 +66,6 @@ void WindowIpResolver::open_room()
     SOCKADDR_IN room_addr;
     int other_user_addr_len;
     SOCKET room_sock;
-    char open_room_id[9];
     std::chrono::steady_clock::time_point base_time;
     int index = 0;
     int room_user_index = 0;
@@ -77,7 +76,7 @@ void WindowIpResolver::open_room()
     cout << "\e[?25l";
     cout << "Please enter USER ID(8): ";
     cout << flush;
-    cin >> open_room_id;
+    cin >> my_id;
 
     // 1. 윈도우 소켓 초기화 (필수)
     if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
@@ -135,7 +134,7 @@ void WindowIpResolver::open_room()
                 room_data send_room_data{};
                 send_room_data.is_game_start = true;
                 snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
-                         open_room_id);
+                         my_id);
                 room_user_index = 0;
                 for (const auto& [key2, value2] : client_ip_address) {
                     if (room_user_index >= 4) break;
@@ -148,7 +147,7 @@ void WindowIpResolver::open_room()
             }
             room_data send_room_data{};
             snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
-                     open_room_id);
+                     my_id);
             send_room_data.is_broadcast_delete = true;
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                    (SOCKADDR*) &broadcast_addr, sizeof(broadcast_addr));
@@ -167,7 +166,7 @@ void WindowIpResolver::open_room()
             base_time = std::chrono::steady_clock::now();
             room_data send_room_data{};
             snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
-                     open_room_id);
+                     my_id);
             send_room_data.is_broadcast = true;
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                    (SOCKADDR*) &broadcast_addr,
@@ -203,7 +202,7 @@ void WindowIpResolver::open_room()
             inet_pton(AF_INET, ip, &other_user_addr.sin_addr);
             room_data send_room_data{};
             snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
-                     open_room_id);
+                     my_id);
             send_room_data.is_enter_not_success = true;
             sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
                    (SOCKADDR*) &other_user_addr,
@@ -217,7 +216,7 @@ void WindowIpResolver::open_room()
             index = client_ip_address.size();
             cout << "\033[2J\033[1;1H";
             cout << flush;
-            cout << open_room_id << '\n';
+            cout << my_id << '\n';
             for (const auto& [key, value] : client_ip_address)
                 cout << key << '\n';
             cout << "Press Key for start game" << '\n';
@@ -230,7 +229,7 @@ void WindowIpResolver::open_room()
                 room_data send_room_data{};
                 send_room_data.is_update = true;
                 snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
-                         open_room_id);
+                         my_id);
                 room_user_index = 0;
                 for (const auto& [key2, value2] : client_ip_address) {
                     if (room_user_index >= 4) break;
@@ -260,7 +259,6 @@ void WindowIpResolver::enter_room()
     int room_recv_addr_len;
     int room_send_addr_len;
     SOCKET enter_sock;
-    char my_id[9];
     int room_user_index = 0;
     BOOL enable = TRUE;
     bool is_in_room = false;
@@ -446,17 +444,32 @@ void WindowIpResolver::enter_room()
 }
 
 /**
- * @brief 저장된 클라이언트 ip 주소들을 반환하는 함수
+ * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수
  */
-char (*WindowIpResolver::get_client_ip_address())[16]
+const char* WindowIpResolver::get_client_ip_address(string key)
 {
-    return nullptr; // client_ip_address;
+    return client_ip_address[key].c_str();
+}
+
+/**
+ * @brief 저장된 클라이언트 id들을 반환하는 함수
+ */
+std::vector<std::string> WindowIpResolver::get_client_ids()
+{ 
+    std::vector<std::string> v;
+    for (const auto& [key, value] : client_ip_address) {
+        v.push_back(value);
+    }
 }
 
 /**
  * @brief 저장된 서버 ip 주소를 반환하는 함수
  */
-char (*WindowIpResolver::get_server_ip_address())[16]
-{
-    return nullptr; // server_ip_address;
-}
+const char* WindowIpResolver::get_server_ip_address()
+{ return selected_server_ip_address; }
+
+/**
+ * @brief 저장된 내 id를 반환하는 함수
+ */
+const char* WindowIpResolver::get_my_id()
+{ return my_id; }

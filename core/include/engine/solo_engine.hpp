@@ -15,7 +15,7 @@ class SoloEngine : public Engine {
     /**
      * @brief 게임 메인루프
      */
-    void run() override;
+    void run(bool is_server) override;
 
     /**
      * @brief 게임 메인루프 정지

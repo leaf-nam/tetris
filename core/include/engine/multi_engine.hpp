@@ -10,12 +10,12 @@ class MultiEngine : public Engine {
      * @param 플랫폼 종속 인터페이스
      * @return 게임엔진
      */
-    MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network);
+    MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, IIpResolver* ip_resolver);
 
     /**
      * @brief 게임 메인루프
      */
-    void run() override;
+    void run(bool is_server) override;
 
     /**
      * @brief 게임 메인루프 정지

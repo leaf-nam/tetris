@@ -60,8 +60,6 @@ int main()
 
     AppState state = AppState::MENU;
 
-    char in = 0;
-
     while (state != AppState::EXIT) {
         switch (state) {
         case AppState::MENU:
