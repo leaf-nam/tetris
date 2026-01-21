@@ -93,7 +93,7 @@ bool WindowIpResolver::open_room()
     int room_user_index = 0;
     BOOL enable = TRUE;
     bool is_game_start = false;
-    char c;
+    string s;
 
     memset(my_id, 0, sizeof(my_id));
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
@@ -150,12 +150,12 @@ bool WindowIpResolver::open_room()
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
-    cout << "Press Key for start game or Press q for get out from room" << '\n';
+    cout << "Press Key for start game or Press q + enter for get out from room" << '\n';
     base_time = std::chrono::steady_clock::now();
     while (true) {
         if (_kbhit() != 0) {
-            c = _getch();
-            if (c == 'q') {
+            cin >> s;
+            if (s == "q") {
                 cout << "\033[2J\033[1;1H";
                 cout << flush;
                 is_game_start = false;
@@ -264,7 +264,7 @@ bool WindowIpResolver::open_room()
             cout << my_id << '\n';
             for (const auto& [key, value] : client_ip_address)
                 cout << key << '\n';
-            cout << "Press Key for start game or Press q for get out from room" << '\n';
+            cout << "Press Key for start game or Press q + enter for get out from room" << '\n';
             for (const auto& [key, value] : client_ip_address) {
                 ZeroMemory(&other_user_addr, sizeof(other_user_addr));
                 other_user_addr_len = sizeof(other_user_addr);
@@ -310,7 +310,7 @@ bool WindowIpResolver::enter_room()
     BOOL enable = TRUE;
     bool is_in_room = false;
     string server_ip;
-    char c;
+    string s;
     bool is_game_start = false;
 
     memset(my_id, 0, sizeof(my_id));
@@ -361,11 +361,11 @@ bool WindowIpResolver::enter_room()
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
-    cout << "Get Room constantly...(exit \'q\')" << '\n';
+    cout << "Get Room constantly...(exit q + enter)" << '\n';
     while (true) {
         if (_kbhit() != 0) {
-            c = _getch();
-            if (is_in_room == false && c == 'q')
+            cin >> s;
+            if (is_in_room == false && s == "q")
             {
                 cout << "\033[2J\033[1;1H";
                 cout << flush;
@@ -374,8 +374,6 @@ bool WindowIpResolver::enter_room()
             }
             else if (is_in_room)
             {
-                while (_kbhit())
-                    _getch();
                 ZeroMemory(&room_send_addr, sizeof(room_send_addr));
                 room_send_addr_len = sizeof(room_send_addr);
                 room_send_addr.sin_family = AF_INET;
@@ -391,13 +389,11 @@ bool WindowIpResolver::enter_room()
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
-                cout << "Get Room constantly...(exit \'q\')" << '\n';
+                cout << "Get Room constantly...(exit q + enter)" << '\n';
             }
             else
             {
                 cin >> server_ip;
-                while (_kbhit())
-                    _getch();
                 if (server_ip_address.find(server_ip) == server_ip_address.end()) continue;
                 ZeroMemory(&room_send_addr, sizeof(room_send_addr));
                 room_send_addr_len = sizeof(room_send_addr);
@@ -453,7 +449,7 @@ bool WindowIpResolver::enter_room()
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
-                cout << "Get Room constantly...(exit \'q\')" << '\n';
+                cout << "Get Room constantly...(exit q + enter)" << '\n';
             }
         }
         else if (received_data.is_broadcast_delete)
@@ -465,7 +461,7 @@ bool WindowIpResolver::enter_room()
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
-                cout << "Get Room constantly...(exit \'q\')" << '\n';
+                cout << "Get Room constantly...(exit q + enter)" << '\n';
             }
         }
         else if (received_data.is_update) {

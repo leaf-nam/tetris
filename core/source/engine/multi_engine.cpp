@@ -120,7 +120,7 @@ void MultiEngine::run(bool is_server)
         }
     }
 
-    while (active_user > 1)
+    while (active_user > 0)
     {
         if (network->recv_udp(recv_pkt)) {
             if (recv_pkt.is_game_over == 1) {
