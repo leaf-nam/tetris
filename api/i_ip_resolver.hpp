@@ -36,14 +36,19 @@ class IIpResolver
     char my_id[9];
   public:
     /**
+     * @brief 현재 어떤 모드로 들어갈지 확인하는 함수
+     */
+    virtual bool start() = 0;
+
+    /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
      */
-    virtual void open_room() = 0;
+    virtual bool open_room() = 0;
 
     /**
      * @brief (클라이언트)방에 입장하는 함수
      */
-    virtual void enter_room() = 0;
+    virtual bool enter_room() = 0;
 
     /**
      * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수

@@ -14,14 +14,19 @@ class WindowIpResolver : public IIpResolver
     void find_broadcast_ip(char* broadcast_ip);
   public:
     /**
+     * @brief 현재 어떤 모드로 들어갈지 확인하는 함수
+     */
+    bool start() override;
+
+    /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
      */
-    void open_room() override;
+    bool open_room() override;
 
     /**
      * @brief (클라이언트)방에 입장하는 함수
      */
-    void enter_room() override;
+    bool enter_room() override;
 
     /**
      * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수

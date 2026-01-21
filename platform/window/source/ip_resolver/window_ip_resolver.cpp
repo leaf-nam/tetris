@@ -17,6 +17,27 @@ using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
 /**
+ * @brief 현재 어떤 모드로 들어갈지 확인하는 함수
+ */
+bool WindowIpResolver::start()
+{
+    int choice;
+
+    while (true) {
+        cout << "1. open room, 2. enter room" << '\n';
+        cin >> choice;
+        if (choice == 1) {
+            if(open_room())
+                return true;
+        }
+        else if (choice == 2) {
+            if(enter_room())
+                return false;
+        }
+    }
+}
+
+/**
  * @brief (서버)브로드캐스트 주소를 찾는 함수
  */
 void WindowIpResolver::find_broadcast_ip(char* broadcast_ip)
@@ -58,7 +79,7 @@ void WindowIpResolver::find_broadcast_ip(char* broadcast_ip)
 /**
  * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
  */
-void WindowIpResolver::open_room()
+bool WindowIpResolver::open_room()
 {
     WSADATA wsa_data;
     char buffer[1024];
@@ -71,6 +92,9 @@ void WindowIpResolver::open_room()
     int index = 0;
     int room_user_index = 0;
     BOOL enable = TRUE;
+    bool is_game_start = false;
+    char c;
+    memset(my_id, 0, sizeof(my_id));
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
@@ -122,37 +146,53 @@ void WindowIpResolver::open_room()
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
-    cout << "Press Key for start game" << '\n';
+    cout << "Press Key for start game or Press q for get out from room" << '\n';
     base_time = std::chrono::steady_clock::now();
     while (true) {
         if (_kbhit() != 0) {
-            for (const auto& [key, value] : client_ip_address) {
-                ZeroMemory(&other_user_addr, sizeof(other_user_addr));
-                other_user_addr_len = sizeof(other_user_addr);
-                other_user_addr.sin_family = AF_INET;
-                other_user_addr.sin_port = htons(ROOM_PORT);
-                inet_pton(AF_INET, value.c_str(), &other_user_addr.sin_addr);
+            c = _getch();
+            if (c == 'q') {
+                cout << "\033[2J\033[1;1H";
+                cout << flush;
+                is_game_start = false;
                 room_data send_room_data{};
-                send_room_data.is_game_start = true;
                 snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
                          my_id);
-                room_user_index = 0;
-                for (const auto& [key2, value2] : client_ip_address) {
-                    if (room_user_index >= 4) break;
-                    snprintf(send_room_data.id[room_user_index++], sizeof(send_room_data.id[0]),
-                             "%s", key2.c_str());
-                }
-                send_room_data.id_len = room_user_index;
+                send_room_data.is_broadcast_delete = true;
                 sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
-                       (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
+                       (SOCKADDR*) &broadcast_addr, sizeof(broadcast_addr));
+                break;
             }
-            room_data send_room_data{};
-            snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
-                     my_id);
-            send_room_data.is_broadcast_delete = true;
-            sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
-                   (SOCKADDR*) &broadcast_addr, sizeof(broadcast_addr));
-            break;
+            else {
+                is_game_start = true;
+                for (const auto& [key, value] : client_ip_address) {
+                    ZeroMemory(&other_user_addr, sizeof(other_user_addr));
+                    other_user_addr_len = sizeof(other_user_addr);
+                    other_user_addr.sin_family = AF_INET;
+                    other_user_addr.sin_port = htons(ROOM_PORT);
+                    inet_pton(AF_INET, value.c_str(), &other_user_addr.sin_addr);
+                    room_data send_room_data{};
+                    send_room_data.is_game_start = true;
+                    snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id),
+                             "%s", my_id);
+                    room_user_index = 0;
+                    for (const auto& [key2, value2] : client_ip_address) {
+                        if (room_user_index >= 4) break;
+                        snprintf(send_room_data.id[room_user_index++], sizeof(send_room_data.id[0]),
+                                 "%s", key2.c_str());
+                    }
+                    send_room_data.id_len = room_user_index;
+                    sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
+                           (SOCKADDR*) &other_user_addr, sizeof(other_user_addr));
+                }
+                room_data send_room_data{};
+                snprintf(send_room_data.room_master_id, sizeof(send_room_data.room_master_id), "%s",
+                         my_id);
+                send_room_data.is_broadcast_delete = true;
+                sendto(room_sock, (char*) &send_room_data, sizeof(send_room_data), 0,
+                       (SOCKADDR*) &broadcast_addr, sizeof(broadcast_addr));
+                break;
+            }
         }
 
         ZeroMemory(&other_user_addr, sizeof(other_user_addr));
@@ -182,7 +222,7 @@ void WindowIpResolver::open_room()
             else {
                 // 진짜 에러 발생
                 cerr << "recvfrom failed: " << err << "\n";
-                return;
+                return false;
             }
         }
         else if (r != sizeof(user_data))
@@ -220,7 +260,7 @@ void WindowIpResolver::open_room()
             cout << my_id << '\n';
             for (const auto& [key, value] : client_ip_address)
                 cout << key << '\n';
-            cout << "Press Key for start game" << '\n';
+            cout << "Press Key for start game or Press q for get out from room" << '\n';
             for (const auto& [key, value] : client_ip_address) {
                 ZeroMemory(&other_user_addr, sizeof(other_user_addr));
                 other_user_addr_len = sizeof(other_user_addr);
@@ -245,12 +285,14 @@ void WindowIpResolver::open_room()
     }
 
     closesocket(room_sock);
+
+    return is_game_start;
 }
 
 /**
  * @brief (클라이언트)방에 입장하는 함수
  */
-void WindowIpResolver::enter_room()
+bool WindowIpResolver::enter_room()
 {
     WSADATA wsa_data;
     char buffer[1024];
@@ -264,6 +306,9 @@ void WindowIpResolver::enter_room()
     BOOL enable = TRUE;
     bool is_in_room = false;
     string server_ip;
+    char c;
+    bool is_game_start = false;
+    memset(my_id, 0, sizeof(my_id));
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
@@ -309,10 +354,18 @@ void WindowIpResolver::enter_room()
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
-    cout << "Get Room constantly..." << '\n';
+    cout << "Get Room constantly...(exit \'q\')" << '\n';
     while (true) {
         if (_kbhit() != 0) {
-            if (is_in_room)
+            c = _getch();
+            if (is_in_room == false && c == 'q')
+            {
+                cout << "\033[2J\033[1;1H";
+                cout << flush;
+                is_game_start = false;
+                break;
+            }
+            else if (is_in_room)
             {
                 while (_kbhit())
                     _getch();
@@ -331,7 +384,7 @@ void WindowIpResolver::enter_room()
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
-                cout << "Get Room constantly..." << '\n';
+                cout << "Get Room constantly...(exit \'q\')" << '\n';
             }
             else
             {
@@ -369,7 +422,7 @@ void WindowIpResolver::enter_room()
             else {
                 // 진짜 에러 발생
                 cerr << "recvfrom failed: " << err << "\n";
-                return;
+                return false;
             }
         }
         else if (r != sizeof(room_data))
@@ -393,18 +446,19 @@ void WindowIpResolver::enter_room()
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
-                cout << "Get Room constantly..." << '\n';
+                cout << "Get Room constantly...(exit \'q\')" << '\n';
             }
         }
         else if (received_data.is_broadcast_delete)
         {
             server_ip_address.erase(std::string(room_ip));
-            if (is_in_room == false) {
+            if (is_in_room == false ||
+                (is_in_room == true && strcmp(selected_server_ip_address, room_ip) == 0)) {
                 cout << "\033[2J\033[1;1H";
                 cout << flush;
                 for (const auto& [key, value] : server_ip_address)
                     cout << value << " : " << key << '\n';
-                cout << "Get Room constantly..." << '\n';
+                cout << "Get Room constantly...(exit \'q\')" << '\n';
             }
         }
         else if (received_data.is_update) {
@@ -437,11 +491,14 @@ void WindowIpResolver::enter_room()
             for (int i = 0; i < received_data.id_len; ++i)
                 client_ip_address[std::string(received_data.room_master_id)] =
                     std::string(received_data.id[i]);
+            is_game_start = true;
             break;
         }
     }
 
     closesocket(enter_sock);
+
+    return is_game_start;
 }
 
 /**
