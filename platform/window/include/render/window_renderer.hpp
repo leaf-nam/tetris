@@ -2,6 +2,8 @@
 #define __WINDOW_RENDERER_H__
 
 #include "board/board.hpp"
+#include "render/color.hpp"
+#include "render/pos.hpp"
 #include "tetromino/tetromino.hpp"
 
 #include <cstdint>
@@ -11,8 +13,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-using namespace std;
 
 // --- 상수 정의 ---
 static const uint16_t LEFT_EDGE = 1u << 12;
@@ -88,27 +88,57 @@ class WindowRenderer : public IRenderer
 
     void render_game_over();
 
-    void render_menu(int menu_num);
-    void render_settings();
     void render_solo_background();
+
     void draw_logo(int x, int y);
 
-  private:
+  protected:
     void clear();
     // display
     void draw_enemy_title(int x, int y);
-    void draw_ui_box(const string& title, int x, int y, int w, int h, const char* color);
+    void draw_ui_box(const std::string& title, int x, int y, int w, int h, const char* color);
 
     // draw
     void render_mino_pattern(int x, int y, const Mino& shape, const char* color);
     void draw_hold(const Mino& hold_shape);
+
     // hide, show cursor
     void show_cursor();
     void hide_cursor();
 
     void setting_arrow(int point_cur_setting);
-
     void set_cursor(int x, int y);
+
+    void print_big_char(Pos, char, ColorKey);
+    void print_big_char(Pos, char);
+    void print_big_string(Pos, std::string, ColorKey);
+    void print_big_string(Pos, std::string);
+    void print_small_string(Pos, std::string, ColorKey);
+    void print_small_string(Pos, std::string);
+
+    ColorKey get_random_color();
+
+    const char* get_block_color(int type);
 };
 
+namespace color {
+extern const char* const RESET;
+extern const char* const RED;
+extern const char* const GREEN;
+extern const char* const YELLOW;
+extern const char* const CYAN;
+extern const char* const PURPLE;
+extern const char* const GRAY;
+extern const char* const BOLD;
+} // namespace color
+
+extern const char* const BIG_T[];
+extern const char* const BIG_E[];
+extern const char* const BIG_R[];
+extern const char* const BIG_I[];
+extern const char* const BIG_S[];
+extern const char* const BIG_N[];
+extern const char* const BIG_M[];
+extern const char* const BIG_Y[];
+extern const char* const BIG_G[];
 #endif
