@@ -17,10 +17,10 @@ WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, 
 
 WindowRenderer::WindowRenderer()
 { 
-    other_render_loc_array[0] = std::make_pair(80, 0);
-    other_render_loc_array[1] = std::make_pair(101, 0);
-    other_render_loc_array[2] = std::make_pair(80, 11);
-    other_render_loc_array[3] = std::make_pair(101, 11);
+    other_render_loc_array[0] = std::make_pair(80, 1);
+    other_render_loc_array[1] = std::make_pair(101, 1);
+    other_render_loc_array[2] = std::make_pair(80, 12);
+    other_render_loc_array[3] = std::make_pair(101, 12);
 
     other_render_index = 0;
 }
@@ -160,6 +160,8 @@ void WindowRenderer::render_other_board(Packet& pkt)
     const Mino& shape = TETROMINO[mino_type][rotation];
     string mino_color = get_block_color(mino_type); // 기존에 만든 색상 함수 활용
 
+    set_cursor(start_x, start_y - 1);
+    cout << pkt.id << '\n';
     set_cursor(start_x, start_y);
     cout << BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << RESET;
 
