@@ -109,8 +109,12 @@ void MultiEngine::run(bool is_server)
             {
                 renderer->render_win();
                 attack = rule->update_score();
-                network->send_udp(board, board.get_active_mino(), attack, 0, 1,
-                                  ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
+                if (is_server == true)
+                    network->send_multi_udp(board, board.get_active_mino(), attack, 0, 1,
+                                            ip_resolver->get_my_id(), ids_ips);
+                else
+                    network->send_udp(board, board.get_active_mino(), attack, 0, 1,
+                                      ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
             }
 
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
