@@ -310,7 +310,6 @@ bool WindowIpResolver::enter_room()
     BOOL enable = TRUE;
     bool is_in_room = false;
     string server_ip;
-    string s;
     bool is_game_start = false;
 
     memset(my_id, 0, sizeof(my_id));
@@ -364,8 +363,8 @@ bool WindowIpResolver::enter_room()
     cout << "Get Room constantly...(exit q + enter)" << '\n';
     while (true) {
         if (_kbhit() != 0) {
-            cin >> s;
-            if (is_in_room == false && s == "q")
+            cin >> server_ip;
+            if (is_in_room == false && server_ip == "q")
             {
                 cout << "\033[2J\033[1;1H";
                 cout << flush;
@@ -393,7 +392,6 @@ bool WindowIpResolver::enter_room()
             }
             else
             {
-                cin >> server_ip;
                 if (server_ip_address.find(server_ip) == server_ip_address.end()) continue;
                 ZeroMemory(&room_send_addr, sizeof(room_send_addr));
                 room_send_addr_len = sizeof(room_send_addr);
@@ -476,7 +474,7 @@ bool WindowIpResolver::enter_room()
             cout << "ROOM HOST: " << received_data.room_master_id << '\n';
             for (const auto& [key, value] : client_ip_address)
                 cout << value << '\n';
-            cout << "Press Any key for get out room" << '\n';
+            cout << "Press Any key + enter for get out room" << '\n';
             is_in_room = true;
         }
         else if (received_data.is_enter_not_success) {
