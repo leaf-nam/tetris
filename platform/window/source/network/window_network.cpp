@@ -81,6 +81,7 @@ void WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
     write_32b(p, pkt.r);
     write_32b(p, pkt.c);
     write_32b(p, pkt.deleted_line);
+    write_32b(p, pkt.is_game_over);
 
     write_bytes(p, pkt.id, 9);
 }
@@ -112,12 +113,13 @@ void WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     pkt.r = read_32b(p);
     pkt.c = read_32b(p);
     pkt.deleted_line = read_32b(p);
+    pkt.is_game_over = read_32b(p);
 
     read_bytes(p, pkt.id, 9);
     pkt.id[8] = '\0';
 }
 
-void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line,
+void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over,
                              const char* another_user_ip, const char* my_id)
 {
     Packet pkt{};
@@ -141,6 +143,7 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     pkt.r = pos_r;
     pkt.c = pos_c;
     pkt.deleted_line = deleted_line;
+    pkt.is_game_over = is_game_over;
     snprintf(pkt.id, sizeof(pkt.id), "%s", my_id);
 
     serialize(buf, pkt);
@@ -155,10 +158,11 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
 
 void WindowNetwork::send_multi_udp(
     const Board& board, const Tetromino& tetromino, int deleted_line,
+    int is_game_over, const char* my_id,
     std::vector<std::pair<std::string, std::string>> ids_ips)
 {
     for (const auto& [id, ip] : ids_ips)
-        send_udp(board, tetromino, deleted_line, ip.c_str(), id.c_str());
+        send_udp(board, tetromino, deleted_line, is_game_over, ip.c_str(), my_id);
 }
 
 void WindowNetwork::send_relay_udp(const Packet& packet,

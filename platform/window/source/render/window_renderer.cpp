@@ -18,9 +18,9 @@ WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, 
 WindowRenderer::WindowRenderer()
 { 
     other_render_loc_array[0] = std::make_pair(73, 1);
-    other_render_loc_array[1] = std::make_pair(85, 1);
-    other_render_loc_array[2] = std::make_pair(97, 1);
-    other_render_loc_array[3] = std::make_pair(109, 1);
+    other_render_loc_array[1] = std::make_pair(96, 1);
+    other_render_loc_array[2] = std::make_pair(73, 14);
+    other_render_loc_array[3] = std::make_pair(96, 14);
 
     other_render_index = 0;
 }
@@ -97,6 +97,19 @@ void WindowRenderer::render_level(int level)
     string level_str = to_string(level);
     console_renderer.set_cursor(12 - level_str.size(), 23);
     console_renderer.print_s(level_str, Color::CYAN);
+}
+
+void WindowRenderer::render_game_over()
+{
+    set_cursor(33, 17);
+    printf("%s%s%s", RED, "GAMEOVER", RESET);
+}
+
+void WindowRenderer::render_other_game_over(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    set_cursor(start_x + 8, start_y + 5);
+    printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
 }
 
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)

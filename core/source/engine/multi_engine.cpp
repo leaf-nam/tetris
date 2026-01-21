@@ -33,6 +33,7 @@ void MultiEngine::run(bool is_server)
     int key;
     int index = 0;
     char c;
+    int active_user = ids_ips.size();
 
     renderer->render_background();
     renderer->render_board(board, board.get_active_mino());
@@ -41,13 +42,25 @@ void MultiEngine::run(bool is_server)
     renderer->render_level(rule->get_level());
     renderer->render_timer(timer.get_seconds());
 
-    while (1)
+    while (true)
     {
         is_tetromino_or_board_change = false;
 
         if(!board.has_active_mino())
         {
-            if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) break;
+            if (!board.spawn_mino(tetromino_queue.get_new_tetromino())) {
+                attack = rule->update_score();
+                if (is_server == true)
+                    network->send_multi_udp(board, board.get_active_mino(), attack, 1,
+                                            ip_resolver->get_my_id(), ids_ips);
+                else
+                    network->send_udp(board, board.get_active_mino(), attack, 1,
+                                      ip_resolver->get_server_ip_address(),
+                                      ip_resolver->get_my_id());
+                active_user--;
+                renderer->render_game_over();
+                break;
+            }
             renderer->render_next_block(tetromino_queue.get_tetrominos());
             is_tetromino_or_board_change = true;
         }
@@ -75,9 +88,11 @@ void MultiEngine::run(bool is_server)
             renderer->render_board(board, board.get_active_mino());
             renderer->render_hold(board.get_saved_mino());
             if (is_server == true)
-                network->send_multi_udp(board, board.get_active_mino(), attack, ids_ips);
+                network->send_multi_udp(board, board.get_active_mino(), attack, 0,
+                                        ip_resolver->get_my_id(), ids_ips);
             else
                 network->send_udp(board, board.get_active_mino(), attack,
+                                  0,
                                   ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
         }
 
@@ -85,6 +100,10 @@ void MultiEngine::run(bool is_server)
 
         if(network->recv_udp(recv_pkt))
         {
+            if (recv_pkt.is_game_over == 1) {
+                renderer->render_other_game_over(recv_pkt);
+                active_user--;
+            }
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
             renderer->render_other_board(recv_pkt);
 
@@ -98,6 +117,18 @@ void MultiEngine::run(bool is_server)
                 renderer->render_board(board, board.get_active_mino());
                 renderer->render_hold(board.get_saved_mino());
             }
+        }
+    }
+
+    while (active_user > 1)
+    {
+        if (network->recv_udp(recv_pkt)) {
+            if (recv_pkt.is_game_over == 1) {
+                renderer->render_other_game_over(recv_pkt);
+                active_user--;
+            }
+            if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
+            renderer->render_other_board(recv_pkt);
         }
     }
 }

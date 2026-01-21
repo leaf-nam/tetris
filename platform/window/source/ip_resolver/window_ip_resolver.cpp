@@ -322,7 +322,6 @@ bool WindowIpResolver::enter_room()
     cout << flush;
     cout << "\e[?25l";
     cout << "Please enter USER ID(8): ";
-    cout << flush;
     cin >> my_id;
 
     // 1. 윈도우 소켓 초기화 (필수)

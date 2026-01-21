@@ -11,6 +11,7 @@ typedef struct PacketStruct {
     int32_t r;
     int32_t c;
     int32_t deleted_line;
+    int32_t is_game_over; // 1 => True, 0 => False
     char id[9];
 } Packet;
 
