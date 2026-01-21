@@ -1,7 +1,8 @@
 #include "game_rule/rule_versus.hpp"
+
 #include "util/action.hpp"
 
-VERSUS::VERSUS(Board& board) : GameRule(board), combo(0) 
+VERSUS::VERSUS(Board& board) : GameRule(board), combo(0)
 {
     combo_table[0] = 0;
     combo_table[1] = 0;
@@ -30,25 +31,20 @@ int VERSUS::update_score()
     int garbage = 0;
 
     // line 완성 판정 및 보드 갱신
-    while (r >= BOARD_UPPER) 
-    {
-        if (board.is_line_full(r))
-        {
+    while (r >= BOARD_UPPER) {
+        if (board.is_line_full(r)) {
             board.delete_line(r);
             complete_lines++;
         }
-        else
-        {
+        else {
             --r;
         }
     }
 
-    if (complete_lines > 0)
-    {
+    if (complete_lines > 0) {
         combo++;
-    } 
-    else 
-    {
+    }
+    else {
         combo = 0;
     }
 
@@ -58,28 +54,18 @@ int VERSUS::update_score()
     return garbage;
 }
 
-bool VERSUS::is_game_clear()
-{
-    return false;
-}
+bool VERSUS::is_game_clear() { return false; }
 
 bool VERSUS::is_game_over()
 {
     const BoardT& game_board = board.get_board();
-    for (int r = 0; r < 2; ++r) 
-    {
+    for (int r = 0; r < 2; ++r) {
         if (game_board[r]) return true;
     }
 
     return false;
 }
 
-bool VERSUS::time_and_level_update()
-{
-    return false;
-}
+bool VERSUS::time_and_level_update() { return false; }
 
-int VERSUS::get_level()
-{
-    return 0;
-}
+int VERSUS::get_level() { return 0; }

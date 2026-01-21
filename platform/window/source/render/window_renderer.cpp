@@ -45,7 +45,7 @@ const char* get_block_color(int type)
         return "\x1b[92m";
     case 4: // J 미노 (Blue - 파란색)
         return "\x1b[94m";
-    case 5:                // L 미노 (Orange -> 터미널은 보통 흰색 or 밝은 노랑으로 대체)
+    case 5: // L 미노 (Orange -> 터미널은 보통 흰색 or 밝은 노랑으로 대체)
         return "\x1b[37m"; // 흰색(White) 사용 (노란색 O와 구분하기 위해)
     case 6:                // T 미노 (Purple - 보라색)
         return "\x1b[95m";

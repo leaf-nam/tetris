@@ -22,7 +22,7 @@ KeyMapper::KeyMapper()
     key_map['f'] = Action::HARD_DROP;
 
     key_map['w'] = Action::SWAP;
-    key_map['c'] = Action::SWAP; 
+    key_map['c'] = Action::SWAP;
 }
 
 Action KeyMapper::map_key(int key)
