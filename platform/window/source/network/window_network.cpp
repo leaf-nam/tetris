@@ -160,8 +160,8 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
 }
 
 void WindowNetwork::send_multi_udp(
-    const Board& board, const Tetromino& tetromino, int deleted_line, int is_win,
-    int is_game_over, const char* my_id,
+    const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over,
+    int is_win, const char* my_id,
     std::vector<std::pair<std::string, std::string>> ids_ips)
 {
     for (const auto& [id, ip] : ids_ips)
