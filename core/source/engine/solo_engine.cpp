@@ -1,8 +1,8 @@
 #include "engine/solo_engine.hpp"
 
 #include "board/board.hpp"
-#include "game_rule/rule_factory.hpp"
 #include "game_rule/key_mapper.hpp"
+#include "game_rule/rule_factory.hpp"
 #include "tetromino/tetromino_queue.hpp"
 #include "util/action.hpp"
 #include "util/timer.hpp"
@@ -14,8 +14,8 @@
 
 using namespace std;
 
-SoloEngine::SoloEngine(IInputHandler* input_handler, IRenderer* renderer)
-    : Engine(input_handler, renderer, nullptr)
+SoloEngine::SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer)
+    : Engine(setting, input_handler, renderer, nullptr)
 {
 }
 

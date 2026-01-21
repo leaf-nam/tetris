@@ -14,16 +14,22 @@ int main()
     SetConsoleCP(CP_UTF8);
 
     IRenderer* renderer = new WindowRenderer();
-    WindowRenderer* menu_renderer =
-        new WindowRenderer(); // render_menu() 함수를 사용하기위한 렌더러 추가
+    WindowRenderer* menu_renderer = new WindowRenderer();
     IInputHandler* input = new WindowInput();
     INetwork* network = new WindowNetwork();
     Engine* engine;
+
     bool is_solo = false;
     bool finished = false;
     bool flag = true;
     int menu_num = 0;
     char c = 0;
+
+    Setting* setting = new Setting();
+    setting->nick_name = "Player";
+    setting->color_theme = ColorTheme::DRACULA;
+    setting->server_ip_address = "127.0.0.1";
+    setting->server_port = "41234";
 
     while (flag) {
         menu_renderer->render_menu(menu_num);
@@ -42,7 +48,7 @@ int main()
         case 0:
             // 싱글 플레이
             menu_renderer->render_clear();
-            engine = new SoloEngine(input, renderer);
+            engine = new SoloEngine(setting, input, renderer);
             engine->run();
             engine->finish();
             renderer = new WindowRenderer();
@@ -56,7 +62,7 @@ int main()
             // 멀티 플레이
             menu_renderer->render_clear();
 
-            engine = new MultiEngine(input, renderer, network);
+            engine = new MultiEngine(setting, input, renderer, network);
             engine->run();
             engine->finish();
             renderer = new WindowRenderer();
