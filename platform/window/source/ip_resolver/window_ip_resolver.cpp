@@ -150,7 +150,7 @@ bool WindowIpResolver::open_room()
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
-    cout << "Press Key for start game or Press q + enter for get out from room" << '\n';
+    cout << "Press Any key + enter for start game or Press q + enter for get out from room" << '\n';
     base_time = std::chrono::steady_clock::now();
     while (true) {
         if (_kbhit() != 0) {
@@ -264,7 +264,7 @@ bool WindowIpResolver::open_room()
             cout << my_id << '\n';
             for (const auto& [key, value] : client_ip_address)
                 cout << key << '\n';
-            cout << "Press Key for start game or Press q + enter for get out from room" << '\n';
+            cout << "Press Any key + enter for start game or Press q + enter for get out from room" << '\n';
             for (const auto& [key, value] : client_ip_address) {
                 ZeroMemory(&other_user_addr, sizeof(other_user_addr));
                 other_user_addr_len = sizeof(other_user_addr);

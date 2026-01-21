@@ -82,6 +82,7 @@ void WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
     write_32b(p, pkt.c);
     write_32b(p, pkt.deleted_line);
     write_32b(p, pkt.is_game_over);
+    write_32b(p, pkt.is_win);
 
     write_bytes(p, pkt.id, 9);
 }
@@ -114,12 +115,13 @@ void WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     pkt.c = read_32b(p);
     pkt.deleted_line = read_32b(p);
     pkt.is_game_over = read_32b(p);
+    pkt.is_win = read_32b(p);
 
     read_bytes(p, pkt.id, 9);
     pkt.id[8] = '\0';
 }
 
-void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over,
+void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over, int is_win,
                              const char* another_user_ip, const char* my_id)
 {
     Packet pkt{};
@@ -144,6 +146,7 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     pkt.c = pos_c;
     pkt.deleted_line = deleted_line;
     pkt.is_game_over = is_game_over;
+    pkt.is_win = is_win;
     snprintf(pkt.id, sizeof(pkt.id), "%s", my_id);
 
     serialize(buf, pkt);
@@ -157,12 +160,12 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
 }
 
 void WindowNetwork::send_multi_udp(
-    const Board& board, const Tetromino& tetromino, int deleted_line,
+    const Board& board, const Tetromino& tetromino, int deleted_line, int is_win,
     int is_game_over, const char* my_id,
     std::vector<std::pair<std::string, std::string>> ids_ips)
 {
     for (const auto& [id, ip] : ids_ips)
-        send_udp(board, tetromino, deleted_line, is_game_over, ip.c_str(), my_id);
+        send_udp(board, tetromino, deleted_line, is_game_over, is_win, ip.c_str(), my_id);
 }
 
 void WindowNetwork::send_relay_udp(const Packet& packet,
@@ -193,6 +196,8 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
         pkt.r = packet.r;
         pkt.c = packet.c;
         pkt.deleted_line = packet.deleted_line;
+        pkt.is_game_over = packet.is_game_over;
+        pkt.is_win = packet.is_win;
         snprintf(pkt.id, sizeof(pkt.id), "%s", packet.id);
 
         serialize(buf, pkt);

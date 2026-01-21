@@ -2,7 +2,7 @@
 #define __PACKET_HPP__
 
 #include <cstdint>
-#define PACKET_SIZE (20 * 10 * 4 + 6 * 4 + 9)
+#define PACKET_SIZE (20 * 10 * 4 + 7 * 4 + 9)
 
 typedef struct PacketStruct {
     int32_t board[20][10];
@@ -12,6 +12,7 @@ typedef struct PacketStruct {
     int32_t c;
     int32_t deleted_line;
     int32_t is_game_over; // 1 => True, 0 => False
+    int32_t is_win;
     char id[9];
 } Packet;
 
