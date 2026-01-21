@@ -153,6 +153,14 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     }
 }
 
+void WindowNetwork::send_multi_udp(
+    const Board& board, const Tetromino& tetromino, int deleted_line,
+    std::vector<std::pair<std::string, std::string>> ids_ips)
+{
+    for (const auto& [id, ip] : ids_ips)
+        send_udp(board, tetromino, deleted_line, ip.c_str(), id.c_str());
+}
+
 void WindowNetwork::send_relay_udp(const Packet& packet,
                                    std::vector<std::pair<std::string, std::string>> ids_ips)
 {

@@ -13,6 +13,9 @@ class INetwork
     virtual void send_udp(const Board& board, const Tetromino& tetromino, int deleted_line,
                           const char* another_user_ip, const char* my_id) = 0;
 
+    virtual void send_multi_udp(const Board& board, const Tetromino& tetromino, int deleted_line,
+                                std::vector<std::pair<std::string, std::string>> ids_ips) = 0;
+
     virtual void send_relay_udp(const Packet& packet,
                                 std::vector<std::pair<std::string, std::string>> ids_ips) = 0;
 

@@ -74,8 +74,11 @@ void MultiEngine::run(bool is_server)
         if (is_tetromino_or_board_change) {
             renderer->render_board(board, board.get_active_mino());
             renderer->render_hold(board.get_saved_mino());
-            network->send_udp(board, board.get_active_mino(), attack,
-                              ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
+            if (is_server == true)
+                network->send_multi_udp(board, board.get_active_mino(), attack, ids_ips);
+            else
+                network->send_udp(board, board.get_active_mino(), attack,
+                                  ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
         }
 
         if (attack > 0) renderer->render_score(attack);

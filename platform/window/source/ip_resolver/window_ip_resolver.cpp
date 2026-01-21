@@ -94,7 +94,11 @@ bool WindowIpResolver::open_room()
     BOOL enable = TRUE;
     bool is_game_start = false;
     char c;
+
     memset(my_id, 0, sizeof(my_id));
+    memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
+    client_ip_address.clear();
+    server_ip_address.clear();
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
@@ -308,7 +312,11 @@ bool WindowIpResolver::enter_room()
     string server_ip;
     char c;
     bool is_game_start = false;
+
     memset(my_id, 0, sizeof(my_id));
+    memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
+    client_ip_address.clear();
+    server_ip_address.clear();
 
     cout << "\033[2J\033[1;1H";
     cout << flush;
