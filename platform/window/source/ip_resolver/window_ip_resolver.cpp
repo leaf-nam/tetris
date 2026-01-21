@@ -9,6 +9,7 @@
 #include <iostream>
 #include <chrono>
 #include <cstring>
+#include <vector>
 
 using namespace std;
 
@@ -454,12 +455,13 @@ const char* WindowIpResolver::get_client_ip_address(string key)
 /**
  * @brief 저장된 클라이언트 id들을 반환하는 함수
  */
-std::vector<std::string> WindowIpResolver::get_client_ids()
+std::vector<std::pair<std::string, std::string>> WindowIpResolver::get_client_ids_ips()
 { 
-    std::vector<std::string> v;
-    for (const auto& [key, value] : client_ip_address) {
-        v.push_back(value);
-    }
+    std::vector<std::pair<std::string, std::string>> v;
+    for (const auto& [key, value] : client_ip_address)
+        v.push_back(std::make_pair(key, value));
+
+    return v;
 }
 
 /**

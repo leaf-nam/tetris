@@ -153,37 +153,44 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     }
 }
 
-void WindowNetwork::send_relay_udp(const Packet& packet, const char* another_user_ip)
+void WindowNetwork::send_relay_udp(const Packet& packet,
+                                   std::vector<std::pair<std::string, std::string>> ids_ips)
 {
-    Packet pkt{};
+    char* another_user_ip;
     uint8_t buf[PACKET_SIZE];
     SOCKADDR_IN another_user;
-    ZeroMemory(&another_user, sizeof(another_user));
-    another_user.sin_family = AF_INET;
-    another_user.sin_port = htons(PORT);
 
-    // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
-    inet_pton(AF_INET, another_user_ip, &another_user.sin_addr);
+    for (const auto& [id, ip] : ids_ips) {
+        if (strcmp(id.c_str(), packet.id) == 0) continue;
+        Packet pkt{};
+        memset(buf, 0, sizeof(buf));
+        ZeroMemory(&another_user, sizeof(another_user));
+        another_user.sin_family = AF_INET;
+        another_user.sin_port = htons(PORT);
 
-    // 보드 데이터 복사
-    for (int r = 0; r < 20; ++r)
-        for (int c = 0; c < 10; ++c)
-            pkt.board[r][c] = packet.board[r][c]; // 숨겨진 2줄 제외하고 복사
+        // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
+        inet_pton(AF_INET, ip.c_str(), &another_user.sin_addr);
 
-    pkt.type = packet.type;
-    pkt.rotation = packet.rotation;
-    pkt.r = packet.r;
-    pkt.c = packet.c;
-    pkt.deleted_line = packet.deleted_line;
-    snprintf(pkt.id, sizeof(pkt.id), "%s", packet.id);
+        // 보드 데이터 복사
+        for (int r = 0; r < 20; ++r)
+            for (int c = 0; c < 10; ++c)
+                pkt.board[r][c] = packet.board[r][c]; // 숨겨진 2줄 제외하고 복사
 
-    serialize(buf, pkt);
+        pkt.type = packet.type;
+        pkt.rotation = packet.rotation;
+        pkt.r = packet.r;
+        pkt.c = packet.c;
+        pkt.deleted_line = packet.deleted_line;
+        snprintf(pkt.id, sizeof(pkt.id), "%s", packet.id);
 
-    int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &another_user,
-                             sizeof(another_user));
+        serialize(buf, pkt);
 
-    if (send_result == SOCKET_ERROR) {
-        cerr << "sendto failed: " << WSAGetLastError() << "\n";
+        int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0,
+                                 (SOCKADDR*) &another_user, sizeof(another_user));
+
+        if (send_result == SOCKET_ERROR) {
+            cerr << "sendto failed: " << WSAGetLastError() << "\n";
+        }
     }
 }
 

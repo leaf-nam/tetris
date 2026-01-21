@@ -31,7 +31,7 @@ class WindowIpResolver : public IIpResolver
     /**
      * @brief 저장된 클라이언트 id들을 반환하는 함수
      */
-    std::vector<std::string> get_client_ids() override;
+    std::vector<std::pair<std::string, std::string>> get_client_ids_ips() override;
 
     /**
      * @brief 저장된 서버 ip 주소를 반환하는 함수

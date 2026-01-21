@@ -24,7 +24,7 @@ void MultiEngine::run(bool is_server)
     KeyMapper key_mapper;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
-    vector<string> ids = ip_resolver->get_client_ids();
+    std::vector<std::pair<std::string, std::string>> ids_ips = ip_resolver->get_client_ids_ips();
     PacketStruct recv_pkt;
     int curr_mino = 0;
     int action;
@@ -82,13 +82,7 @@ void MultiEngine::run(bool is_server)
 
         if(network->recv_udp(recv_pkt))
         {
-            if (is_server)
-            {
-                for (string id : ids) {
-                    if (strcmp(id.c_str(), recv_pkt.id) == 0) continue;
-                    network->send_relay_udp(recv_pkt, ip_resolver->get_client_ip_address(id));
-                }
-            }
+            if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
             renderer->render_other_board(recv_pkt);
 
             // 같은 타이밍에 서로 공격한 경우 상쇄됨

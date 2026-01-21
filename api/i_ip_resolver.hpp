@@ -2,6 +2,7 @@
 #define __I_IP_RESOLVER_HPP__
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 
 #pragma pack(push, 1)
@@ -52,7 +53,7 @@ class IIpResolver
     /**
      * @brief 저장된 클라이언트 id들을 반환하는 함수
      */
-    virtual std::vector<std::string> get_client_ids() = 0;
+    virtual std::vector<std::pair<std::string, std::string>> get_client_ids_ips() = 0;
 
     /**
      * @brief 저장된 서버 ip 주소를 반환하는 함수

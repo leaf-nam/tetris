@@ -40,7 +40,8 @@ public:
     // 부모 클래스(INetwork)의 가상 함수 오버라이드
     void send_udp(const Board& board, const Tetromino& tetromino, int deleted_line,
                   const char* another_user_ip, const char* my_id) override;
-    void send_relay_udp(const Packet& packet, const char* another_user_ip) override;
+    void send_relay_udp(const Packet& packet,
+                        std::vector<std::pair<std::string, std::string>> ids_ips) override;
     bool recv_udp(Packet& recv_pkt) override;
     
     ~WindowNetwork();
