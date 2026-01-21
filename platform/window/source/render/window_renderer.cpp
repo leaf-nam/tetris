@@ -108,18 +108,18 @@ void WindowRenderer::render_game_over()
 void WindowRenderer::render_other_game_over(Packet& pkt)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-    set_cursor(start_x + 8, start_y + 5);
+    set_cursor(start_x + 8, start_y + 10);
     printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
 }
 
 void WindowRenderer::render_win() {
-    set_cursor(35, 17);
+    set_cursor(36, 7);
     printf("%s%s%s", Color::GREEN, "WIN", Color::RESET);
 }
 
 void WindowRenderer::render_other_win(Packet& pkt) {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-    set_cursor(start_x + 10, start_y + 5);
+    set_cursor(start_x + 11, start_y + 10);
     printf("%s%s%s", Color::GREEN, "WIN", Color::RESET);
 }
 

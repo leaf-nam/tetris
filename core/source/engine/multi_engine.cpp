@@ -100,6 +100,8 @@ void MultiEngine::run(bool is_server)
 
         if(network->recv_udp(recv_pkt))
         {
+            renderer->render_other_board(recv_pkt);
+
             if (recv_pkt.is_game_over == 1) {
                 renderer->render_other_game_over(recv_pkt);
                 active_user--;
@@ -118,7 +120,6 @@ void MultiEngine::run(bool is_server)
             }
 
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
-            renderer->render_other_board(recv_pkt);
 
             // 같은 타이밍에 서로 공격한 경우 상쇄됨
             if (recv_pkt.deleted_line > attack) {
@@ -136,6 +137,7 @@ void MultiEngine::run(bool is_server)
     while (active_user > 0)
     {
         if (network->recv_udp(recv_pkt)) {
+            renderer->render_other_board(recv_pkt);
             if (recv_pkt.is_game_over == 1) {
                 renderer->render_other_game_over(recv_pkt);
                 active_user--;
@@ -145,7 +147,6 @@ void MultiEngine::run(bool is_server)
                 renderer->render_other_win(recv_pkt);
             }
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
-            renderer->render_other_board(recv_pkt);
         }
     }
 }
