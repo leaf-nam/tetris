@@ -30,6 +30,8 @@ add_subdirectory(core/tetromino)
 #add_subdirectory(core/engine)
 #add_subdirectory(core/tetris)
 
+add_subdirectory(platform/window/util)
+
 add_executable(
     unit_test
     main_unit_test.cpp
@@ -41,9 +43,11 @@ target_link_libraries(
 #    game_rule_test
     $<TARGET_OBJECTS:tetromino_test>
     $<TARGET_OBJECTS:util_test>
+    $<TARGET_OBJECTS:render_util_test>
 #    engine_test
 #    tetris_test
     engine
+    shadow_maker_test
     GTest::gtest_main
 )
 

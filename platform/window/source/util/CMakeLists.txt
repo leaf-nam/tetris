@@ -1,6 +1,6 @@
-add_library(render window_renderer.cpp  "menu_renderer.cpp" "color.cpp" "../util/shadow_maker.cpp")
+add_library(shadow_maker_test shadow_maker.cpp)
 
-target_include_directories(render 
+target_include_directories(shadow_maker_test 
     PUBLIC ${PROJECT_SOURCE_DIR}/api
     PUBLIC ${PROJECT_SOURCE_DIR}/core/include
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/window/include

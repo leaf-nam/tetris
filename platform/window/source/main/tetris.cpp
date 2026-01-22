@@ -43,10 +43,11 @@ int main()
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
 
-    menu_renderer = new MenuRenderer();
     setting = new Setting();
+    menu_renderer = new MenuRenderer(*setting);
 
     setting->nick_name = "Player";
+    setting->shadow_on = true;
     setting->color_theme = 0;
     setting->server_ip_address = "127.0.0.1";
     setting->server_port = "41234";
@@ -91,7 +92,7 @@ AppState run_menu()
     while (true) {
         char in = _getch();
 
-        if (in == '\r') {
+        if (in == '\r' || in == ' ') {
             switch (menu) {
             case Menu::SINGLE_PLAY:
                 return AppState::SINGLE_PLAY;
@@ -132,7 +133,7 @@ AppState run_settings()
         char in = _getch();
 
         // 엔터 처리
-        if (in == '\r') {
+        if (in == '\r' || in == ' ') {
             switch (menu) {
             case SettingMenu::NICKNAME: {
                 string nickname;
@@ -143,7 +144,9 @@ AppState run_settings()
                 break;
             }
             case SettingMenu::THEME: {
-                setting->color_theme = (setting->color_theme + 3) % 4;
+                setting->color_theme = (setting->color_theme + 1) % 4;
+                Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
+                menu_renderer->render_settings_frame();
                 break;
             }
             case SettingMenu::SHADOW: {
@@ -164,6 +167,7 @@ AppState run_settings()
             switch (menu) {
             case SettingMenu::THEME:
                 setting->color_theme = (setting->color_theme + 3) % 4;
+                Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
                 menu_renderer->render_settings_frame();
                 break;
             case SettingMenu::SHADOW:
@@ -209,7 +213,7 @@ AppState run_settings()
 
 AppState run_single_game()
 {
-    renderer = new WindowRenderer();
+    renderer = new WindowRenderer(*setting);
     input = new WindowInput();
     engine = new SoloEngine(setting, input, renderer);
 
@@ -226,7 +230,7 @@ AppState run_multi_game()
 {
     menu_renderer->render_clear();
 
-    renderer = new WindowRenderer();
+    renderer = new WindowRenderer(*setting);
     INetwork* network = new WindowNetwork();
 
     engine = new MultiEngine(setting, input, renderer, network);
