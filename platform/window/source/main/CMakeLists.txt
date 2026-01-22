@@ -1,6 +1,6 @@
 add_executable(tetris
 	tetris.cpp
-)
+ "../render/menu.cpp")
 
 target_include_directories(tetris 
     PRIVATE ${PROJECT_SOURCE_DIR}/api

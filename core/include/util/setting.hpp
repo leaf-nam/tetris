@@ -1,23 +1,19 @@
+#ifndef __SETTING_HPP__
+#define __SETTING_HPP__
 
 #include <cstdint>
 #include <string>
 
 using namespace std;
 
-enum ColorTheme : uint8_t
-{
-    DRACULA = 0,
-    MONOKAI,
-    NORD,
-    SOLARIZED_DARK
-};
-
 class Setting
 {
   public:
-    ColorTheme color_theme;
+    uint8_t color_theme;
     bool shadow_on;
     string nick_name;
     string server_ip_address;
     string server_port;
 };
+
+#endif // !__SETTING_HPP__

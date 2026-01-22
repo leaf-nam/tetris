@@ -1,6 +1,7 @@
 #include "render/window_renderer.hpp"
 
 #include <conio.h>
+#include <random>
 #include <string>
 #include <wtypes.h>
 
@@ -9,7 +10,11 @@ int logo_x = (is_single) ? 20 : 2;
 int board_x = (is_single) ? 35 : 25;
 int middle_x = (is_single) ? 80 : 58;
 
-namespace Color {
+static std::random_device rd;
+static std::mt19937 gen(rd());
+static std::uniform_int_distribution<int> dist(static_cast<int>(ColorKey::CYAN),
+                                               static_cast<int>(ColorKey::YELLOW));
+namespace color {
 const char* const RESET = "\x1b[0m";
 const char* const RED = "\x1b[31m";
 const char* const GREEN = "\x1b[32m";
@@ -18,7 +23,7 @@ const char* const CYAN = "\x1b[36m";
 const char* const PURPLE = "\x1b[35m";
 const char* const GRAY = "\x1b[90m";
 const char* const BOLD = "\x1b[1m";
-} // namespace Color
+} // namespace color
 
 const char* const BIG_T[] = {"█████", "  █  ", "  █  ", "  █  ", "  █  "};
 const char* const BIG_E[] = {"█████", "█    ", "███  ", "█    ", "█████"};
@@ -30,80 +35,126 @@ const char* const BIG_M[] = {"█   █", "██ ██", "█ █ █", "█ �
 const char* const BIG_Y[] = {"█   █", "█   █", " █ █ ", "  █  ", "  █  "};
 const char* const BIG_G[] = {" ███ ", "█    ", "█  ██", "█   █", " ████"};
 
-using namespace std;
+constexpr const char* BIG_FONT[26][5] = {
+    // A
+    {" ███ ", "█   █", "█████", "█   █", "█   █"},
+    // B
+    {"████ ", "█   █", "████ ", "█   █", "████ "},
+    // C
+    {" ████", "█    ", "█    ", "█    ", " ████"},
+    // D
+    {"████ ", "█   █", "█   █", "█   █", "████ "},
+    // E
+    {"█████", "█    ", "███  ", "█    ", "█████"},
+    // F
+    {"█████", "█    ", "███  ", "█    ", "█    "},
+    // G
+    {" ████", "█    ", "█  ██", "█   █", " ████"},
+    // H
+    {"█   █", "█   █", "█████", "█   █", "█   █"},
+    // I
+    {"███", " █ ", " █ ", " █ ", "███"},
+    // J
+    {"  ███", "   █ ", "   █ ", "█  █ ", " ██  "},
+    // K
+    {"█   █", "█  █ ", "███  ", "█  █ ", "█   █"},
+    // L
+    {"█    ", "█    ", "█    ", "█    ", "█████"},
+    // M
+    {"█   █", "██ ██", "█ █ █", "█   █", "█   █"},
+    // N
+    {"█   █", "██  █", "█ █ █", "█  ██", "█   █"},
+    // O
+    {" ███ ", "█   █", "█   █", "█   █", " ███ "},
+    // P
+    {"████ ", "█   █", "████ ", "█    ", "█    "},
+    // Q
+    {" ███ ", "█   █", "█ █ █", "█  ██", " ████"},
+    // R
+    {"████ ", "█   █", "████ ", "█  █ ", "█   █"},
+    // S
+    {" ████", "█    ", " ███ ", "    █", "████ "},
+    // T
+    {"█████", "  █  ", "  █  ", "  █  ", "  █  "},
+    // U
+    {"█   █", "█   █", "█   █", "█   █", " ███ "},
+    // V
+    {"█   █", "█   █", "█   █", " █ █ ", "  █  "},
+    // W
+    {"█   █", "█   █", "█ █ █", "██ ██", "█   █"},
+    // X
+    {"█   █", " █ █ ", "  █  ", " █ █ ", "█   █"},
+    // Y
+    {"█   █", " █ █ ", "  █  ", "  █  ", "  █  "},
+    // Z
+    {"█████", "   █ ", "  █  ", " █   ", "█████"}};
 
-const char* get_block_color(int type)
+using namespace std;
+using namespace color;
+
+const char* WindowRenderer::get_block_color(int type)
+{
+    return get_color(get_color_key(type)).c_str();
+}
+
+string WindowRenderer::get_block_color(const Tetromino& tetromino)
+{
+    return get_color(get_color_key(tetromino));
+}
+
+ColorKey WindowRenderer::get_color_key(const Tetromino& tetromino)
+{
+    return get_color_key(tetromino.get_mino_type());
+}
+
+ColorKey WindowRenderer::get_color_key(int type)
 {
     switch (type) {
-    case 0: // I 미노 (Cyan - 하늘색)
-        return "\x1b[96m";
+    case 0:
+        return ColorKey::CYAN;
     case 1: // O 미노 (Yellow - 노란색)
-        return "\x1b[93m";
+        return ColorKey::ORANGE;
     case 2: // Z 미노 (Red - 빨간색)
-        return "\x1b[91m";
+        return ColorKey::RED;
     case 3: // S 미노 (Green - 초록색)
-        return "\x1b[92m";
+        return ColorKey::GREEN;
     case 4: // J 미노 (Blue - 파란색)
-        return "\x1b[94m";
+        return ColorKey::PINK;
     case 5: // L 미노 (Orange -> 터미널은 보통 흰색 or 밝은 노랑으로 대체)
-        return "\x1b[37m"; // 흰색(White) 사용 (노란색 O와 구분하기 위해)
-    case 6:                // T 미노 (Purple - 보라색)
-        return "\x1b[95m";
+        return ColorKey::YELLOW;
+    case 6: // T 미노 (Purple - 보라색)
+        return ColorKey::PURPLE;
     case 7: // 방해 블록 (Gray - 회색)
-        return "\x1b[90m";
+        return ColorKey::COMMENT;
     default: // 예외 (Reset)
-        return "\x1b[0m";
+        return ColorKey::BACKGROUND;
     }
 }
 
 void WindowRenderer::set_cursor(int x, int y) { printf("\033[%d;%dH", y + 1, x + 1); }
 
-void WindowRenderer::clear()
-{
-    printf("\033[2J\033[1;1H");
-    fflush(stdout);
-    printf("\e[?25l");
-}
-
 void WindowRenderer::draw_logo(int x, int y)
 {
-    // 각 글자를 배열로 분리
-    hide_cursor();
-    for (int i = 0; i < 5; i++) {
-        //
-        set_cursor(x, y + i);
-        // 순서대로 색상과 함께 출력
-        printf("%s%s ", Color::RED, BIG_T[i]);    // T
-        printf("%s%s ", Color::YELLOW, BIG_E[i]); // E
-        printf("%s%s ", Color::GREEN, BIG_T[i]);  // T
-        printf("%s%s ", Color::CYAN, BIG_R[i]);   // R
-        printf("%s%s ", Color::PURPLE, BIG_I[i]); // I
-        printf("%s%s ", Color::RED, BIG_S[i]);    // S
-        printf("%s%s ", Color::YELLOW, BIG_S[i]); // S
-        printf("%s%s ", Color::GREEN, BIG_E[i]);  // E
-        printf("%s%s", Color::CYAN, BIG_N[i]);    // N
-        printf("%s", Color::RESET);
-    }
-
-    // v1 출력 (N 글자 아래쪽 끝에 배치)
-    set_cursor(x + 52, y + 4);
-    printf("%s%s%s", Color::GRAY, "v1", Color::RESET);
+    print_big_string({x, y}, "TETRISSEN");
+    print_small_string({x + 56, y + 4}, "v1");
 }
+
 void WindowRenderer::draw_enemy_title(int x, int y)
 {
     for (int i = 0; i < 5; i++) {
         set_cursor(78, y + i);
         // 순서대로 색상과 함께 출력
 
-        printf("%s%s ", Color::GRAY, BIG_E[i]); // E
-        printf("%s%s ", Color::GRAY, BIG_N[i]); // N
-        printf("%s%s ", Color::GRAY, BIG_E[i]); // E
-        printf("%s%s ", Color::GRAY, BIG_M[i]); // M
-        printf("%s%s ", Color::GRAY, BIG_Y[i]); // Y
+        printf("%s%s ", GRAY, BIG_E[i]); // E
+        printf("%s%s ", GRAY, BIG_N[i]); // N
+        printf("%s%s ", GRAY, BIG_E[i]); // E
+        printf("%s%s ", GRAY, BIG_M[i]); // M
+        printf("%s%s ", GRAY, BIG_Y[i]); // Y
 
-        printf("%s", Color::RESET);
+        printf("%s", RESET);
     }
 }
+
 void WindowRenderer::render_timer(int totalSec)
 {
     int min = (totalSec / 60);
@@ -111,60 +162,86 @@ void WindowRenderer::render_timer(int totalSec)
 
     set_cursor(middle_x + 4, 4);
 
-    cout << Color::BOLD;
+    cout << BOLD;
     // 두 자리(setw(2))를 잡고, 빈 곳은 '0'으로 채움
     cout << setfill('0') << setw(2) << min % 100 << ":" << setw(2) << sec;
-    cout << Color::RESET;
+    cout << RESET;
 }
 
 void WindowRenderer::render_next_block(const int* tetrominoArray)
 {
     for (size_t i = 0; i < 3; ++i) {
         int wr = middle_x + 3, wc = 11;
-        const Mino& m1 = TETROMINO[tetrominoArray[0]][0];
-        const Mino& m2 = TETROMINO[tetrominoArray[1]][0];
-        const Mino& m3 = TETROMINO[tetrominoArray[2]][0];
+
+        Tetromino m1;
+        Tetromino m2;
+        Tetromino m3;
+        m1.init_mino(tetrominoArray[0]);
+        m2.init_mino(tetrominoArray[1]);
+        m3.init_mino(tetrominoArray[2]);
 
         // next mino
-        render_mino_pattern(wr, wc, m1, get_block_color(tetrominoArray[0]));
+        render_mino_pattern({wr, wc}, m1);
 
-        render_mino_pattern(wr, wc + 5, m2, get_block_color(tetrominoArray[1]));
+        render_mino_pattern({wr, wc + 5}, m2);
 
-        render_mino_pattern(wr, wc + 10, m3, get_block_color(tetrominoArray[2]));
+        render_mino_pattern({wr, wc + 10}, m3);
     }
 }
 
 void WindowRenderer::render_hold(const Tetromino& tetromino)
 {
-    if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
-    render_mino_pattern(7, 11, tetromino.get_shape(), get_block_color(tetromino.get_mino_type()));
+    render_mino_pattern({7, 11}, tetromino);
 }
 
 void WindowRenderer::draw_ui_box(const string& title, int x, int y, int w, int h, const char* color)
 {
     set_cursor(x, y);
-    cout << color << "┌" << string(w * 2, ' ') << "┐" << Color::RESET;
+    cout << color << "┌" << string(w * 2, ' ') << "┐" << RESET;
     for (int i = 1; i <= h; ++i) {
         set_cursor(x, y + i);
-        cout << color << "│" << string(w * 2, ' ') << "│" << Color::RESET;
+        cout << color << "│" << string(w * 2, ' ') << "│" << RESET;
     }
     set_cursor(x, y + h + 1);
-    cout << color << "└" << string(w * 2, ' ') << "┘" << Color::RESET;
+    cout << color << "└" << string(w * 2, ' ') << "┘" << RESET;
     if (!title.empty()) {
         set_cursor(x + (w * 2 - title.length()) / 2, y);
-        cout << color << Color::BOLD << "[" << title << "]" << Color::RESET;
+        cout << color << BOLD << "[" << title << "]" << RESET;
     }
 }
+void WindowRenderer::render_mino_pattern(Pos pos, const Tetromino& tetromino)
+{
+    if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
+
+    string color = get_block_color(tetromino);
+    string bg = get_color(ColorKey::BACKGROUND, true);
+
+    for (int i = 0; i < 4; i++) {
+        string line;
+        for (int j = 0; j < 4; j++) {
+            if (tetromino.get_shape()[i][j] != 0) {
+                line += color + bg + "██";
+            }
+            else {
+                line += bg + "  ";
+            }
+        }
+
+        set_cursor(pos.x, pos.y + i);
+        printf("%s", line.c_str());
+    }
+}
+
 void WindowRenderer::render_mino_pattern(int x, int y, const Mino& shape, const char* color)
 {
     for (int i = 0; i < 4; i++) {
         set_cursor(x, y + i);
         for (int j = 0; j < 4; j++) {
             if (shape[i][j] != 0) { // 배열 값이 0이 아니면 출력
-                cout << color << "██" << Color::RESET;
+                cout << color << "██" << RESET;
             }
             else {
-                cout << Color::GRAY << "  " << Color::RESET;
+                cout << GRAY << "  " << RESET;
             }
         }
     }
@@ -174,30 +251,30 @@ void WindowRenderer::render_background()
 {
     fflush(stdout);
     draw_logo(logo_x, 1);
-    draw_ui_box("HOLD", 4, 9, 6, 4, Color::GREEN);
-    draw_ui_box("NEXT", middle_x, 9, 6, 15, Color::PURPLE);
-    draw_ui_box("#SCORE", 4, 16, 6, 3, Color::CYAN);
-    draw_ui_box("LV", 4, 21, 6, 3, Color::CYAN);
-    draw_ui_box("TIME", middle_x, 2, 6, 3, Color::RESET);
+    draw_ui_box("HOLD", 4, 9, 6, 4, GREEN);
+    draw_ui_box("NEXT", middle_x, 9, 6, 15, PURPLE);
+    draw_ui_box("#SCORE", 4, 16, 6, 3, CYAN);
+    draw_ui_box("LV", 4, 21, 6, 3, CYAN);
+    draw_ui_box("TIME", middle_x, 2, 6, 3, RESET);
 
     set_cursor(board_x, 7);
-    cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
+    cout << BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << RESET;
     set_cursor(board_x, 28);
-    cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
+    cout << BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << RESET;
 }
 void WindowRenderer::draw_hold(const Mino& hold_shape)
 {
-    render_mino_pattern(16, 3, hold_shape, Color::YELLOW);
+    render_mino_pattern(16, 3, hold_shape, YELLOW);
 }
 void WindowRenderer::render_score(int score)
 {
     set_cursor(8, 18);
-    printf("%s%06d%s", Color::BOLD, score, Color::RESET);
+    printf("%s%06d%s", BOLD, score, RESET);
 }
 void WindowRenderer::render_level(int level)
 {
     set_cursor(10, 23);
-    printf("%s%02d%s", Color::BOLD, level, Color::RESET);
+    printf("%s%02d%s", BOLD, level, RESET);
 }
 WindowRenderer::~WindowRenderer() {}
 
@@ -221,7 +298,7 @@ void WindowRenderer::show_cursor()
 void WindowRenderer::render_game_over()
 {
     set_cursor(33, 17);
-    printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
+    printf("%s%s%s", RED, "GAMEOVER", RESET);
 }
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
 {
@@ -238,7 +315,7 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
     // 행 루프 (2~21)
     for (int r = 2; r < 22; ++r) {
         set_cursor(start_x, start_y + (r - 1));
-        cout << Color::BOLD << "┃ " << Color::RESET;
+        cout << BOLD << "┃ " << RESET;
 
         // 열 루프 (0~9)
         for (int c = 0; c < 10; ++c) {
@@ -267,19 +344,19 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
 
             if (is_falling_block) {
                 // 떨어지는 블록 그리기
-                cout << get_block_color(block_type) << "██" << Color::RESET;
+                print_s("██", get_color_key(tetromino));
             }
             else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
                 // 바닥에 쌓인 블록 그리기
-                cout << get_block_color(game_board[r][c]) << "██" << Color::RESET;
+                print_s("██", get_color_key(game_board[r][c]));
             }
             else {
                 // 빈 공간
-                cout << Color::GRAY << ". " << Color::RESET;
+                cout << GRAY << ". " << RESET;
             }
         }
 
-        cout << Color::BOLD << " ┃" << Color::RESET;
+        cout << BOLD << " ┃" << RESET;
     }
 }
 void WindowRenderer::render_other_board(Packet& pkt)
@@ -298,12 +375,12 @@ void WindowRenderer::render_other_board(Packet& pkt)
     string mino_color = get_block_color(mino_type); // 기존에 만든 색상 함수 활용
 
     set_cursor(start_x, start_y);
-    cout << Color::BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << Color::RESET;
+    cout << BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << RESET;
 
     // 행 루프 (2~21)
     for (int r = 0; r < 20; ++r) {
         set_cursor(start_x, start_y + (r + 1));
-        cout << Color::BOLD << "┃ " << Color::RESET;
+        cout << BOLD << "┃ " << RESET;
 
         // 열 루프 (0~9)
         for (int c = 0; c < 10; ++c) {
@@ -330,23 +407,23 @@ void WindowRenderer::render_other_board(Packet& pkt)
 
             if (is_falling_block) {
                 // 떨어지는 블록 그리기
-                cout << get_block_color(pkt.type) << "██" << Color::RESET;
+                cout << get_block_color(pkt.type) << "██" << RESET;
             }
             else if (pkt.board[r][c] < 8 && pkt.board[r][c] > -1) {
                 // 바닥에 쌓인 블록 그리기
-                cout << get_block_color(pkt.board[r][c]) << "██" << Color::RESET;
+                cout << get_block_color(pkt.board[r][c]) << "██" << RESET;
             }
             else {
                 // 빈 공간
-                cout << Color::GRAY << ". " << Color::RESET;
+                cout << GRAY << ". " << RESET;
             }
         }
 
-        cout << Color::BOLD << " ┃" << Color::RESET;
+        cout << BOLD << " ┃" << RESET;
     }
 
     set_cursor(start_x, start_y + 21);
-    cout << Color::BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << Color::RESET;
+    cout << BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << RESET;
 }
 
 void WindowRenderer::render_ip_recv()
@@ -357,24 +434,15 @@ void WindowRenderer::render_ip_recv()
 
 void WindowRenderer::render_char(char c) { cout << c; }
 
-void WindowRenderer::render_clear() { system("cls"); }
-
-void WindowRenderer::render_menu(int menu_num)
+void WindowRenderer::render_clear()
 {
-    if (menu_num == 0) {
-        render_clear();
-        draw_logo(20, 7);
-    }
-    string menu_string[4] = {"single play", "multi play", "settings", "exit"};
-    for (int i = 0; i < 4; i++) {
-        set_cursor(25, 18 + i * 2);
-        if (menu_num % 4 == i)
-            cout << Color::BOLD << "> " << menu_string[i];
-        else
-            cout << "  " << menu_string[i] << '\n';
-        printf(Color::RESET);
-    }
+    printf("\033[H");
+    printf("%s", Theme::getInstance().color(ColorKey::BACKGROUND, true).c_str());
+    printf("\033[2J");
+
+    fflush(stdout);
 }
+
 void WindowRenderer::setting_arrow(int point_cur_setting)
 { // 현재 수정중인 메뉴 화살표 출력 및 다른 설정 화살표 지우기
     int x = 60;
@@ -387,105 +455,69 @@ void WindowRenderer::setting_arrow(int point_cur_setting)
             cout << "  ";
     }
 }
-void WindowRenderer::render_settings()
+
+void WindowRenderer::print_s(const char* const s, ColorKey key)
 {
-    render_clear();
-    for (int i = 0; i < 5; i++) {
-        //
-        set_cursor(22, 2 + i);
-        // 순서대로 색상과 함께 출력
+    printf("%s%s%s%s", get_color(key).c_str(), get_color(ColorKey::BACKGROUND, true).c_str(), s,
+           get_color(ColorKey::BACKGROUND).c_str());
+}
 
-        printf("%s%s ", Color::GRAY, BIG_S[i]); // S
-        printf("%s%s ", Color::GRAY, BIG_E[i]); // E
-        printf("%s%s ", Color::GRAY, BIG_T[i]); // T
-        printf("%s%s ", Color::GRAY, BIG_T[i]); // T
-        printf("%s%s ", Color::GRAY, BIG_I[i]); // I
-        printf("%s%s ", Color::GRAY, BIG_N[i]); // N
-        printf("%s%s ", Color::GRAY, BIG_G[i]); // G
-        printf("%s%s ", Color::GRAY, BIG_S[i]); // S
+void WindowRenderer::print_s(string& s, ColorKey key) { print_s(s.c_str(), key); }
 
-        printf("%s", Color::RESET);
-    }
-    // 왼쪽 블럭 그리기
-    int x = 2;
-    int y = 2;
-    Tetromino* tetromino = new Tetromino();
-    tetromino->set_mino_type(0);
-    render_mino_pattern(x, y + 4, tetromino->get_shape(),
-                        get_block_color(tetromino->get_mino_type()));
-    for (int i = 1; i < 3; i++) {
-        tetromino->set_mino_type(i);
-
-        render_mino_pattern(x, y + 9 * i + 3, tetromino->get_shape(),
-                            get_block_color(tetromino->get_mino_type()));
-    }
-    // 오른쪽 블럭 그리기
-    x = 80;
-    for (int i = 3; i < 7; i++) {
-        tetromino->set_mino_type(i);
-
-        render_mino_pattern(x, y + 7 * (i - 3), tetromino->get_shape(),
-                            get_block_color(tetromino->get_mino_type()));
-    }
-    // setting theme.
-
-    int theme_num = 0;
-    char c;
-    set_cursor(30, 10);
-    cout << "theme :  " << theme_num % 4 + 1;
-    setting_arrow(0);
-    set_cursor(30, 15);
-    cout << "ghost :  " << "on" << "         ";
-    while (true) {
-        c = _getch();
-        if (c == '\r') {
-            set_cursor(59, 10);
-            cout << "     ";
-            break;
-        };
-        if (c == '\t') {
-            theme_num++;
-            set_cursor(30, 10);
-            cout << "theme :  " << theme_num % 4 + 1;
-            setting_arrow(0);
-        }
-        /*
-        theme 설정
-        블럭 다시 그리기
-        */
-    }
-
-    // setting ghost
-    bool is_ghost = true;
-    set_cursor(30, 15);
-
-    cout << "ghost :  " << "on ";
-    setting_arrow(1);
-    while (true) {
-        c = _getch();
-        if (c == '\r') {
-            render_clear();
-            draw_logo(20, 7);
-
-            render_menu(2);
-            break;
-        };
-        if (c == '\t') {
-            theme_num++;
-            set_cursor(30, 15);
-            if (!is_ghost) {
-                cout << "ghost :  " << "on ";
-                is_ghost = true;
-            }
-
-            else {
-                cout << "ghost :  " << "off";
-                is_ghost = false;
-            }
-        }
-        /*
-        ghost 설정
-        블럭 다시 그리기
-        */
+void WindowRenderer::print_big_char(Pos pos, char c, ColorKey key)
+{
+    for (int i = 0; i < 5; ++i) {
+        set_cursor(pos.x, pos.y + i);
+        print_s(BIG_FONT[c - 'A'][i], key);
     }
 }
+
+void WindowRenderer::print_big_char(Pos pos, char c) { print_big_char(pos, c, get_random_color()); }
+
+void WindowRenderer::print_big_string(Pos pos, string& str, ColorKey key)
+{
+    for (int j = 0; j < str.size(); ++j) {
+        char c = str[j];
+        Pos next{pos.x + j * 6, pos.y};
+        print_big_char(next, c);
+    }
+}
+
+void WindowRenderer::print_big_string(Pos pos, string& str)
+{
+    for (int j = 0; j < str.size(); ++j) {
+        ColorKey random_color = get_random_color();
+        char c = str[j];
+        for (int i = 0; i < 5; ++i) {
+            set_cursor(pos.x + j * 6, pos.y + i);
+            print_s(BIG_FONT[c - 'A'][i], random_color);
+        }
+    }
+}
+
+void WindowRenderer::print_big_string(Pos pos, const char* str)
+{
+    string s;
+    s.assign(str);
+    print_big_string(pos, s);
+}
+
+void WindowRenderer::print_small_string(Pos pos, string& str, ColorKey key)
+{
+    set_cursor(pos.x, pos.y);
+    print_s(str, key);
+}
+
+void WindowRenderer::print_small_string(Pos pos, string& str)
+{
+    print_small_string(pos, str, get_random_color());
+}
+
+void WindowRenderer::print_small_string(Pos pos, const char* str)
+{
+    string s;
+    s.assign(str);
+    print_small_string(pos, s);
+}
+
+ColorKey WindowRenderer::get_random_color() { return static_cast<ColorKey>(dist(gen)); }

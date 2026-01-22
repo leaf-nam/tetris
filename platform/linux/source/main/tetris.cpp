@@ -13,7 +13,6 @@ int main()
 
     Setting* setting = new Setting();
     setting->nick_name = "Player";
-    setting->color_theme = ColorTheme::DRACULA;
     setting->server_ip_address = "127.0.0.1";
     setting->server_port = "41234";
 
