@@ -24,7 +24,7 @@ bool WindowIpResolver::start()
     int choice;
 
     while (true) {
-        cout << "1. open room, 2. enter room" << '\n';
+        printf("1. open room, 2. enter room\n");
         cin >> choice;
         if (choice == 1) {
             if(open_room())

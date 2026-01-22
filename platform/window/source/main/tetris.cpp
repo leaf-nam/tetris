@@ -258,7 +258,7 @@ AppState run_single_game()
         Sleep(1000);
     }
 
-    engine->run();
+    engine->run(false);
     engine->finish();
 
     box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
@@ -286,11 +286,11 @@ AppState run_multi_game()
     input = new WindowInput();
     network = new WindowNetwork();
     IIpResolver* ip_resolver = new WindowIpResolver();
+    bool is_server = false;
     engine = new MultiEngine(setting, input, renderer, network, ip_resolver);
-
-    renderer->render_clear();
-    renderer->render_background();
-    engine->run();
+    
+    is_server = ip_resolver->start();
+    engine->run(is_server);
     engine->finish();
     menu_renderer->render_game_over();
 

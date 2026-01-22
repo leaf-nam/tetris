@@ -109,18 +109,18 @@ void WindowRenderer::render_other_game_over(Packet& pkt)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
     set_cursor(start_x + 8, start_y + 10);
-    printf("%s%s%s", Color::RED, "GAMEOVER", Color::RESET);
+    printf("%s%s%s", RED, "GAMEOVER", RESET);
 }
 
 void WindowRenderer::render_win() {
     set_cursor(35, 6);
-    printf("%s%s%s", Color::GREEN, "WIN", Color::RESET);
+    printf("%s%s%s", GREEN, "WIN", RESET);
 }
 
 void WindowRenderer::render_other_win(Packet& pkt) {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
     set_cursor(start_x + 10, start_y - 1);
-    printf("%s%s%s", Color::GREEN, "WIN", Color::RESET);
+    printf("%s%s%s", GREEN, "WIN", RESET);
 }
 
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
