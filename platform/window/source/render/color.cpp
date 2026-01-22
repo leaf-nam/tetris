@@ -102,4 +102,4 @@ void Theme::set_solarized_dark_theme()
     set(ColorKey::YELLOW, {255, 220, 120});
 }
 
-const char* THEME[4] = {"DRACULA", "MONOKAI", "NORD", "SOLARIZED_DARK"};
+string THEME[4] = {"DRACULA", "MONOKAI", "NORD", "SOLARIZED_DARK"};

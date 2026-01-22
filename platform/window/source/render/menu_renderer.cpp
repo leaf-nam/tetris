@@ -71,7 +71,7 @@ void MenuRenderer::render_settings(SettingMenu menu, Setting& setting)
             value = " : " + setting.nick_name;
             break;
         case SettingMenu::THEME:
-            value = " : " + to_string(static_cast<int>(setting.color_theme));
+            value = " : " + THEME[static_cast<int>(setting.color_theme)];
             break;
         case SettingMenu::SHADOW:
             value = setting.shadow_on ? " : ON " : " : OFF";

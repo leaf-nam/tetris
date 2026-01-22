@@ -40,7 +40,7 @@ enum class ThemeKey : uint8_t
     SOLARIZED_DARK
 };
 
-extern const char* THEME[4];
+extern std::string THEME[4];
 
 class Theme
 {
