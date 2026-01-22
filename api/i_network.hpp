@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#define PORT 41234
+
 class INetwork
 {
   public:

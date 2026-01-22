@@ -12,9 +12,6 @@
 // [window] 링커 설정 (Visual Studio가 ws2_32.lib를 링크하도록 지시)
 #pragma comment(lib, "ws2_32.lib")
 
-#define PORT 41234
-// MAX_EVENTS는 epoll용이므로 삭제했습니다.
-
 class WindowNetwork : public INetwork
 {
 private:

@@ -4,28 +4,8 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-
-#pragma pack(push, 1)
-typedef struct _user_data
-{
-    char id[9];
-    bool is_enter; // true == enter, false == out
-}user_data;
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-typedef struct _room_data
-{
-    char room_master_id[9];
-    char id[4][9];
-    int id_len;
-    bool is_enter_not_success;
-    bool is_game_start;
-    bool is_broadcast;
-    bool is_update;
-    bool is_broadcast_delete;
-}room_data;
-#pragma pack(pop)
+#include "i_ip_resolver_network.hpp"
+#include "i_ip_resolver_renderer.hpp"
 
 class IIpResolver
 {
@@ -34,21 +14,12 @@ class IIpResolver
     std::unordered_map<std::string, std::string> client_ip_address; // server: key=>id, value=>ip / client: key=>room_host_id, value=>room_user_id
     char selected_server_ip_address[16];
     char my_id[9];
+    IIpResolverNetwork* ip_resolver_network;
   public:
     /**
      * @brief 현재 어떤 모드로 들어갈지 확인하는 함수
      */
     virtual bool start() = 0;
-
-    /**
-     * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
-     */
-    virtual bool open_room() = 0;
-
-    /**
-     * @brief (클라이언트)방에 입장하는 함수
-     */
-    virtual bool enter_room() = 0;
 
     /**
      * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수

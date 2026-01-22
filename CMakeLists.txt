@@ -59,6 +59,7 @@ elseif (WIN32)
         add_subdirectory(platform/window/source/render)
         add_subdirectory(platform/window/source/network)
         add_subdirectory(platform/window/source/ip_resolver)
+        add_subdirectory(platform/window/source/ip_resolver_network)
         add_subdirectory(platform/window/source/main)
         add_subdirectory(platform/window/source/util)
         #터미널 구조에 맞게 수정했습니다. 
