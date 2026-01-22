@@ -30,7 +30,9 @@ add_subdirectory(core/tetromino)
 #add_subdirectory(core/engine)
 #add_subdirectory(core/tetris)
 
-add_subdirectory(platform/window/util)
+if(WIN32)
+    add_subdirectory(platform/window/util)
+endif()
 
 add_executable(
     unit_test
@@ -47,9 +49,14 @@ target_link_libraries(
 #    engine_test
 #    tetris_test
     engine
-    shadow_maker_test
     GTest::gtest_main
 )
+
+if(WIN32)
+    target_link_libraries(unit_test 
+        shadow_maker_test
+)
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(unit_test)

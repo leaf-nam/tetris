@@ -31,17 +31,17 @@ TEST(DownI1, all)
     vector<Pos> shadows = sut.get_shadow_pos(board, tetromino);
 
     // then
-    EXPECT_EQ(sut.isShadow(shadows, {0, BOARD_ROW - 2}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {1, BOARD_ROW - 2}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {2, BOARD_ROW - 2}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {3, BOARD_ROW - 2}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {4, BOARD_ROW - 2}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {5, BOARD_ROW - 2}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {6, BOARD_ROW - 2}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {7, BOARD_ROW - 2}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {8, BOARD_ROW - 2}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {9, BOARD_ROW - 2}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {10, BOARD_ROW - 2}), false);
+    EXPECT_TRUE(sut.isShadow(shadows, {0, BOARD_ROW - 2}));
+    EXPECT_TRUE(sut.isShadow(shadows, {1, BOARD_ROW - 2}));
+    EXPECT_TRUE(sut.isShadow(shadows, {2, BOARD_ROW - 2}));
+    EXPECT_TRUE(sut.isShadow(shadows, {3, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {4, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {5, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {6, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {7, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {8, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {9, BOARD_ROW - 2}));
+    EXPECT_FALSE(sut.isShadow(shadows, {10, BOARD_ROW - 2}));
 }
 
 /*
@@ -69,15 +69,15 @@ TEST(DownI2, all)
     vector<Pos> shadows = sut.get_shadow_pos(board, tetromino);
 
     // then
-    EXPECT_EQ(sut.isShadow(shadows, {0, BOARD_ROW - 1}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {1, BOARD_ROW - 1}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {2, BOARD_ROW - 1}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {3, BOARD_ROW - 1}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {4, BOARD_ROW - 1}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {5, BOARD_ROW - 1}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {6, BOARD_ROW - 1}), true);
-    EXPECT_EQ(sut.isShadow(shadows, {7, BOARD_ROW - 1}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {8, BOARD_ROW - 1}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {9, BOARD_ROW - 1}), false);
-    EXPECT_EQ(sut.isShadow(shadows, {10, BOARD_ROW - 1}), false);
+    EXPECT_FALSE(sut.isShadow(shadows, {0, BOARD_ROW - 1}));
+    EXPECT_FALSE(sut.isShadow(shadows, {1, BOARD_ROW - 1}));
+    EXPECT_FALSE(sut.isShadow(shadows, {2, BOARD_ROW - 1}));
+    EXPECT_TRUE(sut.isShadow(shadows, {3, BOARD_ROW - 1}));
+    EXPECT_TRUE(sut.isShadow(shadows, {4, BOARD_ROW - 1}));
+    EXPECT_TRUE(sut.isShadow(shadows, {5, BOARD_ROW - 1}));
+    EXPECT_TRUE(sut.isShadow(shadows, {6, BOARD_ROW - 1}));
+    EXPECT_FALSE(sut.isShadow(shadows, {7, BOARD_ROW - 1}));
+    EXPECT_FALSE(sut.isShadow(shadows, {8, BOARD_ROW - 1}));
+    EXPECT_FALSE(sut.isShadow(shadows, {9, BOARD_ROW - 1}));
+    EXPECT_FALSE(sut.isShadow(shadows, {10, BOARD_ROW - 1}));
 }
