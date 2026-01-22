@@ -44,7 +44,6 @@ int main()
     SetConsoleMode(hOut, dwMode);
 
     menu_renderer = new MenuRenderer();
-    input = new WindowInput();
     setting = new Setting();
 
     setting->nick_name = "Player";
@@ -211,6 +210,7 @@ AppState run_settings()
 AppState run_single_game()
 {
     renderer = new WindowRenderer();
+    input = new WindowInput();
     engine = new SoloEngine(setting, input, renderer);
 
     renderer->render_clear();

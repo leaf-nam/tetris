@@ -191,7 +191,6 @@ void WindowRenderer::render_next_block(const int* tetrominoArray)
 
 void WindowRenderer::render_hold(const Tetromino& tetromino)
 {
-    if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
     render_mino_pattern({7, 11}, tetromino);
 }
 
@@ -212,6 +211,8 @@ void WindowRenderer::draw_ui_box(const string& title, int x, int y, int w, int h
 }
 void WindowRenderer::render_mino_pattern(Pos pos, const Tetromino& tetromino)
 {
+    if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
+
     string color = get_block_color(tetromino);
     string bg = get_color(ColorKey::BACKGROUND, true);
 
