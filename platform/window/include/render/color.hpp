@@ -7,18 +7,18 @@
 
 enum class ColorKey : uint8_t
 {
-    Background = 0,
-    Panel,
-    Foreground,
-    Comment,
+    BACKGROUND = 0,
+    PANEL,
+    FOREGROUND,
+    COMMENT,
 
-    Cyan,
-    Green,
-    Orange,
-    Pink,
-    Purple,
-    Red,
-    Yellow
+    CYAN,
+    GREEN,
+    ORANGE,
+    PINK,
+    PURPLE,
+    RED,
+    YELLOW
 };
 
 struct RGB
@@ -61,5 +61,9 @@ class Theme
 };
 
 inline std::string get_color(ColorKey key) { return Theme::getInstance().color(key); }
+inline std::string get_color(ColorKey key, bool background)
+{
+    return Theme::getInstance().color(key, background);
+}
 
 #endif

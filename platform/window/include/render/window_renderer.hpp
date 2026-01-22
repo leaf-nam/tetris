@@ -93,13 +93,13 @@ class WindowRenderer : public IRenderer
     void draw_logo(int x, int y);
 
   protected:
-    void clear();
     // display
     void draw_enemy_title(int x, int y);
     void draw_ui_box(const std::string& title, int x, int y, int w, int h, const char* color);
 
     // draw
     void render_mino_pattern(int x, int y, const Mino& shape, const char* color);
+    void render_mino_pattern(Pos pos, const Tetromino& tetromino);
     void draw_hold(const Mino& hold_shape);
 
     // hide, show cursor
@@ -109,16 +109,24 @@ class WindowRenderer : public IRenderer
     void setting_arrow(int point_cur_setting);
     void set_cursor(int x, int y);
 
+    void print_s(const char* const c, ColorKey key);
+    void print_s(std::string& s, ColorKey key);
+
     void print_big_char(Pos, char, ColorKey);
     void print_big_char(Pos, char);
-    void print_big_string(Pos, std::string, ColorKey);
-    void print_big_string(Pos, std::string);
-    void print_small_string(Pos, std::string, ColorKey);
-    void print_small_string(Pos, std::string);
+    void print_big_string(Pos, std::string&, ColorKey);
+    void print_big_string(Pos, std::string&);
+    void print_big_string(Pos, const char*);
+    void print_small_string(Pos, std::string&, ColorKey);
+    void print_small_string(Pos, std::string&);
+    void print_small_string(Pos pos, const char* str);
 
     ColorKey get_random_color();
 
     const char* get_block_color(int type);
+    std::string get_block_color(const Tetromino& tetromino);
+    ColorKey get_color_key(const Tetromino& tetromino);
+    ColorKey get_color_key(int type);
 };
 
 namespace color {

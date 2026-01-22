@@ -10,6 +10,10 @@ int logo_x = (is_single) ? 20 : 2;
 int board_x = (is_single) ? 35 : 25;
 int middle_x = (is_single) ? 80 : 58;
 
+static std::random_device rd;
+static std::mt19937 gen(rd());
+static std::uniform_int_distribution<int> dist(static_cast<int>(ColorKey::CYAN),
+                                               static_cast<int>(ColorKey::YELLOW));
 namespace color {
 const char* const RESET = "\x1b[0m";
 const char* const RED = "\x1b[31m";
@@ -90,36 +94,44 @@ using namespace color;
 
 const char* WindowRenderer::get_block_color(int type)
 {
+    return get_color(get_color_key(type)).c_str();
+}
+
+string WindowRenderer::get_block_color(const Tetromino& tetromino)
+{
+    return get_color(get_color_key(tetromino));
+}
+
+ColorKey WindowRenderer::get_color_key(const Tetromino& tetromino)
+{
+    return get_color_key(tetromino.get_mino_type());
+}
+
+ColorKey WindowRenderer::get_color_key(int type)
+{
     switch (type) {
-    case 0: // I 미노 (Cyan - 하늘색)
-        return "\x1b[96m";
+    case 0:
+        return ColorKey::CYAN;
     case 1: // O 미노 (Yellow - 노란색)
-        return "\x1b[93m";
+        return ColorKey::ORANGE;
     case 2: // Z 미노 (Red - 빨간색)
-        return "\x1b[91m";
+        return ColorKey::RED;
     case 3: // S 미노 (Green - 초록색)
-        return "\x1b[92m";
+        return ColorKey::GREEN;
     case 4: // J 미노 (Blue - 파란색)
-        return "\x1b[94m";
-    case 5:                // L 미노 (Orange -> 터미널은 보통 흰색 or 밝은 노랑으로 대체)
-        return "\x1b[37m"; // 흰색(White) 사용 (노란색 O와 구분하기 위해)
-    case 6:                // T 미노 (Purple - 보라색)
-        return "\x1b[95m";
+        return ColorKey::PINK;
+    case 5: // L 미노 (Orange -> 터미널은 보통 흰색 or 밝은 노랑으로 대체)
+        return ColorKey::YELLOW;
+    case 6: // T 미노 (Purple - 보라색)
+        return ColorKey::PURPLE;
     case 7: // 방해 블록 (Gray - 회색)
-        return "\x1b[90m";
+        return ColorKey::COMMENT;
     default: // 예외 (Reset)
-        return "\x1b[0m";
+        return ColorKey::BACKGROUND;
     }
 }
 
 void WindowRenderer::set_cursor(int x, int y) { printf("\033[%d;%dH", y + 1, x + 1); }
-
-void WindowRenderer::clear()
-{
-    printf("\033[2J\033[1;1H");
-    fflush(stdout);
-    printf("\e[?25l");
-}
 
 void WindowRenderer::draw_logo(int x, int y)
 {
@@ -160,23 +172,27 @@ void WindowRenderer::render_next_block(const int* tetrominoArray)
 {
     for (size_t i = 0; i < 3; ++i) {
         int wr = middle_x + 3, wc = 11;
-        const Mino& m1 = TETROMINO[tetrominoArray[0]][0];
-        const Mino& m2 = TETROMINO[tetrominoArray[1]][0];
-        const Mino& m3 = TETROMINO[tetrominoArray[2]][0];
+
+        Tetromino m1;
+        Tetromino m2;
+        Tetromino m3;
+        m1.init_mino(tetrominoArray[0]);
+        m2.init_mino(tetrominoArray[1]);
+        m3.init_mino(tetrominoArray[2]);
 
         // next mino
-        render_mino_pattern(wr, wc, m1, get_block_color(tetrominoArray[0]));
+        render_mino_pattern({wr, wc}, m1);
 
-        render_mino_pattern(wr, wc + 5, m2, get_block_color(tetrominoArray[1]));
+        render_mino_pattern({wr, wc + 5}, m2);
 
-        render_mino_pattern(wr, wc + 10, m3, get_block_color(tetrominoArray[2]));
+        render_mino_pattern({wr, wc + 10}, m3);
     }
 }
 
 void WindowRenderer::render_hold(const Tetromino& tetromino)
 {
     if (tetromino.get_mino_type() < 0 || tetromino.get_mino_type() > 6) return;
-    render_mino_pattern(7, 11, tetromino.get_shape(), get_block_color(tetromino.get_mino_type()));
+    render_mino_pattern({7, 11}, tetromino);
 }
 
 void WindowRenderer::draw_ui_box(const string& title, int x, int y, int w, int h, const char* color)
@@ -194,6 +210,27 @@ void WindowRenderer::draw_ui_box(const string& title, int x, int y, int w, int h
         cout << color << BOLD << "[" << title << "]" << RESET;
     }
 }
+void WindowRenderer::render_mino_pattern(Pos pos, const Tetromino& tetromino)
+{
+    string color = get_block_color(tetromino);
+    string bg = get_color(ColorKey::BACKGROUND, true);
+
+    for (int i = 0; i < 4; i++) {
+        string line;
+        for (int j = 0; j < 4; j++) {
+            if (tetromino.get_shape()[i][j] != 0) {
+                line += color + bg + "██";
+            }
+            else {
+                line += bg + "  ";
+            }
+        }
+
+        set_cursor(pos.x, pos.y + i);
+        printf("%s", line.c_str());
+    }
+}
+
 void WindowRenderer::render_mino_pattern(int x, int y, const Mino& shape, const char* color)
 {
     for (int i = 0; i < 4; i++) {
@@ -306,11 +343,11 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
 
             if (is_falling_block) {
                 // 떨어지는 블록 그리기
-                cout << get_block_color(block_type) << "██" << RESET;
+                print_s("██", get_color_key(tetromino));
             }
             else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
                 // 바닥에 쌓인 블록 그리기
-                cout << get_block_color(game_board[r][c]) << "██" << RESET;
+                print_s("██", get_color_key(game_board[r][c]));
             }
             else {
                 // 빈 공간
@@ -396,7 +433,14 @@ void WindowRenderer::render_ip_recv()
 
 void WindowRenderer::render_char(char c) { cout << c; }
 
-void WindowRenderer::render_clear() { system("cls"); }
+void WindowRenderer::render_clear()
+{
+    printf("\033[H");
+    printf("%s", Theme::getInstance().color(ColorKey::BACKGROUND, true).c_str());
+    printf("\033[2J");
+
+    fflush(stdout);
+}
 
 void WindowRenderer::setting_arrow(int point_cur_setting)
 { // 현재 수정중인 메뉴 화살표 출력 및 다른 설정 화살표 지우기
@@ -411,25 +455,25 @@ void WindowRenderer::setting_arrow(int point_cur_setting)
     }
 }
 
+void WindowRenderer::print_s(const char* const s, ColorKey key)
+{
+    printf("%s%s%s%s", get_color(key).c_str(), get_color(ColorKey::BACKGROUND, true).c_str(), s,
+           get_color(ColorKey::BACKGROUND).c_str());
+}
+
+void WindowRenderer::print_s(string& s, ColorKey key) { print_s(s.c_str(), key); }
+
 void WindowRenderer::print_big_char(Pos pos, char c, ColorKey key)
 {
     for (int i = 0; i < 5; ++i) {
         set_cursor(pos.x, pos.y + i);
-        printf("%s%s ", Theme::getInstance().color(key).c_str(), BIG_FONT[c - 'A'][i]); // T
+        print_s(BIG_FONT[c - 'A'][i], key);
     }
 }
 
-void WindowRenderer::print_big_char(Pos pos, char c)
-{
-    ColorKey random_color = get_random_color();
-    for (int i = 0; i < 5; ++i) {
-        set_cursor(pos.x, pos.y + i);
-        printf("%s%s ", Theme::getInstance().color(random_color).c_str(),
-               BIG_FONT[c - 'A'][i]); // T
-    }
-}
+void WindowRenderer::print_big_char(Pos pos, char c) { print_big_char(pos, c, get_random_color()); }
 
-void WindowRenderer::print_big_string(Pos pos, string str, ColorKey key)
+void WindowRenderer::print_big_string(Pos pos, string& str, ColorKey key)
 {
     for (int j = 0; j < str.size(); ++j) {
         char c = str[j];
@@ -438,32 +482,41 @@ void WindowRenderer::print_big_string(Pos pos, string str, ColorKey key)
     }
 }
 
-void WindowRenderer::print_big_string(Pos pos, string str)
+void WindowRenderer::print_big_string(Pos pos, string& str)
 {
     for (int j = 0; j < str.size(); ++j) {
         ColorKey random_color = get_random_color();
         char c = str[j];
         for (int i = 0; i < 5; ++i) {
             set_cursor(pos.x + j * 6, pos.y + i);
-            printf("%s%s ", Theme::getInstance().color(random_color).c_str(), BIG_FONT[c - 'A'][i]);
+            print_s(BIG_FONT[c - 'A'][i], random_color);
         }
     }
 }
 
-void WindowRenderer::print_small_string(Pos pos, string str, ColorKey key)
+void WindowRenderer::print_big_string(Pos pos, const char* str)
 {
-    set_cursor(pos.x, pos.y);
-    printf("%s%s%s", get_color(key).c_str(), str.c_str(), RESET);
+    string s;
+    s.assign(str);
+    print_big_string(pos, s);
 }
 
-void WindowRenderer::print_small_string(Pos pos, string str)
+void WindowRenderer::print_small_string(Pos pos, string& str, ColorKey key)
+{
+    set_cursor(pos.x, pos.y);
+    print_s(str, key);
+}
+
+void WindowRenderer::print_small_string(Pos pos, string& str)
 {
     print_small_string(pos, str, get_random_color());
 }
 
-static std::random_device rd;
-static std::mt19937 gen(rd());
-static std::uniform_int_distribution<int> dist(static_cast<int>(ColorKey::Cyan),
-                                               static_cast<int>(ColorKey::Yellow));
+void WindowRenderer::print_small_string(Pos pos, const char* str)
+{
+    string s;
+    s.assign(str);
+    print_small_string(pos, s);
+}
 
 ColorKey WindowRenderer::get_random_color() { return static_cast<ColorKey>(dist(gen)); }

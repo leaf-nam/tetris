@@ -10,4 +10,5 @@ class MenuRenderer : public WindowRenderer
     void render_menu(Menu);
     void render_settings_frame();
     void render_settings(SettingMenu, Setting&);
+    void render_side();
 };

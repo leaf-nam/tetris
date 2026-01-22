@@ -37,6 +37,11 @@ int main()
     // 윈도우 UTF8 인코딩 설정
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
 
     menu_renderer = new MenuRenderer();
     input = new WindowInput();
@@ -80,6 +85,7 @@ AppState run_menu()
 {
     Menu menu = Menu::SINGLE_PLAY;
 
+    menu_renderer->render_clear();
     menu_renderer->render_menu_frame();
     menu_renderer->render_menu(menu);
 
@@ -159,6 +165,7 @@ AppState run_settings()
             switch (menu) {
             case SettingMenu::THEME:
                 setting->color_theme = (setting->color_theme + 3) % 4;
+                menu_renderer->render_settings_frame();
                 break;
             case SettingMenu::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
@@ -173,6 +180,8 @@ AppState run_settings()
             switch (menu) {
             case SettingMenu::THEME:
                 setting->color_theme = (setting->color_theme + 1) % 4;
+                Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
+                menu_renderer->render_settings_frame();
                 break;
             case SettingMenu::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
