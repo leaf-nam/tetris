@@ -4,7 +4,14 @@
 #include "engine/engine.hpp"
 
 class SoloEngine : public Engine {
-    public:
+private:
+    Board board;
+    unique_ptr<GameRule> rule;
+    TetrominoQueue& tetromino_queue;
+    Timer& timer;
+    KeyMapper key_mapper;
+
+public:
     /**
      * @brief 게임 수행 전 필드 초기화(생성자)
      * @param 플랫폼 종속 인터페이스
@@ -13,14 +20,14 @@ class SoloEngine : public Engine {
     SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer);
 
     /**
-     * @brief 게임 메인루프
+     * @brief 게임 초기화
      */
-    void run() override;
+    void init() override;
 
     /**
-     * @brief 게임 메인루프 정지
+     * @brief 게임 로직 호출
      */
-    void stop() override;
+    void step() override;
 
     /**
      * @brief 게임 종료 시 메모리 및 기타 자원정리

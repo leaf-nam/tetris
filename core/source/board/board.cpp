@@ -8,6 +8,11 @@ using namespace std;
 
 Board::Board()
 {
+    init();
+}
+
+void Board::init()
+{
     is_mino_active = false;
 
     for (int r = 0; r < BOARD_ROW; ++r) {

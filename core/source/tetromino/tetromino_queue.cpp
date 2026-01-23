@@ -4,6 +4,11 @@ using namespace std;
 
 TetrominoQueue::TetrominoQueue()
 {
+    init();
+}
+
+void TetrominoQueue::init()
+{
     draw_count = 0;
 
     int size_of_tetrominos = sizeof(curr_tetrominos) / sizeof(curr_tetrominos[0]);

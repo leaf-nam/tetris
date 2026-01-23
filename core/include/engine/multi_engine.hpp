@@ -13,14 +13,14 @@ class MultiEngine : public Engine {
     MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network);
 
     /**
-     * @brief 게임 메인루프
+     * @brief 게임 초기화
      */
-    void run() override;
+    void init() override;
 
     /**
-     * @brief 게임 메인루프 정지
+     * @brief 게임 로직 호출
      */
-    void stop() override;
+    void step() override;
 
     /**
      * @brief 게임 종료 시 메모리 및 기타 자원정리

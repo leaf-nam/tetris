@@ -7,6 +7,17 @@
 #include <i_network.hpp>
 #include <i_renderer.hpp>
 
+struct Snapshot
+{
+  BoardT& board;
+  Tetromino& active_mino;
+  Tetromino& hold_mino;
+  const int * tetromino_queue;
+  int score;
+  int level;
+  int time;
+};
+
 class Engine
 {
   protected:
@@ -18,14 +29,14 @@ class Engine
   public:
     Engine(Setting*, IInputHandler*, IRenderer*, INetwork*);
     /**
-     * @brief 게임 메인루프
+     * @brief 게임 초기화
      */
-    virtual void run() = 0;
+    virtual void init() = 0;
 
     /**
-     * @brief 게임 메인루프 정지
+     * @brief 게임 로직 호출
      */
-    virtual void stop() = 0;
+    virtual void step() = 0;
 
     /**
      * @brief 게임 종료 시 메모리 및 기타 자원정리
