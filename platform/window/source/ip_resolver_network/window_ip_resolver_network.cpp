@@ -155,8 +155,10 @@ void WindowIpResolverNetwork::deserialize(const uint8_t* buf, room_data& pkt)
     const uint8_t* p = buf;
 
     read_bytes(p, pkt.room_master_id, 9);
+    pkt.room_master_id[8] = '\0';
     for (int i = 0; i < 4; ++i) {
         read_bytes(p, pkt.id[i], 9);
+        pkt.id[i][8] = '\0';
     }
     pkt.id_len = read_32b(p);
     pkt.is_enter_not_success = read_32b(p);
@@ -216,7 +218,7 @@ bool WindowIpResolverNetwork::recv_udp(user_data& ud, char* ip)
     else if (recv_result != USER_DATA_SIZE)
         return false;
 
-    inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
+    inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
     deserialize(buf, ud);
     return true;
 }
@@ -282,7 +284,7 @@ bool WindowIpResolverNetwork::recv_udp(room_data& rd, char* ip)
     else if (recv_result != ROOM_DATA_SIZE)
         return false;
 
-    inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
+    inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
     deserialize(buf, rd);
     return true;
 }
