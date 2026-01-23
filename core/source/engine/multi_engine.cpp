@@ -137,9 +137,10 @@ void MultiEngine::run(bool is_server)
         }
     }
 
-    while (active_user.size() > 1)
+    while (active_user.size() > 0)
     {
         if (network->recv_udp(recv_pkt)) {
+            if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
             renderer->render_other_board(recv_pkt);
             if (recv_pkt.is_game_over == 1) {
                 renderer->render_other_game_over(recv_pkt);
@@ -149,7 +150,6 @@ void MultiEngine::run(bool is_server)
                 renderer->render_other_win(recv_pkt);
                 break;
             }
-            if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
         }
     }
 }
@@ -161,6 +161,7 @@ int MultiEngine::finish()
     delete renderer;
     delete input_handler;
     delete network;
+    delete ip_resolver;
     return 0;
 }
 
