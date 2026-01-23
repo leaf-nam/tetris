@@ -17,4 +17,6 @@ target_link_libraries(tetris
         network
         ip_resolver
         ip_resolver_network
+        ip_resolver_renderer
+        ip_resolver_input_handler
 )

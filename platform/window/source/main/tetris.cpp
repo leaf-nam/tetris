@@ -10,7 +10,10 @@
 #include "render/window_multi_renderer.hpp"
 #include "render/window_renderer.hpp"
 #include "util/setting_storage.hpp"
-#include "ip_resolver/window_ip_resolver.hpp"
+#include "ip_resolver/ip_resolver.hpp"
+#include "ip_resolver_input_handler/window_ip_resolver_input_handler.hpp"
+#include "ip_resolver_network/window_ip_resolver_network.hpp"
+#include "ip_resolver_renderer/window_ip_resolver_renderer.hpp"
 
 #include <Windows.h>
 #include <chrono>
@@ -285,7 +288,7 @@ AppState run_multi_game()
     renderer = &window_renderer;
     input = new WindowInput();
     network = new WindowNetwork();
-    IIpResolver* ip_resolver = new WindowIpResolver();
+    IpResolver* ip_resolver = new IpResolver(new WindowIpResolverNetwork(), new WindowIpResolverRenderer(), new WindowIpResolverInputHandler());
     bool is_server = false;
     engine = new MultiEngine(setting, input, renderer, network, ip_resolver);
     

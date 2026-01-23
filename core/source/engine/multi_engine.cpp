@@ -14,7 +14,7 @@
 
 using namespace std;
 
-MultiEngine::MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, IIpResolver* ip_resolver) : 
+MultiEngine::MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, IpResolver* ip_resolver) : 
     Engine(setting, input_handler, renderer, network, ip_resolver) {}
 
 void MultiEngine::run(bool is_server)
