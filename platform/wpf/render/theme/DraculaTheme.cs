@@ -10,32 +10,32 @@ namespace wpf.render.theme
 {
     public sealed class DraculaTheme : IColorTheme
     {
-        private static readonly Dictionary<ColorKey, string> colors =
+        private static readonly Dictionary<Color, string> colors =
             new()
             {
-                [ColorKey.Background] = "#282A36",
-                [ColorKey.Panel] = "#44475A",
-                [ColorKey.Foreground] = "#F8F8F2",
-                [ColorKey.Comment] = "#6272A4",
+                [Color.Background] = "#282A36",
+                [Color.Panel] = "#44475A",
+                [Color.Foreground] = "#F8F8F2",
+                [Color.Comment] = "#6272A4",
 
-                [ColorKey.Cyan] = "#8BE9FD",
-                [ColorKey.Green] = "#50FA7B",
-                [ColorKey.Orange] = "#FFB86C",
-                [ColorKey.Pink] = "#FF79C6",
-                [ColorKey.Purple] = "#BD93F9",
-                [ColorKey.Red] = "#FF5555",
-                [ColorKey.Yellow] = "#F1FA8C",
+                [Color.Cyan] = "#8BE9FD",
+                [Color.Green] = "#50FA7B",
+                [Color.Orange] = "#FFB86C",
+                [Color.Pink] = "#FF79C6",
+                [Color.Purple] = "#BD93F9",
+                [Color.Red] = "#FF5555",
+                [Color.Yellow] = "#F1FA8C",
 
-                [ColorKey.Accent1] = "#F1FA8C",
-                [ColorKey.Accent2] = "#FFD866",
-                [ColorKey.Accent3] = "#FFF59D",
-                [ColorKey.Accent4] = "#E6DB74",
-                [ColorKey.Accent5] = "#FFCC66",
-                [ColorKey.Accent6] = "#FAF3C0",
-                [ColorKey.Accent7] = "#EAFD5E",
+                [Color.Accent1] = "#F1FA8C",
+                [Color.Accent2] = "#FFD866",
+                [Color.Accent3] = "#FFF59D",
+                [Color.Accent4] = "#E6DB74",
+                [Color.Accent5] = "#FFCC66",
+                [Color.Accent6] = "#FAF3C0",
+                [Color.Accent7] = "#EAFD5E",
             };
 
-        public Brush Get(ColorKey key) => (Brush)new BrushConverter().ConvertFromString(colors[key]);
+        public Brush Get(Color key) => (Brush)new BrushConverter().ConvertFromString(colors[key]);
 
     }
 }

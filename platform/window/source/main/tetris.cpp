@@ -6,12 +6,12 @@
 #include "render/color.hpp"
 #include "render/menu.hpp"
 #include "render/menu_renderer.hpp"
+#include "render/render_factory.hpp"
 #include "render/window_renderer.hpp"
 
 #include <Windows.h>
 #include <conio.h>
 
-static MenuRenderer* menu_renderer;
 static IInputHandler* input;
 static IRenderer* renderer;
 static Engine* engine;
@@ -37,20 +37,18 @@ int main()
     // 윈도우 UTF8 인코딩 설정
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD dwMode = 0;
-    GetConsoleMode(hOut, &dwMode);
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    SetConsoleMode(hOut, dwMode);
 
     setting = new Setting();
-    menu_renderer = new MenuRenderer(*setting);
-
     setting->nick_name = "Player";
     setting->shadow_on = true;
     setting->color_theme = 0;
     setting->server_ip_address = "127.0.0.1";
     setting->server_port = "41234";
+
+    RenderFactory& render_factory = RenderFactory::getInstance();
+    render_factory.initialize(setting);
+
+    MenuRenderer menu_renderer = render_factory.create_menu_renderer();
 
     Theme::getInstance();
     AppState state = AppState::MENU;
@@ -85,9 +83,11 @@ AppState run_menu()
 {
     Menu menu = Menu::SINGLE_PLAY;
 
-    menu_renderer->render_clear();
-    menu_renderer->render_menu_frame();
-    menu_renderer->render_menu(menu);
+    RenderFactory& render_factory = RenderFactory::getInstance();
+    MenuRenderer menu_renderer = render_factory.create_menu_renderer();
+
+    menu_renderer.render_menu_frame();
+    menu_renderer.render_menu(menu);
 
     while (true) {
         char in = _getch();
@@ -116,7 +116,7 @@ AppState run_menu()
         else if (in == 27) // esc
             return AppState::EXIT;
 
-        menu_renderer->render_menu(menu);
+        menu_renderer.render_menu(menu);
     }
 }
 
@@ -124,9 +124,11 @@ AppState run_settings()
 {
     SettingMenu menu = SettingMenu::NICKNAME;
 
-    menu_renderer->render_clear();
-    menu_renderer->render_settings_frame();
-    menu_renderer->render_settings(menu, *setting);
+    RenderFactory render_factory = RenderFactory::getInstance();
+    MenuRenderer menu_renderer = render_factory.create_menu_renderer();
+
+    menu_renderer.render_settings_frame();
+    menu_renderer.render_settings(menu);
 
     bool finish = false;
     while (!finish) {
@@ -146,7 +148,7 @@ AppState run_settings()
             case SettingMenu::THEME: {
                 setting->color_theme = (setting->color_theme + 1) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
-                menu_renderer->render_settings_frame();
+                menu_renderer.render_settings_frame();
                 break;
             }
             case SettingMenu::SHADOW: {
@@ -168,7 +170,7 @@ AppState run_settings()
             case SettingMenu::THEME:
                 setting->color_theme = (setting->color_theme + 3) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
-                menu_renderer->render_settings_frame();
+                menu_renderer.render_settings_frame();
                 break;
             case SettingMenu::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
@@ -184,7 +186,7 @@ AppState run_settings()
             case SettingMenu::THEME:
                 setting->color_theme = (setting->color_theme + 1) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
-                menu_renderer->render_settings_frame();
+                menu_renderer.render_settings_frame();
                 break;
             case SettingMenu::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
@@ -205,7 +207,7 @@ AppState run_settings()
         else if (in == 27)
             return AppState::EXIT;
 
-        menu_renderer->render_settings(menu, *setting);
+        menu_renderer.render_settings(menu);
     }
 
     return AppState::MENU;
@@ -213,7 +215,10 @@ AppState run_settings()
 
 AppState run_single_game()
 {
-    renderer = new WindowRenderer(*setting);
+    RenderFactory& render_factory = RenderFactory::getInstance();
+
+    WindowRenderer window_renderer = render_factory.create_window_renderer();
+    renderer = &window_renderer;
     input = new WindowInput();
     engine = new SoloEngine(setting, input, renderer);
 
@@ -232,9 +237,10 @@ AppState run_single_game()
 
 AppState run_multi_game()
 {
-    menu_renderer->render_clear();
+    RenderFactory& render_factory = RenderFactory::getInstance();
 
-    renderer = new WindowRenderer(*setting);
+    WindowRenderer window_renderer = render_factory.create_window_renderer();
+    renderer = &window_renderer;
     INetwork* network = new WindowNetwork();
 
     engine = new MultiEngine(setting, input, renderer, network);
@@ -246,7 +252,6 @@ AppState run_multi_game()
     }
     
     engine->finish();
-    menu_renderer->render_game_over();
 
     (void) _getch();
 

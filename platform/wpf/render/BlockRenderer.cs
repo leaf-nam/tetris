@@ -20,13 +20,13 @@ namespace wpf.render
 
         static readonly Brush[] BlockColors =
 {
-            CustomColors.Theme.Get(ColorKey.Accent1),
-            CustomColors.Theme.Get(ColorKey.Accent2),
-            CustomColors.Theme.Get(ColorKey.Accent3),
-            CustomColors.Theme.Get(ColorKey.Accent4),
-            CustomColors.Theme.Get(ColorKey.Accent5),
-            CustomColors.Theme.Get(ColorKey.Accent6),
-            CustomColors.Theme.Get(ColorKey.Accent7)
+            CustomColors.Theme.Get(Color.Accent1),
+            CustomColors.Theme.Get(Color.Accent2),
+            CustomColors.Theme.Get(Color.Accent3),
+            CustomColors.Theme.Get(Color.Accent4),
+            CustomColors.Theme.Get(Color.Accent5),
+            CustomColors.Theme.Get(Color.Accent6),
+            CustomColors.Theme.Get(Color.Accent7)
         };
 
         static readonly Random rng = new Random();
@@ -217,7 +217,7 @@ namespace wpf.render
             int dropY = CalculateDropY(board, tetromino);
 
             // 2. 예상 위치 블록 그리기 (반투명)
-            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, dropY, CustomColors.Theme.Get(ColorKey.Comment));
+            DrawTetromino(Tetrominos.All[tetromino.type].Rotations[tetromino.rotation], tetromino.x - 1, dropY, CustomColors.Theme.Get(Color.Comment));
         }
 
         private int CalculateDropY(BoardWrapper board, TetrominoWrapper tetromino)
@@ -267,14 +267,14 @@ namespace wpf.render
         {
             switch (type)
             {
-                case 0: return CustomColors.Theme.Get(ColorKey.Accent1);
-                case 1: return CustomColors.Theme.Get(ColorKey.Accent2);
-                case 2: return CustomColors.Theme.Get(ColorKey.Accent3);
-                case 3: return CustomColors.Theme.Get(ColorKey.Accent4);
-                case 4: return CustomColors.Theme.Get(ColorKey.Accent5);
-                case 5: return CustomColors.Theme.Get(ColorKey.Accent6);
-                case 6: return CustomColors.Theme.Get(ColorKey.Accent7);
-                case 7: return CustomColors.Theme.Get(ColorKey.Comment);
+                case 0: return CustomColors.Theme.Get(Color.Accent1);
+                case 1: return CustomColors.Theme.Get(Color.Accent2);
+                case 2: return CustomColors.Theme.Get(Color.Accent3);
+                case 3: return CustomColors.Theme.Get(Color.Accent4);
+                case 4: return CustomColors.Theme.Get(Color.Accent5);
+                case 5: return CustomColors.Theme.Get(Color.Accent6);
+                case 6: return CustomColors.Theme.Get(Color.Accent7);
+                case 7: return CustomColors.Theme.Get(Color.Comment);
                 default: throw new ArgumentOutOfRangeException();
             }
         }

@@ -68,7 +68,7 @@ namespace wpf
                 if (_shadowEnabled)
                 {
                     tetromino.y++;
-                    leftRenderer.DrawTetromino(tetromino, CustomColors.Theme.Get(ColorKey.Comment));
+                    leftRenderer.DrawTetromino(tetromino, CustomColors.Theme.Get(Color.Comment));
                     tetromino.y--;
                 }
 
@@ -91,7 +91,7 @@ namespace wpf
                 if (_shadowEnabled)
                 {
                     tetromino.y++;
-                    rightRenderer.DrawTetromino(tetromino, CustomColors.Theme.Get(ColorKey.Comment));
+                    rightRenderer.DrawTetromino(tetromino, CustomColors.Theme.Get(Color.Comment));
                     tetromino.y--;
                 }
 
