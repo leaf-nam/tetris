@@ -119,6 +119,7 @@ void MultiEngine::run(bool is_server)
                 else
                     network->send_udp(board, board.get_active_mino(), attack, 0, 1,
                                       ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
+                break;
             }
 
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
@@ -144,8 +145,10 @@ void MultiEngine::run(bool is_server)
                 renderer->render_other_game_over(recv_pkt);
                 active_user.erase(std::string(recv_pkt.id));
             }
-            if (recv_pkt.is_win == 1)
+            if (recv_pkt.is_win == 1) {
                 renderer->render_other_win(recv_pkt);
+                break;
+            }
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
         }
     }
