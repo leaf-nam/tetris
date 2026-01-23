@@ -1,40 +1,43 @@
 #ifndef __WINDOW_RENDERER_H__
 #define __WINDOW_RENDERER_H__
 
-#include "board/board.hpp"
-#include "render/color.hpp"
-#include "render/pos.hpp"
-#include "tetromino/tetromino.hpp"
-#include "util/setting.hpp"
+#include "block_renderer.hpp"
+#include "box_renderer.hpp"
+#include "color.hpp"
+#include "color_picker.hpp"
+#include "console_renderer.hpp"
+#include "input_window_renderer.hpp"
+#include "pos.hpp"
+#include "text_renderer.hpp"
+#include "theme.hpp"
+#include "util/shadow_maker.hpp"
 
+#include <board/board.hpp>
 #include <cstdint>
 #include <cstdio>
 #include <i_renderer.hpp>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <tetromino/tetromino.hpp>
+#include <util/setting.hpp>
 #include <vector>
-
-// --- 상수 정의 ---
-static const uint16_t LEFT_EDGE = 1u << 12;
-static const uint16_t RIGHT_EDGE = 1u << 3;
-
-// --- 색상 네임스페이스 ---
-namespace Color {
-extern const char* const RESET;
-extern const char* const RED;
-extern const char* const GREEN;
-extern const char* const YELLOW;
-extern const char* const CYAN;
-extern const char* const PURPLE;
-extern const char* const GRAY;
-extern const char* const BOLD;
-} // namespace Color
 
 class WindowRenderer : public IRenderer
 {
+  private:
+    Setting* setting;
+    ConsoleRenderer console_renderer;
+    ColorPicker color_picker;
+    TextRenderer text_renderer;
+    BoxRenderer box_renderer;
+    BlockRenderer block_renderer;
+    InputWindowRenderer input_window_renderer;
+    ShadowMaker shadow_maker;
+
   public:
-    WindowRenderer(Setting);
+    WindowRenderer(Setting*, ConsoleRenderer, ColorPicker, TextRenderer, BoxRenderer, BlockRenderer,
+                   InputWindowRenderer, ShadowMaker);
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
@@ -82,76 +85,11 @@ class WindowRenderer : public IRenderer
     virtual ~WindowRenderer() override;
 
     void render_other_board(Packet& pkt) override;
+
     void render_ip_recv() override;
 
     void render_char(char c) override;
 
     void render_clear() override;
-
-    void render_game_over();
-
-    void render_solo_background();
-
-    void draw_logo(int x, int y);
-
-  protected:
-    Setting setting;
-
-    // display
-    void draw_enemy_title(int x, int y);
-    void draw_ui_box(const std::string& title, int x, int y, int w, int h, const char* color);
-
-    // draw
-    void render_mino_pattern(int x, int y, const Mino& shape, const char* color);
-    void render_mino_pattern(Pos pos, const Tetromino& tetromino);
-    void draw_hold(const Mino& hold_shape);
-
-    // hide, show cursor
-    void show_cursor();
-    void hide_cursor();
-
-    void setting_arrow(int point_cur_setting);
-    void set_cursor(int x, int y);
-
-    void print_s(const char* const c, ColorKey key);
-    void print_s(std::string& s, ColorKey key);
-    void print_s(std::string& s);
-
-    void print_big_char(Pos, char, ColorKey);
-    void print_big_char(Pos, char);
-    void print_big_string(Pos, std::string&, ColorKey);
-    void print_big_string(Pos, std::string&);
-    void print_big_string(Pos, const char*);
-    void print_small_string(Pos, std::string&, ColorKey);
-    void print_small_string(Pos, std::string&);
-    void print_small_string(Pos pos, const char* str);
-
-    ColorKey get_random_color();
-
-    std::string get_block_color(int type);
-    std::string get_block_color(const Tetromino& tetromino);
-    ColorKey get_color_key(const Tetromino& tetromino);
-    ColorKey get_color_key(int type);
 };
-
-namespace color {
-extern const char* const RESET;
-extern const char* const RED;
-extern const char* const GREEN;
-extern const char* const YELLOW;
-extern const char* const CYAN;
-extern const char* const PURPLE;
-extern const char* const GRAY;
-extern const char* const BOLD;
-} // namespace color
-
-extern const char* const BIG_T[];
-extern const char* const BIG_E[];
-extern const char* const BIG_R[];
-extern const char* const BIG_I[];
-extern const char* const BIG_S[];
-extern const char* const BIG_N[];
-extern const char* const BIG_M[];
-extern const char* const BIG_Y[];
-extern const char* const BIG_G[];
 #endif

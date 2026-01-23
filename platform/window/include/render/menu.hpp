@@ -28,7 +28,6 @@ enum class SettingMenu
 };
 
 extern int menu_size;
-
 extern const char* MENU[4];
 extern const char* SETTING_MENU[4];
 
