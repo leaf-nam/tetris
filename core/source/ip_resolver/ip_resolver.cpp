@@ -21,7 +21,7 @@ bool IpResolver::start()
 
     while (true) {
         ip_resolver_renderer->render_select();
-        choice = ip_resolver_input_handler->scan(&choice, 1);
+        ip_resolver_input_handler->scan(&choice, 1);
         if (choice == 1) {
             if (open_room()) return true;
         }
@@ -36,13 +36,13 @@ bool IpResolver::start()
  */
 bool IpResolver::open_room()
 {
-    char buffer[1024];
+    char buffer[BUF_SIZE];
     char broadcast_ip[16];
     std::chrono::steady_clock::time_point base_time;
     int index = 0;
     int room_user_index = 0;
     bool is_game_start = false;
-    char s[1024];
+    char s[BUF_SIZE];
     char ip[16];
 
     memset(my_id, 0, sizeof(my_id));
@@ -114,7 +114,7 @@ bool IpResolver::enter_room()
     int room_user_index = 0;
     bool is_in_room = false;
     bool is_game_start = false;
-    char s[1024];
+    char s[BUF_SIZE];
     char room_ip[16];
 
     memset(my_id, 0, sizeof(my_id));

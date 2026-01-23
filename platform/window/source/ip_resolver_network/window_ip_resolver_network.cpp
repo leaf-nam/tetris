@@ -171,7 +171,7 @@ void WindowIpResolverNetwork::send_udp(const char* id, int is_enter, const char*
     SOCKADDR_IN addr;
     int addr_len;
     user_data data{};
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[USER_DATA_SIZE];
     int send_result;
 
     ZeroMemory(&addr, sizeof(addr));
@@ -184,18 +184,16 @@ void WindowIpResolverNetwork::send_udp(const char* id, int is_enter, const char*
     data.is_enter = is_enter;
     serialize(buf, data);
 
-    send_result = sendto(sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &addr,
+    send_result = sendto(sock, (char*) buf, USER_DATA_SIZE, 0, (SOCKADDR*) &addr,
                              sizeof(addr));
-    if (send_result == SOCKET_ERROR)
-        perror("sendto failed: ");
+    if (send_result == SOCKET_ERROR) printf("sendto failed: %d\n", send_result);
 }
 
 bool WindowIpResolverNetwork::recv_udp(user_data& ud, char* ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
-    user_data data{};
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[USER_DATA_SIZE];
     int recv_result;
     int recv_err;
 
@@ -203,19 +201,19 @@ bool WindowIpResolverNetwork::recv_udp(user_data& ud, char* ip)
     addr_len = sizeof(addr);
     memset(buf, 0, sizeof(buf));
     
-    recv_result = recvfrom(sock, (char*) buf, sizeof(buf) - 1, 0, (SOCKADDR*) &addr, &addr_len);
+    recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
     recv_err = (recv_result == SOCKET_ERROR) ? WSAGetLastError() : 0;
     if (recv_result == SOCKET_ERROR) {
-        if (recv_err == WSAEWOULDBLOCK)
+        if (recv_err == WSAEWOULDBLOCK || recv_err == WSAEMSGSIZE)
             // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
             return false;
         else {
             // 진짜 에러 발생
-            perror("recvfrom failed: ");
+            printf("recvfrom failed: %d\n", recv_err);
             return false;
         }
     }
-    else if (recv_result != sizeof(user_data))
+    else if (recv_result != sizeof(USER_DATA_SIZE))
         return false;
 
     inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
@@ -232,7 +230,7 @@ void WindowIpResolverNetwork::send_udp(const char* room_master_id,
     SOCKADDR_IN addr;
     int addr_len;
     room_data data{};
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[ROOM_DATA_SIZE];
     int send_result;
     int index = 0;
 
@@ -253,16 +251,15 @@ void WindowIpResolverNetwork::send_udp(const char* room_master_id,
     data.is_broadcast_delete = is_broadcast_delete;
     serialize(buf, data);
 
-    send_result = sendto(sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &addr, sizeof(addr));
-    if (send_result == SOCKET_ERROR) perror("sendto failed: ");
+    send_result = sendto(sock, (char*) buf, ROOM_DATA_SIZE, 0, (SOCKADDR*) &addr, sizeof(addr));
+    if (send_result == SOCKET_ERROR) printf("sendto failed: %d\n", send_result);
 }
 
 bool WindowIpResolverNetwork::recv_udp(room_data& rd, char* ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
-    user_data data{};
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[ROOM_DATA_SIZE];
     int recv_result;
     int recv_err;
 
@@ -270,19 +267,19 @@ bool WindowIpResolverNetwork::recv_udp(room_data& rd, char* ip)
     addr_len = sizeof(addr);
     memset(buf, 0, sizeof(buf));
 
-    recv_result = recvfrom(sock, (char*) buf, sizeof(buf) - 1, 0, (SOCKADDR*) &addr, &addr_len);
+    recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
     recv_err = (recv_result == SOCKET_ERROR) ? WSAGetLastError() : 0;
     if (recv_result == SOCKET_ERROR) {
-        if (recv_err == WSAEWOULDBLOCK)
+        if (recv_err == WSAEWOULDBLOCK || recv_err == WSAEMSGSIZE)
             // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
             return false;
         else {
             // 진짜 에러 발생
-            perror("recvfrom failed: ");
+            printf("recvfrom failed: %d\n", recv_err);
             return false;
         }
     }
-    else if (recv_result != sizeof(room_data))
+    else if (recv_result != sizeof(ROOM_DATA_SIZE))
         return false;
 
     inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));

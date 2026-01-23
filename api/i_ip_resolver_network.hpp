@@ -4,27 +4,10 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <util/network_packet.hpp>
 
 #define ROOM_PORT 44111
-#define PACKET_SIZE 1024
-
-typedef struct _user_data
-{
-    char id[9];
-    int is_enter; // true == enter, false == out
-} user_data;
-
-typedef struct _room_data
-{
-    char room_master_id[9];
-    char id[4][9];
-    int id_len;
-    int is_enter_not_success;
-    int is_game_start;
-    int is_broadcast;
-    int is_update;
-    int is_broadcast_delete;
-} room_data;
+#define BUF_SIZE 1024
 
 class IIpResolverNetwork
 {
