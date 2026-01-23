@@ -293,6 +293,7 @@ AppState run_multi_game()
     engine = new MultiEngine(setting, input, renderer, network, ip_resolver);
     
     is_server = ip_resolver->start();
+    menu_renderer->render_clear();
     engine->run(is_server);
     engine->finish();
     menu_renderer->render_game_over();

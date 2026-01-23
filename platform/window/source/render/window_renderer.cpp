@@ -185,14 +185,14 @@ void WindowRenderer::render_other_board(Packet& pkt)
     string mino_color = get_block_color(mino_type); // 기존에 만든 색상 함수 활용
 
     set_cursor(start_x, start_y - 1);
-    cout << pkt.id << '\n';
+    print_s(pkt.id, ColorKey::FOREGROUND);
     set_cursor(start_x, start_y);
-    cout << BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << RESET;
-
+    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
+    
     // 행 루프 (2~21)
     for (int r = 0; r < 20; ++r) {
         set_cursor(start_x, start_y + (r + 1));
-        cout << BOLD << "┃ " << RESET;
+        print_s(" █", ColorKey::FOREGROUND);
 
         // 열 루프 (0~9)
         for (int c = 0; c < 10; ++c) {
@@ -216,26 +216,25 @@ void WindowRenderer::render_other_board(Packet& pkt)
             }
 
             // --- 그리기 로직 ---
-
             if (is_falling_block) {
                 // 떨어지는 블록 그리기
-                cout << get_block_color(pkt.type) << "██" << RESET;
+                print_s("██", get_color_key(pkt.type));
             }
             else if (pkt.board[r][c] < 8 && pkt.board[r][c] > -1) {
                 // 바닥에 쌓인 블록 그리기
-                cout << get_block_color(pkt.board[r][c]) << "██" << RESET;
+                print_s("██", get_color_key(pkt.board[r][c]));
             }
             else {
                 // 빈 공간
-                cout << GRAY << ". " << RESET;
+                print_s("  ", ColorKey::BACKGROUND);
             }
         }
 
-        cout << BOLD << " ┃" << RESET;
+        print_s("█ ", ColorKey::FOREGROUND);
     }
 
     set_cursor(start_x, start_y + 21);
-    cout << BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << RESET;
+    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
 }
 
 void WindowRenderer::render_ip_recv()
