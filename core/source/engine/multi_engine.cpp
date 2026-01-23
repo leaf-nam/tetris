@@ -11,6 +11,8 @@
 #include <chrono>
 #include <random>
 #include <thread>
+#include <vector>
+#include <string>
 
 using namespace std;
 
@@ -25,6 +27,7 @@ void MultiEngine::run(bool is_server)
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
     std::vector<std::pair<std::string, std::string>> ids_ips = ip_resolver->get_client_ids_ips();
+    std::unordered_map<std::string, std::string> active_user = ip_resolver->get_ids(is_server);
     PacketStruct recv_pkt;
     int curr_mino = 0;
     int action;
@@ -33,7 +36,6 @@ void MultiEngine::run(bool is_server)
     int key;
     int index = 0;
     char c;
-    int active_user = ids_ips.size() + 1;
 
     renderer->render_background();
     renderer->render_board(board, board.get_active_mino());
@@ -57,7 +59,7 @@ void MultiEngine::run(bool is_server)
                     network->send_udp(board, board.get_active_mino(), attack, 1, 0,
                                       ip_resolver->get_server_ip_address(),
                                       ip_resolver->get_my_id());
-                active_user--;
+                active_user.erase(ip_resolver->get_my_id());
                 renderer->render_game_over();
                 break;
             }
@@ -104,10 +106,10 @@ void MultiEngine::run(bool is_server)
 
             if (recv_pkt.is_game_over == 1) {
                 renderer->render_other_game_over(recv_pkt);
-                active_user--;
+                active_user.erase(std::string(recv_pkt.id));
             }
 
-            if (active_user == 1)
+            if (active_user.size() == 1)
             {
                 renderer->render_win();
                 attack = rule->update_score();
@@ -134,18 +136,16 @@ void MultiEngine::run(bool is_server)
         }
     }
 
-    while (active_user > 0)
+    while (active_user.size() > 0)
     {
         if (network->recv_udp(recv_pkt)) {
             renderer->render_other_board(recv_pkt);
             if (recv_pkt.is_game_over == 1) {
                 renderer->render_other_game_over(recv_pkt);
-                active_user--;
+                active_user.erase(std::string(recv_pkt.id));
             }
             if (recv_pkt.is_win == 1)
-            {
                 renderer->render_other_win(recv_pkt);
-            }
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
         }
     }

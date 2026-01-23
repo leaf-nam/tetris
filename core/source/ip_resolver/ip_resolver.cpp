@@ -220,6 +220,22 @@ std::vector<std::pair<std::string, std::string>> IpResolver::get_client_ids_ips(
 }
 
 /**
+ * @brief 저장된 전체 id들을 반환하는 함수
+ */
+std::unordered_map<std::string, std::string> IpResolver::get_ids(bool is_server)
+{
+    std::unordered_map<std::string, std::string> m;
+    for (const auto& [key, value] : client_ip_address) {
+        m[key] = "";
+        if (is_server == false)
+            m[value] = "";
+    }
+    if (is_server)
+        m[std::string(my_id)] = "";
+    return m;
+}
+
+/**
  * @brief 저장된 서버 ip 주소를 반환하는 함수
  */
 const char* IpResolver::get_server_ip_address() { return selected_server_ip_address; }

@@ -57,6 +57,11 @@ class IpResolver
     std::vector<std::pair<std::string, std::string>> get_client_ids_ips();
 
     /**
+     * @brief 저장된 전체 id들을 반환하는 함수
+     */
+    std::unordered_map<std::string, std::string> get_ids(bool is_server);
+
+    /**
      * @brief 저장된 서버 ip 주소를 반환하는 함수
      */
     const char* get_server_ip_address();
