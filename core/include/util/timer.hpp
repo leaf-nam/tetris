@@ -15,6 +15,7 @@ class Timer
     static Timer& get_instance();
 	Timer(const Timer&) = delete;
 	Timer& operator=(const Timer&) = delete;
+    void init();
     void set_curr_time();
     bool check_500ms_time();
     int get_seconds();
