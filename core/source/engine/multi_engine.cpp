@@ -136,7 +136,7 @@ void MultiEngine::run(bool is_server)
         }
     }
 
-    while (active_user.size() > 0)
+    while (active_user.size() > 1)
     {
         if (network->recv_udp(recv_pkt)) {
             renderer->render_other_board(recv_pkt);

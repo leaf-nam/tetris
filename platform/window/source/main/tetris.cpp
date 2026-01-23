@@ -296,7 +296,6 @@ AppState run_multi_game()
     menu_renderer->render_clear();
     engine->run(is_server);
     engine->finish();
-    menu_renderer->render_game_over();
 
     (void) _getch();
 
