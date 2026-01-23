@@ -2,6 +2,17 @@
 #define __SOLO_ENGINE_HPP__
 
 #include "engine/engine.hpp"
+#include "board/board.hpp"
+#include "game_rule/key_mapper.hpp"
+#include "game_rule/rule_factory.hpp"
+#include "tetromino/tetromino_queue.hpp"
+#include "util/action.hpp"
+#include "util/timer.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <thread>
 
 class SoloEngine : public Engine {
 private:
@@ -36,11 +47,6 @@ public:
      * @return 게임 비정상 종료 시 에러코드 반환
      */
     int finish() override;
-
-    /**
-     * @brief 게임 화면 업데이트
-     */
-    void render() override;
 
     /**
      * @brief 게임 엔진 및 멤버 변수 정리(소멸자)

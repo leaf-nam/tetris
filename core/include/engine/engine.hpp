@@ -42,11 +42,6 @@ class Engine
     virtual int finish() = 0;
 
     /**
-     * @brief 게임 화면 업데이트
-     */
-    virtual void render() = 0;
-
-    /**
      * @brief 게임 엔진 및 멤버 변수 정리(소멸자)
      */
     ~Engine() = default;

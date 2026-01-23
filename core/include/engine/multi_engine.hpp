@@ -2,6 +2,17 @@
 #define __MULTI_ENGINE_HPP__
 
 #include "engine/engine.hpp"
+#include "board/board.hpp"
+#include "game_rule/key_mapper.hpp"
+#include "game_rule/rule_factory.hpp"
+#include "tetromino/tetromino_queue.hpp"
+#include "util/action.hpp"
+#include "util/timer.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <thread>
 
 class MultiEngine : public Engine {
 private:

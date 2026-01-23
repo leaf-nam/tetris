@@ -1,17 +1,5 @@
 #include "engine/multi_engine.hpp"
 
-#include "board/board.hpp"
-#include "game_rule/key_mapper.hpp"
-#include "game_rule/rule_factory.hpp"
-#include "tetromino/tetromino_queue.hpp"
-#include "util/action.hpp"
-#include "util/timer.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <random>
-#include <thread>
-
 using namespace std;
 
 MultiEngine::MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer,
@@ -102,6 +90,8 @@ int MultiEngine::step()
             renderer->render_hold(board.get_saved_mino());
         }
     }
+
+    return EngineState::RUNNING;
 }
 
 int MultiEngine::finish()

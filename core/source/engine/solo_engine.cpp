@@ -1,17 +1,5 @@
 #include "engine/solo_engine.hpp"
 
-#include "board/board.hpp"
-#include "game_rule/key_mapper.hpp"
-#include "game_rule/rule_factory.hpp"
-#include "tetromino/tetromino_queue.hpp"
-#include "util/action.hpp"
-#include "util/timer.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <random>
-#include <thread>
-
 using namespace std;
 
 SoloEngine::SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer)
@@ -86,6 +74,8 @@ int SoloEngine::step()
         renderer->render_timer(timer.get_seconds());
         is_level_up = false;
     }
+
+    return EngineState::RUNNING;
 }
 
 int SoloEngine::finish()
