@@ -213,7 +213,7 @@ bool WindowIpResolverNetwork::recv_udp(user_data& ud, char* ip)
             return false;
         }
     }
-    else if (recv_result != sizeof(USER_DATA_SIZE))
+    else if (recv_result != USER_DATA_SIZE)
         return false;
 
     inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
@@ -279,7 +279,7 @@ bool WindowIpResolverNetwork::recv_udp(room_data& rd, char* ip)
             return false;
         }
     }
-    else if (recv_result != sizeof(ROOM_DATA_SIZE))
+    else if (recv_result != ROOM_DATA_SIZE)
         return false;
 
     inet_ntop(AF_INET, &addr.sin_addr, ip, sizeof(ip));
