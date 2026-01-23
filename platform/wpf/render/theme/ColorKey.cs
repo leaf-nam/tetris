@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace wpf.render.theme
 {
-    public enum ColorKey
+    public enum Color
     {
         Background,
         Panel,

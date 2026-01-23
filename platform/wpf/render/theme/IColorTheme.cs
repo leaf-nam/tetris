@@ -9,6 +9,6 @@ namespace wpf.render.theme
 {
     public interface IColorTheme
     {
-        Brush Get(ColorKey key);
+        Brush Get(Color key);
     }
 }

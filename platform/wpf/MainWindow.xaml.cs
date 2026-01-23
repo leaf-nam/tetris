@@ -185,10 +185,10 @@ namespace wpf
             Dispatcher.Invoke(() =>
             {
                 titleRenderer.DrawString("TETRISSEN v1", 0, 4);
-                nextTitleRenderer.DrawString("NEXT", 6, 2, CustomColors.Theme.Get(ColorKey.Cyan));
-                holdTitleRenderer.DrawString("HOLD", 6, 2, CustomColors.Theme.Get(ColorKey.Green));
-                scoreTitleRenderer.DrawString("Score", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
-                levelTitleRenderer.DrawString("Lv", 6, 2, CustomColors.Theme.Get(ColorKey.Comment));
+                nextTitleRenderer.DrawString("NEXT", 6, 2, CustomColors.Theme.Get(Color.Cyan));
+                holdTitleRenderer.DrawString("HOLD", 6, 2, CustomColors.Theme.Get(Color.Green));
+                scoreTitleRenderer.DrawString("Score", 6, 2, CustomColors.Theme.Get(Color.Comment));
+                levelTitleRenderer.DrawString("Lv", 6, 2, CustomColors.Theme.Get(Color.Comment));
 
                 // 초기 스코어, 레벨 렌더링
                 scoreRenderer.DrawStringCenter("0");
@@ -239,7 +239,7 @@ namespace wpf
             Dispatcher.Invoke(() =>
             {
                 CanvasTimer.Children.Clear();
-                timerRenderer.DrawString(TimeUtility.ConvertSecondToString(value), 3, 10, CustomColors.Theme.Get(ColorKey.Comment));
+                timerRenderer.DrawString(TimeUtility.ConvertSecondToString(value), 3, 10, CustomColors.Theme.Get(Color.Comment));
             });
         }
 

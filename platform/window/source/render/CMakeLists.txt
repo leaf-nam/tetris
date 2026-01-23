@@ -1,4 +1,12 @@
-add_library(render window_renderer.cpp  "menu_renderer.cpp" "color.cpp" "../util/shadow_maker.cpp")
+file(GLOB RENDER_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+)
+
+add_library(render 
+    ${RENDER_SOURCES}
+
+    "../util/shadow_maker.cpp" 
+)
 
 target_include_directories(render 
     PUBLIC ${PROJECT_SOURCE_DIR}/api
