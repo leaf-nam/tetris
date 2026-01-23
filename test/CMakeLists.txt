@@ -27,7 +27,7 @@ add_subdirectory(core/util)
 add_subdirectory(core/board)
 #add_subdirectory(core/game_rule)
 add_subdirectory(core/tetromino)
-#add_subdirectory(core/engine)
+add_subdirectory(core/engine)
 #add_subdirectory(core/tetris)
 
 if(WIN32)
@@ -45,7 +45,7 @@ target_link_libraries(
 #    game_rule_test
     $<TARGET_OBJECTS:tetromino_test>
     $<TARGET_OBJECTS:util_test>
-#    engine_test
+    $<TARGET_OBJECTS:engine_test>
 #    tetris_test
     engine
     GTest::gtest_main
