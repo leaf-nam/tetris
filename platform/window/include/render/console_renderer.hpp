@@ -17,8 +17,11 @@ class ConsoleRenderer
     void hide_cursor();
     void set_cursor(Pos);
     void set_cursor(int, int);
+    void set_color(Color);
+    void set_color(Color, Color);
 
     void print_s(const char* const, Color);
+    void print_s(const char* const, Color, Color);
     void print_s(std::string, Color);
 
     // 랜덤 색상 출력

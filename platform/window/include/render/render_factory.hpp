@@ -24,6 +24,7 @@ class RenderFactory
     }
 
     void initialize(Setting* setting);
+    InputWindowRenderer create_input_window_renderer();
     MenuRenderer create_menu_renderer();
     WindowRenderer create_window_renderer();
 };

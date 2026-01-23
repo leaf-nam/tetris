@@ -16,8 +16,14 @@ MenuRenderer RenderFactory::create_menu_renderer()
 
 WindowRenderer RenderFactory::create_window_renderer()
 {
-    return WindowRenderer(
-        setting, console_renderer, color_picker, TextRenderer(console_renderer, color_picker),
-        BoxRenderer(console_renderer), BlockRenderer(console_renderer, color_picker),
-        InputWindowRenderer(console_renderer), shadow_maker);
+    return WindowRenderer(setting, console_renderer, color_picker,
+                          TextRenderer(console_renderer, color_picker), BoxRenderer(console_renderer),
+                          BlockRenderer(console_renderer, color_picker), 
+                          shadow_maker);
+}
+
+InputWindowRenderer RenderFactory::create_input_window_renderer()
+{
+    BoxRenderer box_renderer(console_renderer);
+    return InputWindowRenderer(console_renderer, box_renderer);
 }
