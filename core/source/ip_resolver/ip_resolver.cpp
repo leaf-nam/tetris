@@ -52,12 +52,12 @@ bool IpResolver::open_room()
     ip_resolver_network->find_broadcast_ip(broadcast_ip);
 
     ip_resolver_renderer->render_user_id_input();
-    ip_resolver_input_handler->scan(my_id, 1);
+    ip_resolver_input_handler->scan(my_id, sizeof(my_id), 1);
     ip_resolver_renderer->render_server_view_room(my_id, client_ip_address);
 
     base_time = std::chrono::steady_clock::now();
     while (true) {
-        if (ip_resolver_input_handler->scan(s, 0) == 1) {
+        if (ip_resolver_input_handler->scan(s, sizeof(s), 0) == 1) {
             if (strcmp(s, "q") == 0) {
                 ip_resolver_renderer->render_clear();
                 ip_resolver_network->send_udp(my_id, client_ip_address, client_ip_address.size(), 0,
@@ -123,11 +123,11 @@ bool IpResolver::enter_room()
     server_ip_address.clear();
 
     ip_resolver_renderer->render_user_id_input();
-    ip_resolver_input_handler->scan(my_id, 1);
+    ip_resolver_input_handler->scan(my_id, sizeof(my_id), 1);
     ip_resolver_renderer->render_view_enter_room(server_ip_address);
 
     while (true) {
-        if (ip_resolver_input_handler->scan(s, 0) == 1) {
+        if (ip_resolver_input_handler->scan(s, sizeof(s), 0) == 1) {
             if (is_in_room == false && strcmp(s, "q") == 0) {
                 ip_resolver_renderer->render_clear();
                 is_game_start = false;

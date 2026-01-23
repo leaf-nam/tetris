@@ -6,7 +6,7 @@
 class WindowIpResolverInputHandler : public IIpResolverInputHandler
 {
   public:
-    int scan(char* buf, int is_blocking) override;
+    int scan(char* buf, int buf_len, int is_blocking) override;
     int scan(int* buf, int is_blocking) override;
 };
 

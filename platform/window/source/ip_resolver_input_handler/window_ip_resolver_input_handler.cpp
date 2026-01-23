@@ -4,19 +4,19 @@
 #include <stdio.h>
 #include <conio.h>
 
-int WindowIpResolverInputHandler::scan(char* buf, int is_blocking)
+int WindowIpResolverInputHandler::scan(char* buf, int buf_len, int is_blocking)
 {
     std::string s;
     int hit_keyboard = 0;
     
     if (is_blocking == 1)
     {
-        scanf_s("%s", buf, sizeof(buf));
+        scanf_s("%s", buf, buf_len);
         hit_keyboard = 1;
     }
     else if (_kbhit() != 0)
     {
-        scanf_s("%s", buf, sizeof(buf));
+        scanf_s("%s", buf, buf_len);
         hit_keyboard = 1;
     }
 
