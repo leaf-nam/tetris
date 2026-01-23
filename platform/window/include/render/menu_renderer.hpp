@@ -6,6 +6,7 @@
 class MenuRenderer : public WindowRenderer
 {
   public:
+    MenuRenderer(Setting);
     void render_menu_frame();
     void render_menu(Menu);
     void render_settings_frame();

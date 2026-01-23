@@ -1,15 +1,20 @@
 #include "render/window_renderer.hpp"
 
+#include "util/shadow_maker.hpp"
+
 #include <conio.h>
 #include <random>
 #include <string>
 #include <wtypes.h>
+
+using namespace std;
 
 bool is_single = false;
 int logo_x = (is_single) ? 20 : 2;
 int board_x = (is_single) ? 35 : 25;
 int middle_x = (is_single) ? 80 : 58;
 
+static ShadowMaker shadow_maker;
 static std::random_device rd;
 static std::mt19937 gen(rd());
 static std::uniform_int_distribution<int> dist(static_cast<int>(ColorKey::CYAN),
@@ -89,13 +94,11 @@ constexpr const char* BIG_FONT[26][5] = {
     // Z
     {"█████", "   █ ", "  █  ", " █   ", "█████"}};
 
-using namespace std;
 using namespace color;
 
-const char* WindowRenderer::get_block_color(int type)
-{
-    return get_color(get_color_key(type)).c_str();
-}
+WindowRenderer::WindowRenderer(Setting setting) : setting(setting) {}
+
+string WindowRenderer::get_block_color(int type) { return get_color(get_color_key(type)).c_str(); }
 
 string WindowRenderer::get_block_color(const Tetromino& tetromino)
 {
@@ -220,10 +223,10 @@ void WindowRenderer::render_mino_pattern(Pos pos, const Tetromino& tetromino)
         string line;
         for (int j = 0; j < 4; j++) {
             if (tetromino.get_shape()[i][j] != 0) {
-                line += color + bg + "██";
+                line += color + bg + "██" + Theme::reset();
             }
             else {
-                line += bg + "  ";
+                line += bg + "  " + Theme::reset();
             }
         }
 
@@ -258,9 +261,9 @@ void WindowRenderer::render_background()
     draw_ui_box("TIME", middle_x, 2, 6, 3, RESET);
 
     set_cursor(board_x, 7);
-    cout << BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << RESET;
+    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
     set_cursor(board_x, 28);
-    cout << BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << RESET;
+    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
 }
 void WindowRenderer::draw_hold(const Mino& hold_shape)
 {
@@ -300,63 +303,56 @@ void WindowRenderer::render_game_over()
     set_cursor(33, 17);
     printf("%s%s%s", RED, "GAMEOVER", RESET);
 }
+
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
 {
     int start_x = board_x;
     int start_y = 7;
-
-    // 1. 보드 데이터 가져오기 (int[22][10] 배열이라고 가정)
     auto game_board = board.get_board();
+    auto [pos_r, pos_c] = tetromino.get_pos();
+    const Mino& shape = tetromino.get_shape();
 
-    // 2. 현재 떨어지는 미노 정보 가져오기
-    auto [pos_r, pos_c] = tetromino.get_pos(); // 현재 위치 (Top-Left)
-    const Mino& shape = tetromino.get_shape(); // 현재 회전 상태의 4x4 배열 (int[4][4])
+    vector<Pos> shadows;
+    if (setting.shadow_on) shadows = shadow_maker.get_shadow_pos(board, tetromino);
 
-    // 행 루프 (2~21)
     for (int r = 2; r < 22; ++r) {
         set_cursor(start_x, start_y + (r - 1));
-        cout << BOLD << "┃ " << RESET;
+        print_s(" █", ColorKey::FOREGROUND);
 
-        // 열 루프 (0~9)
         for (int c = 0; c < 10; ++c) {
             bool is_falling_block = false;
             int block_type = 0;
 
-            // --- [핵심 변경] 비트 연산 제거 -> 좌표 비교 ---
-
-            // 1. 현재 좌표(r, c)가 떨어지는 미노의 4x4 영역 안에 있는지 확인
             bool inside_box = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
 
             if (inside_box) {
-                // 4x4 배열 내부에서의 상대 좌표 계산 (0~3)
-                int local_r = r - pos_r;
-                int local_c = c - pos_c;
-
-                // 해당 위치에 블록이 채워져 있는지 확인 (0이 아니면 블록임)
-                if (shape[local_r][local_c] != 0) {
+                if (shape[r - pos_r][c - pos_c] != 0) {
                     is_falling_block = true;
-                    // 미노 자체의 타입을 가져오거나, shape의 값을 사용
-                    block_type = tetromino.get_mino_type(); // 또는 shape[local_r][local_c]
                 }
             }
 
-            // --- 그리기 로직 ---
-
+            // 떨어지는 블록 그리기
             if (is_falling_block) {
-                // 떨어지는 블록 그리기
                 print_s("██", get_color_key(tetromino));
             }
+
+            // 바닥에 쌓인 블록 그리기
             else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
-                // 바닥에 쌓인 블록 그리기
                 print_s("██", get_color_key(game_board[r][c]));
             }
+
+            // 그림자 그리기
+            else if (setting.shadow_on && shadow_maker.isShadow(shadows, {c, r})) {
+                print_s("██", ColorKey::COMMENT);
+            }
+
+            // 빈 공간
             else {
-                // 빈 공간
-                cout << GRAY << ". " << RESET;
+                print_s("  ", ColorKey::BACKGROUND);
             }
         }
 
-        cout << BOLD << " ┃" << RESET;
+        print_s("█ ", ColorKey::FOREGROUND);
     }
 }
 void WindowRenderer::render_other_board(Packet& pkt)
@@ -463,6 +459,8 @@ void WindowRenderer::print_s(const char* const s, ColorKey key)
 }
 
 void WindowRenderer::print_s(string& s, ColorKey key) { print_s(s.c_str(), key); }
+
+void WindowRenderer::print_s(string& s) { printf("%s", s.c_str()); }
 
 void WindowRenderer::print_big_char(Pos pos, char c, ColorKey key)
 {

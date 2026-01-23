@@ -5,6 +5,7 @@
 #include "render/color.hpp"
 #include "render/pos.hpp"
 #include "tetromino/tetromino.hpp"
+#include "util/setting.hpp"
 
 #include <cstdint>
 #include <cstdio>
@@ -33,6 +34,7 @@ extern const char* const BOLD;
 class WindowRenderer : public IRenderer
 {
   public:
+    WindowRenderer(Setting);
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
@@ -93,6 +95,8 @@ class WindowRenderer : public IRenderer
     void draw_logo(int x, int y);
 
   protected:
+    Setting setting;
+
     // display
     void draw_enemy_title(int x, int y);
     void draw_ui_box(const std::string& title, int x, int y, int w, int h, const char* color);
@@ -111,6 +115,7 @@ class WindowRenderer : public IRenderer
 
     void print_s(const char* const c, ColorKey key);
     void print_s(std::string& s, ColorKey key);
+    void print_s(std::string& s);
 
     void print_big_char(Pos, char, ColorKey);
     void print_big_char(Pos, char);
@@ -123,7 +128,7 @@ class WindowRenderer : public IRenderer
 
     ColorKey get_random_color();
 
-    const char* get_block_color(int type);
+    std::string get_block_color(int type);
     std::string get_block_color(const Tetromino& tetromino);
     ColorKey get_color_key(const Tetromino& tetromino);
     ColorKey get_color_key(int type);

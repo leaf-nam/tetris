@@ -7,6 +7,7 @@
 using namespace std;
 using namespace color;
 
+MenuRenderer::MenuRenderer(Setting setting) : WindowRenderer(setting) {}
 void MenuRenderer::render_menu_frame()
 {
     hide_cursor();
