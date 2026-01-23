@@ -45,7 +45,6 @@ target_link_libraries(
 #    game_rule_test
     $<TARGET_OBJECTS:tetromino_test>
     $<TARGET_OBJECTS:util_test>
-    
 #    engine_test
 #    tetris_test
     engine
