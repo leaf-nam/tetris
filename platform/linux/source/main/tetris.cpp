@@ -23,9 +23,12 @@ int main()
     engine = new MultiEngine(input_handler, renderer, network);
 #endif
 
-    engine->run();
-
-    engine->stop();
+    while (1)
+    {
+        int state = engine->step();
+        if (state == EngineState::GAME_OVER) break;
+    }
+    
 
     engine->finish();
 

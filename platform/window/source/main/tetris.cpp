@@ -217,8 +217,12 @@ AppState run_single_game()
     input = new WindowInput();
     engine = new SoloEngine(setting, input, renderer);
 
-    renderer->render_clear();
-    engine->run();
+    while (1)
+    {
+        int state = engine->step();
+        if (state == EngineState::GAME_OVER) break;
+    }
+
     engine->finish();
 
     (void) _getch();
@@ -234,7 +238,13 @@ AppState run_multi_game()
     INetwork* network = new WindowNetwork();
 
     engine = new MultiEngine(setting, input, renderer, network);
-    engine->run();
+
+    while (1)
+    {
+        int state = engine->step();
+        if (state == EngineState::GAME_OVER) break;
+    }
+    
     engine->finish();
     menu_renderer->render_game_over();
 
