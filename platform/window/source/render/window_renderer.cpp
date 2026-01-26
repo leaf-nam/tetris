@@ -8,8 +8,7 @@ int board_x = (is_single) ? 35 : 25;
 int middle_x = (is_single) ? 80 : 58;
 
 WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, TextRenderer a4,
-                               BoxRenderer a5, BlockRenderer a6,
-                               ShadowMaker a7)
+                               BoxRenderer a5, BlockRenderer a6, ShadowMaker a7)
     : setting(a1), console_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
       block_renderer(a6), shadow_maker(a7)
 {
@@ -120,7 +119,7 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
             }
 
             // 그림자 그리기
-            else if (setting->shadow_on && shadow_maker.isShadow(shadows, {c, r})) {
+            else if (setting->shadow_on && shadow_maker.is_shadow(shadows, {c, r})) {
                 console_renderer.print_s("██", Color::COMMENT);
             }
 
