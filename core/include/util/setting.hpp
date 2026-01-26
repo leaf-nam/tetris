@@ -26,7 +26,7 @@ class Setting
             nick_name = value;
         }
         else if (key == "shadow_on") {
-            shadow_on = (value == "1");
+            shadow_on = (value == "true");
         }
         else if (key == "color_theme") {
             color_theme = static_cast<uint8_t>(stoi(value));
