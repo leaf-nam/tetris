@@ -19,6 +19,7 @@ class TetrominoQueue
     static TetrominoQueue& get_instance();
 	TetrominoQueue(const TetrominoQueue&) = delete;
 	TetrominoQueue& operator=(const TetrominoQueue&) = delete;
+    void init();
     int get_new_tetromino();
     void set_new_tetromino(int new_tetromino);
     const int* get_tetrominos();

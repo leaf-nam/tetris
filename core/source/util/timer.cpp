@@ -4,6 +4,11 @@
 
 Timer::Timer()
 {
+    init();
+}
+
+void Timer::init()
+{
     base_time = std::chrono::steady_clock::now();
     base_500ms_time = base_time;
     curr_time = base_500ms_time;

@@ -2,9 +2,28 @@
 #define __SOLO_ENGINE_HPP__
 
 #include "engine/engine.hpp"
+#include "board/board.hpp"
+#include "game_rule/key_mapper.hpp"
+#include "game_rule/rule_factory.hpp"
+#include "tetromino/tetromino_queue.hpp"
+#include "util/action.hpp"
+#include "util/timer.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <thread>
 
 class SoloEngine : public Engine {
-    public:
+private:
+    Board board;
+    unique_ptr<GameRule> rule;
+    TetrominoQueue& tetromino_queue;
+    Timer& timer;
+    KeyMapper key_mapper;
+    int score;
+
+public:
     /**
      * @brief 게임 수행 전 필드 초기화(생성자)
      * @param 플랫폼 종속 인터페이스
@@ -13,14 +32,15 @@ class SoloEngine : public Engine {
     SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer);
 
     /**
-     * @brief 게임 메인루프
+     * @brief 게임 초기화
      */
-    void run() override;
+    void init() override;
 
     /**
-     * @brief 게임 메인루프 정지
+     * @brief 게임 로직 호출
+     * @return 게임 상태 (GAME_OVER, GAME_CLAER 등)
      */
-    void stop() override;
+    int step() override;
 
     /**
      * @brief 게임 종료 시 메모리 및 기타 자원정리

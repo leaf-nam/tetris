@@ -7,6 +7,14 @@
 #include <i_network.hpp>
 #include <i_renderer.hpp>
 
+enum EngineState
+{
+  RUNNING,
+  GAME_OVER,
+  GAME_CLEAR,
+  PAUSED
+};
+
 class Engine
 {
   protected:
@@ -18,14 +26,14 @@ class Engine
   public:
     Engine(Setting*, IInputHandler*, IRenderer*, INetwork*);
     /**
-     * @brief 게임 메인루프
+     * @brief 게임 초기화
      */
-    virtual void run() = 0;
+    virtual void init() = 0;
 
     /**
-     * @brief 게임 메인루프 정지
+     * @brief 게임 로직 호출
      */
-    virtual void stop() = 0;
+    virtual int step() = 0;
 
     /**
      * @brief 게임 종료 시 메모리 및 기타 자원정리

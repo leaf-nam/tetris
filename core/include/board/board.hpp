@@ -34,6 +34,8 @@ class Board
   public:
     Board();
 
+    void init();
+
     std::pair<int, int> get_active_mino_pos();
     int get_active_mino_rotation();
     int get_active_mino_type();
