@@ -32,12 +32,11 @@ class WindowRenderer : public IRenderer
     TextRenderer text_renderer;
     BoxRenderer box_renderer;
     BlockRenderer block_renderer;
-    InputWindowRenderer input_window_renderer;
     ShadowMaker shadow_maker;
 
   public:
     WindowRenderer(Setting*, ConsoleRenderer, ColorPicker, TextRenderer, BoxRenderer, BlockRenderer,
-                   InputWindowRenderer, ShadowMaker);
+                   ShadowMaker);
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */

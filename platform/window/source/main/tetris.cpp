@@ -126,6 +126,7 @@ AppState run_settings()
 
     RenderFactory render_factory = RenderFactory::getInstance();
     MenuRenderer menu_renderer = render_factory.create_menu_renderer();
+    InputWindowRenderer input_window_renderer = render_factory.create_input_window_renderer();
 
     menu_renderer.render_settings_frame();
     menu_renderer.render_settings(menu);
@@ -137,24 +138,38 @@ AppState run_settings()
         // 엔터 처리
         if (in == '\r' || in == ' ') {
             switch (menu) {
+            // 닉네임 변경
             case SettingMenu::NICKNAME: {
                 string nickname;
+                input_window_renderer.render_input_window({27, 20},
+                                                          "Type your nickname.[length : 1 ~ 8]");
                 getline(std::cin, nickname);
-                if (!nickname.empty()) {
+
+                if (!nickname.empty() && nickname.size() <= 8) {
                     setting->nick_name = nickname;
                 }
+
+                menu_renderer.render_settings_frame();
+                menu_renderer.render_settings(menu);
                 break;
             }
+
+            // 테마 변경
             case SettingMenu::THEME: {
                 setting->color_theme = (setting->color_theme + 1) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
                 menu_renderer.render_settings_frame();
                 break;
             }
+
+            // 그림자 토글
             case SettingMenu::SHADOW: {
                 setting->shadow_on = !setting->shadow_on;
+                menu_renderer.render_settings_frame();
                 break;
             }
+
+            // 저장 및 종료
             case SettingMenu::SAVE: {
                 finish = true;
                 break;
@@ -174,6 +189,7 @@ AppState run_settings()
                 break;
             case SettingMenu::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
+                menu_renderer.render_settings_frame();
                 break;
             default:
                 break;
@@ -190,6 +206,7 @@ AppState run_settings()
                 break;
             case SettingMenu::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
+                menu_renderer.render_settings_frame();
                 break;
             default:
                 break;

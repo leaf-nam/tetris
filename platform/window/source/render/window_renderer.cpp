@@ -8,10 +8,10 @@ int board_x = (is_single) ? 35 : 25;
 int middle_x = (is_single) ? 80 : 58;
 
 WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, TextRenderer a4,
-                               BoxRenderer a5, BlockRenderer a6, InputWindowRenderer a7,
-                               ShadowMaker a8)
+                               BoxRenderer a5, BlockRenderer a6,
+                               ShadowMaker a7)
     : setting(a1), console_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
-      block_renderer(a6), input_window_renderer(a7)
+      block_renderer(a6), shadow_maker(a7)
 {
 }
 
@@ -73,13 +73,13 @@ void WindowRenderer::render_background()
 void WindowRenderer::render_score(int score)
 {
     console_renderer.set_cursor(8, 18);
-    console_renderer.print_s("score", Color::CYAN);
+    console_renderer.print_s(to_string(score), Color::CYAN);
 }
 
 void WindowRenderer::render_level(int level)
 {
     console_renderer.set_cursor(10, 23);
-    console_renderer.print_s("level", Color::CYAN);
+    console_renderer.print_s(to_string(level), Color::CYAN);
 }
 
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)

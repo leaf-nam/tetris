@@ -38,25 +38,45 @@ void MenuRenderer::render_settings_frame()
     console_renderer.clear();
     console_renderer.hide_cursor();
     text_renderer.print_big_string({20, 7}, "SETTINGS");
+    if (setting->shadow_on) render_shadow();
     render_side();
 }
 
 void MenuRenderer::render_side()
 {
     // 왼쪽 블럭 그리기
-    Tetromino* tetromino = new Tetromino();
+    Tetromino tetromino;
     int x = 2;
     int y = 2;
     for (int i = 0; i < 3; i++) {
-        tetromino->set_mino_type(i);
-        block_renderer.render_mino_pattern({x, y + 9 * i + 3}, *tetromino);
+        tetromino.set_mino_type(i);
+        block_renderer.render_mino_pattern({x, y + 9 * i + 3}, tetromino, true);
     }
 
     // 오른쪽 블럭 그리기
     x = 80;
     for (int i = 3; i < 7; i++) {
-        tetromino->set_mino_type(i);
-        block_renderer.render_mino_pattern({x, y + 7 * (i - 3)}, *tetromino);
+        tetromino.set_mino_type(i);
+        block_renderer.render_mino_pattern({x, y + 7 * (i - 3)}, tetromino, true);
+    }
+}
+
+void MenuRenderer::render_shadow()
+{
+    // 왼쪽 블럭 그리기
+    Tetromino tetromino;
+    int x = 3;
+    int y = 3;
+    for (int i = 0; i < 3; i++) {
+        tetromino.set_mino_type(i);
+        block_renderer.render_mino_pattern({x, y + 9 * i + 3}, tetromino, Color::COMMENT, true);
+    }
+
+    // 오른쪽 블럭 그리기
+    x = 81;
+    for (int i = 3; i < 7; i++) {
+        tetromino.set_mino_type(i);
+        block_renderer.render_mino_pattern({x, y + 7 * (i - 3)}, tetromino, Color::COMMENT, true);
     }
 }
 

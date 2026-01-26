@@ -3,6 +3,7 @@
 
 #include "block_renderer.hpp"
 #include "console_renderer.hpp"
+#include "input_window_renderer.hpp"
 #include "menu.hpp"
 #include "text_renderer.hpp"
 
@@ -23,6 +24,7 @@ class MenuRenderer
     void render_settings_frame();
     void render_settings(SettingMenu);
     void render_side();
+    void render_shadow();
 };
 
 #endif // !__MENU_RENDERER_HPP__

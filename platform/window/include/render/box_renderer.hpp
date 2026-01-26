@@ -14,5 +14,6 @@ class BoxRenderer
     BoxRenderer();
     BoxRenderer(ConsoleRenderer);
     void draw_box(Pos pos, int w, int h, const std::string& title, Color color);
+    void draw_rect(Pos pos, int w, int h, Color color);
 };
 #endif // !__DISPLAY_RENDERER_HPP__
