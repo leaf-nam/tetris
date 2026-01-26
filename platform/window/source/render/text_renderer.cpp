@@ -34,9 +34,19 @@ void TextRenderer::print_big_string(Pos pos, string& str)
     for (int j = 0; j < str.size(); ++j) {
         Color random_color = color_picker.get_random_color();
         char c = str[j];
-        for (int i = 0; i < 5; ++i) {
-            console_renderer.set_cursor(pos.x + j * 6, pos.y + i);
-            console_renderer.print_s(BIG_FONT[c - 'A'][i], random_color);
+
+        if (c >= 'A' && c <= 'Z') {
+            for (int i = 0; i < 5; ++i) {
+                console_renderer.set_cursor(pos.x + j * 6, pos.y + i);
+                console_renderer.print_s(BIG_FONT[c - 'A'][i], random_color);
+            }
+        }
+
+        else if (c >= '0' && c <= '9') {
+            for (int i = 0; i < 5; ++i) {
+                console_renderer.set_cursor(pos.x + j * 6, pos.y + i);
+                console_renderer.print_s(BIG_NUMBER[c - '0'][i], random_color);
+            }
         }
     }
 }

@@ -90,5 +90,9 @@ class WindowRenderer : public IRenderer
     void render_char(char c) override;
 
     void render_clear() override;
+
+    void render_game_start_count(int count);
+
+    void render_game_over();
 };
 #endif

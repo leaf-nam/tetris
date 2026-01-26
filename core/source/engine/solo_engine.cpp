@@ -90,11 +90,6 @@ void SoloEngine::run()
 
 void SoloEngine::stop() {}
 
-int SoloEngine::finish()
-{
-    delete renderer;
-    delete input_handler;
-    return 0;
-}
+int SoloEngine::finish() { return 0; }
 
 SoloEngine::~SoloEngine() {}

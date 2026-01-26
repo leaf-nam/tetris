@@ -11,10 +11,13 @@
 #include "util/setting_storage.hpp"
 
 #include <Windows.h>
+#include <chrono>
 #include <conio.h>
+#include <thread>
 
 static IInputHandler* input;
 static IRenderer* renderer;
+static INetwork* network;
 static Engine* engine;
 static Setting* setting;
 static bool finished = false;
@@ -45,8 +48,7 @@ int main()
 
     setting_storage.initialize("settings.txt");
 
-    Setting s = setting_storage.load();
-    setting = &s;
+    setting = new Setting(Setting(setting_storage.load()));
 
     Theme& theme = Theme::getInstance();
     theme.apply(static_cast<ThemeKey>(setting->color_theme));
@@ -245,10 +247,26 @@ AppState run_single_game()
     engine = new SoloEngine(setting, input, renderer);
 
     renderer->render_clear();
+    renderer->render_background();
+
+    for (int i = 3; i >= 1; --i) {
+        window_renderer.render_game_start_count(i);
+        Sleep(1000);
+    }
+
+    renderer->render_clear();
+
     engine->run();
     engine->finish();
 
     (void) _getch();
+
+    delete input;
+    delete engine;
+
+    input = nullptr;
+    renderer = nullptr;
+    engine = nullptr;
 
     return AppState::MENU;
 }
@@ -259,13 +277,23 @@ AppState run_multi_game()
 
     WindowRenderer window_renderer = render_factory.create_window_renderer();
     renderer = &window_renderer;
-    INetwork* network = new WindowNetwork();
-
+    input = new WindowInput();
+    network = new WindowNetwork();
     engine = new MultiEngine(setting, input, renderer, network);
+
     engine->run();
     engine->finish();
 
+    window_renderer.render_game_over();
+
     (void) _getch();
+
+    delete engine;
+
+    input = nullptr;
+    renderer = nullptr;
+    network = nullptr;
+    engine = nullptr;
 
     return AppState::MENU;
 }
