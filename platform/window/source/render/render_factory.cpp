@@ -10,15 +10,19 @@ void RenderFactory::initialize(Setting* setting)
 
 MenuRenderer RenderFactory::create_menu_renderer()
 {
-    return MenuRenderer(setting, console_renderer, create_text_renderer(),
-                        BlockRenderer(console_renderer, color_picker));
+    return MenuRenderer(setting, console_renderer, create_text_renderer(), create_block_renderer());
 }
 
 WindowRenderer RenderFactory::create_window_renderer()
 {
     return WindowRenderer(setting, console_renderer, color_picker, create_text_renderer(),
-                          create_box_renderer(), BlockRenderer(console_renderer, color_picker),
-                          shadow_maker);
+                          create_box_renderer(), create_block_renderer(), shadow_maker);
+}
+
+WindowMultiRenderer RenderFactory::create_window_multi_renderer()
+{
+    return WindowMultiRenderer(setting, console_renderer, color_picker, create_text_renderer(),
+                               create_box_renderer(), create_block_renderer(), shadow_maker);
 }
 
 InputWindowRenderer RenderFactory::create_input_window_renderer()
