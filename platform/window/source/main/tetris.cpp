@@ -11,10 +11,13 @@
 #include "util/setting_storage.hpp"
 
 #include <Windows.h>
+#include <chrono>
 #include <conio.h>
+#include <thread>
 
 static IInputHandler* input;
 static IRenderer* renderer;
+static INetwork* network;
 static Engine* engine;
 static Setting* setting;
 static bool finished = false;
@@ -45,8 +48,7 @@ int main()
 
     setting_storage.initialize("settings.txt");
 
-    Setting s = setting_storage.load();
-    setting = &s;
+    setting = new Setting(Setting(setting_storage.load()));
 
     Theme& theme = Theme::getInstance();
     theme.apply(static_cast<ThemeKey>(setting->color_theme));
@@ -240,15 +242,39 @@ AppState run_single_game()
     RenderFactory& render_factory = RenderFactory::getInstance();
 
     WindowRenderer window_renderer = render_factory.create_window_renderer();
+    InputWindowRenderer input_window_renderer = render_factory.create_input_window_renderer();
+    TextRenderer text_renderer = render_factory.create_text_renderer();
+    BoxRenderer box_renderer = render_factory.create_box_renderer();
+
     renderer = &window_renderer;
     input = new WindowInput();
     engine = new SoloEngine(setting, input, renderer);
 
     renderer->render_clear();
+    renderer->render_background();
+
+    for (int i = 3; i >= 1; --i) {
+        text_renderer.draw_game_start_count(i);
+        Sleep(1000);
+    }
+
+    renderer->render_clear();
+
     engine->run();
     engine->finish();
 
+    box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
+    text_renderer.draw_game_over({14, 14});
+    input_window_renderer.render_input_window({16, 22}, "Press Any Button To Finish Game.");
+
     (void) _getch();
+
+    delete input;
+    delete engine;
+
+    input = nullptr;
+    renderer = nullptr;
+    engine = nullptr;
 
     return AppState::MENU;
 }
@@ -259,13 +285,21 @@ AppState run_multi_game()
 
     WindowRenderer window_renderer = render_factory.create_window_renderer();
     renderer = &window_renderer;
-    INetwork* network = new WindowNetwork();
-
+    input = new WindowInput();
+    network = new WindowNetwork();
     engine = new MultiEngine(setting, input, renderer, network);
+
     engine->run();
     engine->finish();
 
     (void) _getch();
+
+    delete engine;
+
+    input = nullptr;
+    renderer = nullptr;
+    network = nullptr;
+    engine = nullptr;
 
     return AppState::MENU;
 }

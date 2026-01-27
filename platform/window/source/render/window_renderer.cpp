@@ -3,9 +3,11 @@
 using namespace std;
 
 bool is_single = false;
-int logo_x = (is_single) ? 20 : 2;
-int board_x = (is_single) ? 35 : 25;
-int middle_x = (is_single) ? 80 : 58;
+const int LOGO_X = (is_single) ? 20 : 2;
+const int BOARD_X = (is_single) ? 35 : 25;
+const int BOARD_Y = 7;
+const int LEFT_X = 4;
+const int MIDDLE_X = (is_single) ? 80 : 58;
 
 WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, TextRenderer a4,
                                BoxRenderer a5, BlockRenderer a6, ShadowMaker a7)
@@ -19,19 +21,18 @@ void WindowRenderer::render_timer(int totalSec)
     int min = (totalSec / 60);
     int sec = totalSec % 60;
 
-    console_renderer.set_cursor(middle_x + 4, 4);
+    string sec_str =
+        to_string(min / 10) + to_string(min % 10) + ":" + to_string(sec / 10) + to_string(sec % 10);
 
-    cout << get_color(Color::CYAN);
-    // 두 자리(setw(2))를 잡고, 빈 곳은 '0'으로 채움
-    cout << setfill('0') << setw(2) << min % 100 << ":" << setw(2) << sec;
-    cout << Theme::reset();
+    console_renderer.set_cursor(MIDDLE_X + 2, 4);
+    console_renderer.print_s(sec_str, Color::COMMENT);
 }
 
 void WindowRenderer::render_clear() { console_renderer.clear(); }
 void WindowRenderer::render_next_block(const int* tetrominoArray)
 {
     for (size_t i = 0; i < 3; ++i) {
-        int wr = middle_x + 3, wc = 11;
+        int x = MIDDLE_X + 1, y = 11;
 
         Tetromino m1;
         Tetromino m2;
@@ -41,50 +42,45 @@ void WindowRenderer::render_next_block(const int* tetrominoArray)
         m3.init_mino(tetrominoArray[2]);
 
         // next mino
-        block_renderer.render_mino_pattern({wr, wc}, m1);
-        block_renderer.render_mino_pattern({wr, wc + 5}, m2);
-        block_renderer.render_mino_pattern({wr, wc + 10}, m3);
+        block_renderer.render_mino_pattern({x, y}, m1, Color::PANEL);
+        block_renderer.render_mino_pattern({x, y + 5}, m2, Color::PANEL);
+        block_renderer.render_mino_pattern({x, y + 10}, m3, Color::PANEL);
     }
 }
 
 void WindowRenderer::render_hold(const Tetromino& tetromino)
 {
-    block_renderer.render_mino_pattern({7, 11}, tetromino);
+    block_renderer.render_mino_pattern({5, 11}, tetromino, Color::PANEL);
 }
 
 void WindowRenderer::render_background()
 {
     fflush(stdout);
-    text_renderer.draw_logo({logo_x, 1});
-    box_renderer.draw_box({4, 9}, 6, 4, "HOLD", Color::GREEN);
-    box_renderer.draw_box({middle_x, 9}, 6, 15, "NEXT", Color::PURPLE);
-    box_renderer.draw_box({4, 16}, 6, 3, "#SCORE", Color::CYAN);
-    box_renderer.draw_box({4, 21}, 6, 3, "LV", Color::CYAN);
-    box_renderer.draw_box({middle_x, 2}, 6, 3, "TIME", Color::COMMENT);
-
-    console_renderer.set_cursor(board_x, 7);
-    console_renderer.print_s(" ██████████████████████ ", Color::FOREGROUND);
-
-    console_renderer.set_cursor(board_x, 28);
-    console_renderer.print_s(" ██████████████████████ ", Color::FOREGROUND);
+    text_renderer.draw_logo({LOGO_X, 1});
+    box_renderer.draw_box({LEFT_X, 9}, 9, 6, "[HOLD]", Color::GREEN, Color::PANEL);
+    box_renderer.draw_box({MIDDLE_X, 9}, 9, 17, "[NEXT]", Color::PURPLE, Color::PANEL);
+    box_renderer.draw_box({LEFT_X, 16}, 9, 4, "[SCORE]", Color::CYAN, Color::PANEL);
+    box_renderer.draw_box({LEFT_X, 21}, 9, 4, "[LV]", Color::CYAN, Color::PANEL);
+    box_renderer.draw_box({MIDDLE_X, 2}, 9, 4, "[TIME]", Color::COMMENT, Color::PANEL);
+    box_renderer.draw_line({BOARD_X, BOARD_Y}, 22, 21, Color::FOREGROUND);
 }
 
 void WindowRenderer::render_score(int score)
 {
-    console_renderer.set_cursor(8, 18);
+    string score_str = to_string(score);
+    console_renderer.set_cursor(12 - score_str.size(), 18);
     console_renderer.print_s(to_string(score), Color::CYAN);
 }
 
 void WindowRenderer::render_level(int level)
 {
-    console_renderer.set_cursor(10, 23);
-    console_renderer.print_s(to_string(level), Color::CYAN);
+    string level_str = to_string(level);
+    console_renderer.set_cursor(12 - level_str.size(), 23);
+    console_renderer.print_s(level_str, Color::CYAN);
 }
 
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
 {
-    int start_x = board_x;
-    int start_y = 7;
     auto game_board = board.get_board();
     auto [pos_r, pos_c] = tetromino.get_pos();
     const Mino& shape = tetromino.get_shape();
@@ -93,8 +89,7 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
     if (setting->shadow_on) shadows = shadow_maker.get_shadow_pos(board, tetromino);
 
     for (int r = 2; r < 22; ++r) {
-        console_renderer.set_cursor(start_x, start_y + (r - 1));
-        console_renderer.print_s(" █", Color::FOREGROUND);
+        console_renderer.set_cursor(BOARD_X, BOARD_Y + (r - 1));
 
         for (int c = 0; c < 10; ++c) {
             bool is_falling_block = false;
@@ -128,8 +123,6 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
                 console_renderer.print_s("  ", Color::BACKGROUND);
             }
         }
-
-        console_renderer.print_s("█ ", Color::FOREGROUND);
     }
 }
 

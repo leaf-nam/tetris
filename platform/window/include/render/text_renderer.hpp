@@ -16,10 +16,13 @@ class TextRenderer
     void print_big_char(Pos, char);
     void print_big_string(Pos, std::string&, Color);
     void print_big_string(Pos, std::string&);
+    void print_big_string(Pos pos, const char* str, Color key);
     void print_big_string(Pos, const char*);
     void print_small_string(Pos, std::string&, Color);
     void print_small_string(Pos, std::string&);
     void print_small_string(Pos pos, const char* str);
+    void draw_game_start_count(int count);
+    void draw_game_over(Pos pos);
     void draw_logo(Pos pos);
 };
 
@@ -76,5 +79,27 @@ const char* const BIG_FONT[26][5] = {
     {"█   █", " █ █ ", "  █  ", "  █  ", "  █  "},
     // Z
     {"█████", "   █ ", "  █  ", " █   ", "█████"}};
+
+const char* const BIG_NUMBER[10][5] = {
+    // 0
+    {" ███ ", "█   █", "█   █", "█   █", " ███ "},
+    // 1
+    {"  █  ", " ██  ", "  █  ", "  █  ", " ███ "},
+    // 2
+    {" ███ ", "█   █", "   █ ", " █   ", "█████"},
+    // 3
+    {"████ ", "    █", " ███ ", "    █", "████ "},
+    // 4
+    {"█   █", "█   █", "█████", "    █", "    █"},
+    // 5
+    {"█████", "█    ", "████ ", "    █", "████ "},
+    // 6
+    {" ███ ", "█    ", "████ ", "█   █", " ███ "},
+    // 7
+    {"█████", "    █", "   █ ", "  █  ", "  █  "},
+    // 8
+    {" ███ ", "█   █", " ███ ", "█   █", " ███ "},
+    // 9
+    {" ███ ", "█   █", " ████", "    █", " ███ "}};
 
 #endif // !__TEXT_RENDERER_HPP__

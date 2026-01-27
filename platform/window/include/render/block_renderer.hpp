@@ -16,5 +16,7 @@ class BlockRenderer
     BlockRenderer(ConsoleRenderer, ColorPicker);
     void render_mino_pattern(Pos, const Tetromino&, bool transparent = false);
     void render_mino_pattern(Pos, const Tetromino&, Color, bool transparent = false);
+    void render_mino_pattern(Pos pos, const Tetromino& tetromino, Color mino_color,
+                             Color background_color, bool transparent = false);
 };
 #endif // !__BLOCK_RENDERER_HPP__
