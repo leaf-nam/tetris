@@ -1,9 +1,10 @@
-#include "render/console_renderer.hpp"
+﻿#include "render/console_renderer.hpp"
 
 #include "render/theme.hpp"
 
 #include <conio.h>
 #include <windows.h>
+#include <iostream>
 
 using namespace std;
 

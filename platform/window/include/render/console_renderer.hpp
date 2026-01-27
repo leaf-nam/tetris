@@ -15,6 +15,8 @@ class ConsoleRenderer
 
     void show_cursor();
     void hide_cursor();
+    void resize(int, int);
+
     void set_cursor(Pos);
     void set_cursor(int, int);
     void set_color(Color);
