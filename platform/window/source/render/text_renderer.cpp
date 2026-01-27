@@ -25,7 +25,7 @@ void TextRenderer::print_big_string(Pos pos, string& str, Color key)
     for (int j = 0; j < str.size(); ++j) {
         char c = str[j];
         Pos next{pos.x + j * 6, pos.y};
-        print_big_char(next, c);
+        print_big_char(next, c, key);
     }
 }
 
@@ -49,6 +49,13 @@ void TextRenderer::print_big_string(Pos pos, string& str)
             }
         }
     }
+}
+
+void TextRenderer::print_big_string(Pos pos, const char* str, Color key)
+{
+    string s;
+    s.assign(str);
+    print_big_string(pos, s, key);
 }
 
 void TextRenderer::print_big_string(Pos pos, const char* str)
@@ -82,7 +89,10 @@ void TextRenderer::draw_game_start_count(int count)
     print_big_string({32, 15}, count_str);
 }
 
-void TextRenderer::draw_game_over(Pos pos) { print_big_string({pos.x, pos.y}, "GAMEOVER"); }
+void TextRenderer::draw_game_over(Pos pos)
+{
+    print_big_string({pos.x, pos.y}, "GAMEOVER", Color::ORANGE);
+}
 
 void TextRenderer::draw_logo(Pos pos)
 {
