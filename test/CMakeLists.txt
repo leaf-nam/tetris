@@ -53,6 +53,7 @@ target_link_libraries(
 
 if(WIN32)
     target_link_libraries(unit_test 
+        window_util
         shadow_maker_test
 )
 endif()

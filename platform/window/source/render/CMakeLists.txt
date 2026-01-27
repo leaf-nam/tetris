@@ -6,6 +6,7 @@ add_library(render
     ${RENDER_SOURCES}
 
     "../util/shadow_maker.cpp" 
+    "../util/setting_storage.cpp"
 )
 
 target_include_directories(render 

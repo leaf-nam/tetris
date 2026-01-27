@@ -8,7 +8,7 @@ class ShadowMaker
 {
   public:
     std::vector<Pos> get_shadow_pos(const Board& board, const Tetromino& tetromino);
-    bool isShadow(std::vector<Pos>, Pos);
+    bool is_shadow(std::vector<Pos>, Pos);
 
   private:
     std::vector<Pos> get_mino_pos(const Tetromino& tetromino);

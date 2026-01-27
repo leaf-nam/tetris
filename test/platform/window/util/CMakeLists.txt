@@ -1,11 +1,11 @@
-add_library(render_util_test OBJECT render_util_test.cpp) 
+add_library(shadow_maker_test OBJECT shadow_maker_test.cpp) 
 
-target_link_libraries(render_util_test GTest::gtest)
+target_link_libraries(shadow_maker_test GTest::gtest)
 
-target_include_directories(render_util_test 
+target_include_directories(shadow_maker_test
 	PUBLIC ${PROJECT_SOURCE_DIR}/api
 	PUBLIC ${PROJECT_SOURCE_DIR}/core/include
 	PUBLIC ${PROJECT_SOURCE_DIR}/platform/window/include
 )
 
-set_target_properties(render_util_test PROPERTIES CXX_STANDARD 17)
+set_target_properties(shadow_maker_test PROPERTIES CXX_STANDARD 17)

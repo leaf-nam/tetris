@@ -6,7 +6,7 @@
 
 using namespace std;
 
-bool ShadowMaker::isShadow(vector<Pos> shadows, Pos pos)
+bool ShadowMaker::is_shadow(vector<Pos> shadows, Pos pos)
 {
     for (auto shadow : shadows) {
         if (shadow.y == pos.y && shadow.x == pos.x) {

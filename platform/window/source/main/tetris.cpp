@@ -8,6 +8,7 @@
 #include "render/menu_renderer.hpp"
 #include "render/render_factory.hpp"
 #include "render/window_renderer.hpp"
+#include "util/setting_storage.hpp"
 
 #include <Windows.h>
 #include <conio.h>
@@ -17,6 +18,8 @@ static IRenderer* renderer;
 static Engine* engine;
 static Setting* setting;
 static bool finished = false;
+
+using namespace std;
 
 enum class AppState
 {
@@ -38,19 +41,19 @@ int main()
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
-    setting = new Setting();
-    setting->nick_name = "Player";
-    setting->shadow_on = true;
-    setting->color_theme = 0;
-    setting->server_ip_address = "127.0.0.1";
-    setting->server_port = "41234";
+    SettingStorage& setting_storage = SettingStorage::getInstance();
+
+    setting_storage.initialize("settings.txt");
+
+    Setting s = setting_storage.load();
+    setting = &s;
+
+    Theme& theme = Theme::getInstance();
+    theme.apply(static_cast<ThemeKey>(setting->color_theme));
 
     RenderFactory& render_factory = RenderFactory::getInstance();
     render_factory.initialize(setting);
 
-    MenuRenderer menu_renderer = render_factory.create_menu_renderer();
-
-    Theme::getInstance();
     AppState state = AppState::MENU;
 
     char in = 0;
@@ -127,6 +130,7 @@ AppState run_settings()
     RenderFactory render_factory = RenderFactory::getInstance();
     MenuRenderer menu_renderer = render_factory.create_menu_renderer();
     InputWindowRenderer input_window_renderer = render_factory.create_input_window_renderer();
+    SettingStorage& setting_storage = SettingStorage::getInstance();
 
     menu_renderer.render_settings_frame();
     menu_renderer.render_settings(menu);
@@ -171,6 +175,7 @@ AppState run_settings()
 
             // 저장 및 종료
             case SettingMenu::SAVE: {
+                setting_storage.save(*setting);
                 finish = true;
                 break;
             }

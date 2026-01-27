@@ -2,18 +2,42 @@
 #define __SETTING_HPP__
 
 #include <cstdint>
+#include <cstring>
 #include <string>
-
-using namespace std;
 
 class Setting
 {
   public:
+    Setting()
+        : color_theme(0), shadow_on(true), nick_name("Player"), server_ip_address("127.0.0.1"),
+          server_port("41234")
+    {
+    }
+
     uint8_t color_theme;
     bool shadow_on;
-    string nick_name;
-    string server_ip_address;
-    string server_port;
+    std::string nick_name;
+    std::string server_ip_address;
+    std::string server_port;
+
+    void set(const std::string& key, const std::string& value)
+    {
+        if (key == "nick_name") {
+            nick_name = value;
+        }
+        else if (key == "shadow_on") {
+            shadow_on = (value == "true");
+        }
+        else if (key == "color_theme") {
+            color_theme = static_cast<uint8_t>(stoi(value));
+        }
+        else if (key == "server_ip_address") {
+            server_ip_address = value;
+        }
+        else if (key == "server_port") {
+            server_port = value;
+        }
+    }
 };
 
 #endif // !__SETTING_HPP__
