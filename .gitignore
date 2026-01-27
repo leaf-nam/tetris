@@ -47,6 +47,6 @@ tags
 # cmake build folder
 build
 out
-
+build_wasm
 .vs
 .vscode

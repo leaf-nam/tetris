@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>My Awesome Tetris</title>
+    <style>
+        body {
+            background-color: #222; /* 어두운 회색 배경 */
+            color: white;
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        /* 게임 화면(캔버스) 스타일 */
+        canvas.emscripten {
+            border: 2px solid #555; /* 테두리 */
+            background-color: black; /* 캔버스 배경 */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); /* 그림자 효과 */
+            display: block;
+            margin: 0 auto; /* 중앙 정렬 */
+        }
+
+        /* 로딩 중일 때 보일 텍스트 */
+        #status {
+            color: #aaa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 C++ Tetris on Web</h1>
+
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+
+    <div id="status">Loading...</div>
+
+    {{{ SCRIPT }}}
+
+    <script>
+        // 게임 로딩이 끝나면 'Loading...' 글자 숨기기 등 추가 스크립트 작성 가능
+        var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+        return function(text) {
+        console.log(text);
+        };
+        })(),
+        canvas: (function() {
+        var canvas = document.getElementById('canvas');
+        return canvas;
+        })(),
+        setStatus: function(text) {
+        if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+        if (text === Module.setStatus.last.text) return;
+        var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+        var now = Date.now();
+        if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+        Module.setStatus.last.time = now;
+        Module.setStatus.last.text = text;
+        var statusElement = document.getElementById('status');
+        if (statusElement) {
+        statusElement.innerHTML = text;
+        if(text === "") statusElement.style.display = 'none'; // 로딩 끝나면 숨김
+        }
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+        this.totalDependencies = Math.max(this.totalDependencies, left);
+        Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+        };
+        Module.setStatus('Downloading...');
+        window.onerror = function(event) {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus = function(text) {
+        if (text) Module.printErr('[post-exception status] ' + text);
+        };
+        };
+    </script>
+</body>
+</html>

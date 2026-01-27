@@ -1,4 +1,4 @@
-add_library(network web_network.js)
+add_library(network web_network.cpp)
 
 target_include_directories(network 
     PUBLIC ${PROJECT_SOURCE_DIR}/api
