@@ -7,6 +7,7 @@
 #include "render/menu.hpp"
 #include "render/menu_renderer.hpp"
 #include "render/render_factory.hpp"
+#include "render/window_multi_renderer.hpp"
 #include "render/window_renderer.hpp"
 #include "util/setting_storage.hpp"
 
@@ -258,8 +259,6 @@ AppState run_single_game()
         Sleep(1000);
     }
 
-    renderer->render_clear();
-
     engine->run();
     engine->finish();
 
@@ -283,14 +282,14 @@ AppState run_multi_game()
 {
     RenderFactory& render_factory = RenderFactory::getInstance();
 
-    WindowRenderer window_renderer = render_factory.create_window_renderer();
+    WindowMultiRenderer window_renderer = render_factory.create_window_multi_renderer();
     renderer = &window_renderer;
     input = new WindowInput();
     network = new WindowNetwork();
     engine = new MultiEngine(setting, input, renderer, network);
 
-    engine->run();
-    engine->finish();
+    renderer->render_clear();
+    renderer->render_background();
 
     (void) _getch();
 

@@ -7,7 +7,7 @@ add_library(render
 
     "../util/shadow_maker.cpp" 
     "../util/setting_storage.cpp"
-)
+ )
 
 target_include_directories(render 
     PUBLIC ${PROJECT_SOURCE_DIR}/api

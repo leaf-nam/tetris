@@ -2,6 +2,7 @@
 #define __RENDER_FACTORY_HPP__
 
 #include "menu_renderer.hpp"
+#include "window_multi_renderer.hpp"
 #include "window_renderer.hpp"
 
 #include <i_renderer.hpp>
@@ -27,6 +28,7 @@ class RenderFactory
     InputWindowRenderer create_input_window_renderer();
     MenuRenderer create_menu_renderer();
     WindowRenderer create_window_renderer();
+    WindowMultiRenderer create_window_multi_renderer();
     TextRenderer create_text_renderer();
     BoxRenderer create_box_renderer();
     BlockRenderer create_block_renderer();

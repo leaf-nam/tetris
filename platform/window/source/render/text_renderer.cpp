@@ -9,9 +9,18 @@ TextRenderer::TextRenderer(ConsoleRenderer a1, ColorPicker a2)
 
 void TextRenderer::print_big_char(Pos pos, char c, Color key)
 {
-    for (int i = 0; i < 5; ++i) {
-        console_renderer.set_cursor(pos.x, pos.y + i);
-        console_renderer.print_s(BIG_FONT[c - 'A'][i], key);
+    if (c >= 'A' && c <= 'Z') {
+        for (int i = 0; i < 5; ++i) {
+            console_renderer.set_cursor(pos.x, pos.y + i);
+            console_renderer.print_s(BIG_FONT[c - 'A'][i], key);
+        }
+    }
+
+    else if (c >= '0' && c <= '9') {
+        for (int i = 0; i < 5; ++i) {
+            console_renderer.set_cursor(pos.x, pos.y + i);
+            console_renderer.print_s(BIG_NUMBER[c - '0'][i], key);
+        }
     }
 }
 
