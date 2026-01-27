@@ -22,6 +22,7 @@
 #include <tetromino/tetromino.hpp>
 #include <util/setting.hpp>
 #include <vector>
+#include <unordered_map>
 
 class WindowRenderer : public IRenderer
 {
@@ -34,9 +35,19 @@ class WindowRenderer : public IRenderer
     BlockRenderer block_renderer;
     ShadowMaker shadow_maker;
 
+    std::unordered_map<std::string, int> other_land_index_map;
+    std::pair<int, int> other_render_loc_array[4];
+    int other_render_index;
+
+    std::pair<int, int> other_render_loc_get_or_set(std::string id);
   public:
     WindowRenderer(Setting*, ConsoleRenderer, ColorPicker, TextRenderer, BoxRenderer, BlockRenderer,
                    ShadowMaker);
+    /**
+     * @brief 렌더링 로직 초기화
+     */
+    WindowRenderer();
+
     /**
      * @brief 게임 로직과 무관한 배경 렌더링
      */
@@ -90,5 +101,13 @@ class WindowRenderer : public IRenderer
     void render_char(char c) override;
 
     void render_clear() override;
+
+    void render_game_over() override;
+
+    void render_other_game_over(Packet& pkt) override;
+
+    void render_win() override;
+
+    void render_other_win(Packet& pkt) override;
 };
 #endif

@@ -10,6 +10,10 @@
 #include "render/window_multi_renderer.hpp"
 #include "render/window_renderer.hpp"
 #include "util/setting_storage.hpp"
+#include "ip_resolver/ip_resolver.hpp"
+#include "ip_resolver_input_handler/window_ip_resolver_input_handler.hpp"
+#include "ip_resolver_network/window_ip_resolver_network.hpp"
+#include "ip_resolver_renderer/window_ip_resolver_renderer.hpp"
 
 #include <Windows.h>
 #include <chrono>
@@ -58,8 +62,6 @@ int main()
     render_factory.initialize(setting);
 
     AppState state = AppState::MENU;
-
-    char in = 0;
 
     while (state != AppState::EXIT) {
         switch (state) {
@@ -259,7 +261,7 @@ AppState run_single_game()
         Sleep(1000);
     }
 
-    engine->run();
+    engine->run(false);
     engine->finish();
 
     box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
@@ -286,10 +288,14 @@ AppState run_multi_game()
     renderer = &window_renderer;
     input = new WindowInput();
     network = new WindowNetwork();
-    engine = new MultiEngine(setting, input, renderer, network);
-
-    renderer->render_clear();
-    renderer->render_background();
+    IpResolver* ip_resolver = new IpResolver(new WindowIpResolverNetwork(), new WindowIpResolverRenderer(), new WindowIpResolverInputHandler());
+    bool is_server = false;
+    engine = new MultiEngine(setting, input, renderer, network, ip_resolver);
+    
+    is_server = ip_resolver->start();
+    menu_renderer->render_clear();
+    engine->run(is_server);
+    engine->finish();
 
     (void) _getch();
 
