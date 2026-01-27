@@ -27,6 +27,9 @@ class RenderFactory
     InputWindowRenderer create_input_window_renderer();
     MenuRenderer create_menu_renderer();
     WindowRenderer create_window_renderer();
+    TextRenderer create_text_renderer();
+    BoxRenderer create_box_renderer();
+    BlockRenderer create_block_renderer();
 };
 
 #endif // !__RENDER_FACTORY_HPP__

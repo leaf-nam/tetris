@@ -20,6 +20,8 @@ class TextRenderer
     void print_small_string(Pos, std::string&, Color);
     void print_small_string(Pos, std::string&);
     void print_small_string(Pos pos, const char* str);
+    void draw_game_start_count(int count);
+    void draw_game_over(Pos pos);
     void draw_logo(Pos pos);
 };
 

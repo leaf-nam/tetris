@@ -242,6 +242,10 @@ AppState run_single_game()
     RenderFactory& render_factory = RenderFactory::getInstance();
 
     WindowRenderer window_renderer = render_factory.create_window_renderer();
+    InputWindowRenderer input_window_renderer = render_factory.create_input_window_renderer();
+    TextRenderer text_renderer = render_factory.create_text_renderer();
+    BoxRenderer box_renderer = render_factory.create_box_renderer();
+
     renderer = &window_renderer;
     input = new WindowInput();
     engine = new SoloEngine(setting, input, renderer);
@@ -250,7 +254,7 @@ AppState run_single_game()
     renderer->render_background();
 
     for (int i = 3; i >= 1; --i) {
-        window_renderer.render_game_start_count(i);
+        text_renderer.draw_game_start_count(i);
         Sleep(1000);
     }
 
@@ -258,6 +262,10 @@ AppState run_single_game()
 
     engine->run();
     engine->finish();
+
+    box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
+    text_renderer.draw_game_over({14, 14});
+    input_window_renderer.render_input_window({16, 22}, "Press Any Button To Finish Game.");
 
     (void) _getch();
 
@@ -283,8 +291,6 @@ AppState run_multi_game()
 
     engine->run();
     engine->finish();
-
-    window_renderer.render_game_over();
 
     (void) _getch();
 

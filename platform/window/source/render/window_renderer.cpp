@@ -203,12 +203,4 @@ void WindowRenderer::render_ip_recv()
 
 void WindowRenderer::render_char(char c) { cout << c; }
 
-void WindowRenderer::render_game_start_count(int count)
-{
-    string count_str = to_string(count);
-    text_renderer.print_big_string({32, 15}, count_str);
-}
-
-void WindowRenderer::render_game_over() {}
-
 WindowRenderer::~WindowRenderer() {}

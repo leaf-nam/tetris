@@ -76,6 +76,14 @@ void TextRenderer::print_small_string(Pos pos, const char* str)
     print_small_string(pos, s);
 }
 
+void TextRenderer::draw_game_start_count(int count)
+{
+    string count_str = to_string(count);
+    print_big_string({32, 15}, count_str);
+}
+
+void TextRenderer::draw_game_over(Pos pos) { print_big_string({pos.x, pos.y}, "GAMEOVER"); }
+
 void TextRenderer::draw_logo(Pos pos)
 {
     print_big_string({pos.x, pos.y}, "TETRISSEN");
