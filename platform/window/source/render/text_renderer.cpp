@@ -91,7 +91,7 @@ void TextRenderer::draw_game_start_count(int count)
 
 void TextRenderer::draw_game_over(Pos pos)
 {
-    print_big_string({pos.x, pos.y}, "GAMEOVER", Color::ORANGE);
+    print_big_string({pos.x, pos.y}, "GAMEOVER", color_picker.get_random_color());
 }
 
 void TextRenderer::draw_logo(Pos pos)
