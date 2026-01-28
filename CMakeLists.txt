@@ -29,12 +29,12 @@ if (ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_link_options(--coverage)
 endif()
 
-add_subdirectory(core/source/board)
-add_subdirectory(core/source/game_rule)
-add_subdirectory(core/source/tetromino)
-add_subdirectory(core/source/util)
-add_subdirectory(core/source/engine)
-add_subdirectory(core/source/ip_resolver)
+#add_subdirectory(core/source/board)
+#add_subdirectory(core/source/game_rule)
+#add_subdirectory(core/source/tetromino)
+#add_subdirectory(core/source/util)
+#add_subdirectory(core/source/engine)
+#add_subdirectory(core/source/ip_resolver)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
@@ -46,6 +46,13 @@ if (UNIX)
     #    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
 # 윈도우 빌드
 elseif (WIN32)
+
+    add_subdirectory(core/source/board)
+    add_subdirectory(core/source/game_rule)
+    add_subdirectory(core/source/tetromino)
+    add_subdirectory(core/source/util)
+    add_subdirectory(core/source/engine)
+    add_subdirectory(core/source/ip_resolver)
 
     # WPF UI 빌드 -> wpf_dll.dll 생성
     if (USE_WPF)
