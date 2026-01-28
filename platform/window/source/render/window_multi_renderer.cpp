@@ -258,12 +258,12 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
     */
 }
 
-void WindowMultiRenderer::render_ip_recv()
-{
-    console_renderer.set_cursor(0, 0); // 적절한 위치로 수정 필요
-    cout << "대전 상대의 IP를 입력하세요: ";
-}
-
-void WindowMultiRenderer::render_char(char c) { cout << c; }
+//void WindowMultiRenderer::render_ip_recv()
+//{
+//    console_renderer.set_cursor(0, 0); // 적절한 위치로 수정 필요
+//    cout << "대전 상대의 IP를 입력하세요: ";
+//}
+//
+//void WindowMultiRenderer::render_char(char c) { cout << c; }
 
 WindowMultiRenderer::~WindowMultiRenderer() {}

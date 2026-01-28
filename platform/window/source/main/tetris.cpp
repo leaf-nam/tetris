@@ -259,7 +259,7 @@ AppState run_single_game()
         Sleep(1000);
     }
 
-    engine->run();
+    engine->run(false);
     engine->finish();
 
     box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
@@ -291,7 +291,7 @@ AppState run_multi_game()
     renderer->render_clear();
     renderer->render_background();
 
-    engine->run();
+    engine->run(true);
     engine->finish();
 
     (void) _getch();

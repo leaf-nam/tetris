@@ -85,9 +85,9 @@ class WindowMultiRenderer : public IRenderer
 
     void render_other_board(Packet& pkt) override;
 
-    void render_ip_recv() override;
+    //void render_ip_recv() override;
 
-    void render_char(char c) override;
+    //void render_char(char c) override;
 
     void render_clear() override;
 };

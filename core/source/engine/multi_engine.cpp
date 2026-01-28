@@ -60,7 +60,7 @@ void MultiEngine::run(bool is_server)
                                       ip_resolver->get_server_ip_address(),
                                       ip_resolver->get_my_id());
                 active_user.erase(ip_resolver->get_my_id());
-                renderer->render_game_over();
+                //renderer->render_game_over();
                 break;
             }
             renderer->render_next_block(tetromino_queue.get_tetrominos());
@@ -105,13 +105,13 @@ void MultiEngine::run(bool is_server)
             renderer->render_other_board(recv_pkt);
 
             if (recv_pkt.is_game_over == 1) {
-                renderer->render_other_game_over(recv_pkt);
+                //renderer->render_other_game_over(recv_pkt);
                 active_user.erase(std::string(recv_pkt.id));
             }
 
             if (active_user.size() == 1)
             {
-                renderer->render_win();
+                //renderer->render_win();
                 attack = rule->update_score();
                 if (is_server == true)
                     network->send_multi_udp(board, board.get_active_mino(), attack, 0, 1,
@@ -143,11 +143,11 @@ void MultiEngine::run(bool is_server)
             if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
             renderer->render_other_board(recv_pkt);
             if (recv_pkt.is_game_over == 1) {
-                renderer->render_other_game_over(recv_pkt);
+                //renderer->render_other_game_over(recv_pkt);
                 active_user.erase(std::string(recv_pkt.id));
             }
             if (recv_pkt.is_win == 1) {
-                renderer->render_other_win(recv_pkt);
+                //renderer->render_other_win(recv_pkt);
                 break;
             }
         }
