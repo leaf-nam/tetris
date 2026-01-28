@@ -38,14 +38,12 @@ add_subdirectory(core/source/ip_resolver)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
-    add_subdirectory(platform/linux/source/input)
-    add_subdirectory(platform/linux/source/render)
-    add_subdirectory(platform/linux/source/network)
-    add_subdirectory(platform/linux/source/main)
-    set_target_properties(tetris PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-
+    #add_subdirectory(platform/linux/source/input)
+    #add_subdirectory(platform/linux/source/render)
+    #add_subdirectory(platform/linux/source/network)
+    #add_subdirectory(platform/linux/source/main)
+    #set_target_properties(tetris PROPERTIES
+    #    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
 # 윈도우 빌드
 elseif (WIN32)
 
