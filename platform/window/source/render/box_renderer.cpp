@@ -11,7 +11,7 @@ void BoxRenderer::draw_box(Pos pos, int w, int h, const std::string& title, Colo
 
     if (!title.empty()) {
         console_renderer.set_cursor(pos.x, pos.y);
-        console_renderer.print_s(title, title_color);
+        console_renderer.print_s(title, title_color, box_color);
     }
 }
 
