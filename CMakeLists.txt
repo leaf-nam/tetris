@@ -29,24 +29,30 @@ if (ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_link_options(--coverage)
 endif()
 
-add_subdirectory(core/source/board)
-add_subdirectory(core/source/game_rule)
-add_subdirectory(core/source/tetromino)
-add_subdirectory(core/source/util)
-add_subdirectory(core/source/engine)
+#add_subdirectory(core/source/board)
+#add_subdirectory(core/source/game_rule)
+#add_subdirectory(core/source/tetromino)
+#add_subdirectory(core/source/util)
+#add_subdirectory(core/source/engine)
+#add_subdirectory(core/source/ip_resolver)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
-    add_subdirectory(platform/linux/source/input)
-    add_subdirectory(platform/linux/source/render)
-    add_subdirectory(platform/linux/source/network)
-    add_subdirectory(platform/linux/source/main)
-    set_target_properties(tetris PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-
+    #add_subdirectory(platform/linux/source/input)
+    #add_subdirectory(platform/linux/source/render)
+    #add_subdirectory(platform/linux/source/network)
+    #add_subdirectory(platform/linux/source/main)
+    #set_target_properties(tetris PROPERTIES
+    #    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
 # 윈도우 빌드
 elseif (WIN32)
+
+    add_subdirectory(core/source/board)
+    add_subdirectory(core/source/game_rule)
+    add_subdirectory(core/source/tetromino)
+    add_subdirectory(core/source/util)
+    add_subdirectory(core/source/engine)
+    add_subdirectory(core/source/ip_resolver)
 
     # WPF UI 빌드 -> wpf_dll.dll 생성
     if (USE_WPF)
@@ -58,11 +64,13 @@ elseif (WIN32)
         add_subdirectory(platform/window/source/input)
         add_subdirectory(platform/window/source/render)
         add_subdirectory(platform/window/source/network)
+        add_subdirectory(platform/window/source/ip_resolver_network)
+        add_subdirectory(platform/window/source/ip_resolver_renderer)
+        add_subdirectory(platform/window/source/ip_resolver_input_handler)
         add_subdirectory(platform/window/source/main)
         add_subdirectory(platform/window/source/util)
         #터미널 구조에 맞게 수정했습니다. 
     # 윈도우 터미널 UI 빌드 -> tetris.exe 생성
-
     endif()
 
 endif()

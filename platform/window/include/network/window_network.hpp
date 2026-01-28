@@ -12,9 +12,6 @@
 // [window] 링커 설정 (Visual Studio가 ws2_32.lib를 링크하도록 지시)
 #pragma comment(lib, "ws2_32.lib")
 
-#define PORT 41234
-// MAX_EVENTS는 epoll용이므로 삭제했습니다.
-
 class WindowNetwork : public INetwork
 {
 private:
@@ -28,15 +25,23 @@ private:
     SOCKADDR_IN client_addr;
 
     void write_32b(uint8_t*& p, int32_t v);
+    void write_bytes(uint8_t*& p, const void* data, size_t size);
     void serialize(uint8_t* buf, const Packet& pkt);
     int32_t read_32b(const uint8_t*& p);
+    void read_bytes(const uint8_t*& p, void* dst, size_t size);
     void deserialize(const uint8_t* buf, Packet& pkt);
 
 public:
     WindowNetwork();
     
     // 부모 클래스(INetwork)의 가상 함수 오버라이드
-    void send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, const char* another_user_ip) override;
+    void send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over, int is_win,
+                  const char* another_user_ip, const char* my_id) override;
+    void send_multi_udp(const Board& board, const Tetromino& tetromino, int deleted_line, 
+                        int is_game_over, int is_win, const char* my_id,
+                        std::vector<std::pair<std::string, std::string>> ids_ips) override;
+    void send_relay_udp(const Packet& packet,
+                        std::vector<std::pair<std::string, std::string>> ids_ips) override;
     bool recv_udp(Packet& recv_pkt) override;
     
     ~WindowNetwork();

@@ -53,9 +53,6 @@ class IRenderer
      */
     virtual void render_level(int level) = 0;
 
-    virtual void render_ip_recv() = 0;
-
-    virtual void render_char(char c) = 0;
 
     virtual void render_clear() = 0;
 
