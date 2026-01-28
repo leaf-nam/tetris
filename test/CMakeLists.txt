@@ -23,16 +23,20 @@ add_custom_target(linux-test
 
 enable_testing()
 
-add_subdirectory(core/util)
-add_subdirectory(core/board)
+#add_subdirectory(core/util)
+#add_subdirectory(core/board)
 #add_subdirectory(core/game_rule)
-add_subdirectory(core/tetromino)
+#add_subdirectory(core/tetromino)
 #add_subdirectory(core/engine)
 #add_subdirectory(core/tetris)
 
 if(WIN32)
     add_subdirectory(platform/window/util)
-endif()
+    add_subdirectory(core/util)
+    add_subdirectory(core/board)
+    #add_subdirectory(core/game_rule)
+    add_subdirectory(core/tetromino)
+
 
 add_executable(
     unit_test
@@ -50,6 +54,7 @@ target_link_libraries(
     engine
     GTest::gtest_main
 )
+endif()
 
 if(WIN32)
     target_link_libraries(unit_test 
