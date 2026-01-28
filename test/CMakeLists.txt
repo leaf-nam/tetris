@@ -61,7 +61,8 @@ if(WIN32)
         window_util
         shadow_maker_test
 )
-endif()
 
 include(GoogleTest)
 gtest_discover_tests(unit_test)
+
+endif()
