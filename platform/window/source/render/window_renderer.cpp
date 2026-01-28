@@ -15,6 +15,27 @@ WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, 
 {
 }
 
+WindowRenderer::WindowRenderer()
+{ 
+    other_render_loc_array[0] = std::make_pair(73, 1);
+    other_render_loc_array[1] = std::make_pair(96, 1);
+    other_render_loc_array[2] = std::make_pair(73, 14);
+    other_render_loc_array[3] = std::make_pair(96, 14);
+
+    other_render_index = 0;
+}
+
+std::pair<int, int> WindowRenderer::other_render_loc_get_or_set(std::string id)
+{
+    if (other_land_index_map.find(id) == other_land_index_map.end())
+    {
+        other_land_index_map[id] = other_render_index;
+        return other_render_loc_array[other_render_index++];
+    }
+    else
+        return other_render_loc_array[other_land_index_map[id]];
+}
+
 void WindowRenderer::render_timer(int totalSec)
 {
     int min = (totalSec / 60);
@@ -78,6 +99,30 @@ void WindowRenderer::render_level(int level)
     console_renderer.print_s(level_str, Color::CYAN);
 }
 
+void WindowRenderer::render_game_over()
+{
+    set_cursor(33, 17);
+    printf("%s%s%s", RED, "GAMEOVER", RESET);
+}
+
+void WindowRenderer::render_other_game_over(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    set_cursor(start_x + 8, start_y + 10);
+    printf("%s%s%s", RED, "GAMEOVER", RESET);
+}
+
+void WindowRenderer::render_win() {
+    set_cursor(35, 6);
+    printf("%s%s%s", GREEN, "WIN", RESET);
+}
+
+void WindowRenderer::render_other_win(Packet& pkt) {
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    set_cursor(start_x + 10, start_y - 1);
+    printf("%s%s%s", GREEN, "WIN", RESET);
+}
+
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
 {
     auto game_board = board.get_board();
@@ -127,7 +172,69 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
 
 void WindowRenderer::render_other_board(Packet& pkt)
 {
-    // not used
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+
+    // 2. 패킷에서 데이터 추출
+    int pos_r = pkt.r - 2;
+    int pos_c = pkt.c;
+    int mino_type = pkt.type;
+    int rotation = pkt.rotation;
+
+    // 미노 모양 가져오기 (TETROMINO 배열이 전역이거나 클래스 멤버여야 함)
+    const Mino& shape = TETROMINO[mino_type][rotation];
+    string mino_color = get_block_color(mino_type); // 기존에 만든 색상 함수 활용
+
+    set_cursor(start_x, start_y - 1);
+    print_s(pkt.id, ColorKey::FOREGROUND);
+    set_cursor(start_x, start_y);
+    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
+    
+    // 행 루프 (2~21)
+    for (int r = 0; r < 20; ++r) {
+        set_cursor(start_x, start_y + (r + 1));
+        print_s(" █", ColorKey::FOREGROUND);
+
+        // 열 루프 (0~9)
+        for (int c = 0; c < 10; ++c) {
+            bool is_falling_block = false;
+
+            // --- [핵심 변경] 비트 연산 제거 -> 좌표 비교 ---
+
+            // 1. 현재 좌표(r, c)가 떨어지는 미노의 4x4 영역 안에 있는지 확인
+            bool inside_box = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
+
+            if (inside_box) {
+                // 4x4 배열 내부에서의 상대 좌표 계산 (0~3)
+                int local_r = r - pos_r;
+                int local_c = c - pos_c;
+
+                // 해당 위치에 블록이 채워져 있는지 확인 (0이 아니면 블록임)
+                if (shape[local_r][local_c] != 0) {
+                    is_falling_block = true;
+                    // 미노 자체의 타입을 가져오거나, shape의 값을 사용
+                }
+            }
+
+            // --- 그리기 로직 ---
+            if (is_falling_block) {
+                // 떨어지는 블록 그리기
+                print_s("██", get_color_key(pkt.type));
+            }
+            else if (pkt.board[r][c] < 8 && pkt.board[r][c] > -1) {
+                // 바닥에 쌓인 블록 그리기
+                print_s("██", get_color_key(pkt.board[r][c]));
+            }
+            else {
+                // 빈 공간
+                print_s("  ", ColorKey::BACKGROUND);
+            }
+        }
+
+        print_s("█ ", ColorKey::FOREGROUND);
+    }
+
+    set_cursor(start_x, start_y + 21);
+    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
 }
 
 void WindowRenderer::render_ip_recv()
