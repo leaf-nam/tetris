@@ -2,17 +2,11 @@
 
 using namespace std;
 
-const int LOGO_X = 2;
-const int BOARD_X = 25;
-const int BOARD_Y = 7;
-const int LEFT_X = 4;
-const int MIDDLE_X = 58;
-
 const int BOARD_START_Y = 7;
-const int MY_BOARD_X = 45;
-const int MY_BOARD_Y = 30;
-const int ENEMY_BOARD_X = 20;
-const int ENEMY_BOARD_Y = 30;
+const int MY_TOTAL_WIDTH = 45;
+const int MY_TOTAL_HEIGHT = 30;
+const int ENEMY_BOARD_WIDTH = 20;
+const int ENEMY_BOARD_HEIGHT = 30;
 const int BOARD_WIDTH = 22;
 const int BOARD_HEIGHT = 21;
 
@@ -22,12 +16,100 @@ const int BOX_HEIGHT = 6;
 const int MARGIN = 1;
 const int GAP_X = 3;
 
+const int HOLD_Y = BOARD_START_Y;
+const int SCORE_Y = MARGIN * 2 + BOARD_START_Y + BOX_HEIGHT;
+const int LV_Y = MARGIN * 4 + BOARD_START_Y + BOX_HEIGHT * 2;
+const int TIMER_Y = BOARD_START_Y;
+const int NEXT_Y = BOARD_START_Y + BOX_HEIGHT / 2 + MARGIN;
+
+const int LEFT_BOX_X = MARGIN;
+const int RIGHT_BOX_X = BOX_WIDTH + BOARD_WIDTH + MARGIN * 2;
+const int MY_BOARD_X = MARGIN * 3 + BOX_WIDTH;
+
 WindowMultiRenderer::WindowMultiRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3,
                                          TextRenderer a4, BoxRenderer a5, BlockRenderer a6,
                                          ShadowMaker a7)
     : setting(a1), console_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
       block_renderer(a6), shadow_maker(a7)
 {
+}
+
+void WindowMultiRenderer::render_clear() { console_renderer.clear(); }
+
+void WindowMultiRenderer::render_background()
+{
+    fflush(stdout);
+
+    // logo
+    text_renderer.print_big_string({MARGIN, MARGIN}, "MYBOARD");
+
+    // left box
+    box_renderer.draw_box({LEFT_BOX_X, HOLD_Y}, BOX_WIDTH, BOX_HEIGHT, "[HOLD]", Color::GREEN,
+                          Color::PANEL);
+    box_renderer.draw_box({LEFT_BOX_X, SCORE_Y}, BOX_WIDTH, BOX_HEIGHT, "[SCORE]", Color::CYAN,
+                          Color::PANEL);
+    box_renderer.draw_box({LEFT_BOX_X, LV_Y}, BOX_WIDTH, BOX_HEIGHT, "[LV]", Color::CYAN,
+                          Color::PANEL);
+
+    // right box
+    box_renderer.draw_box({RIGHT_BOX_X, TIMER_Y}, BOX_WIDTH, BOX_HEIGHT / 2, "[TIME]",
+                          Color::COMMENT, Color::PANEL);
+    box_renderer.draw_box({RIGHT_BOX_X, NEXT_Y}, BOX_WIDTH, BOX_HEIGHT * 3, "[NEXT]", Color::PURPLE,
+                          Color::PANEL);
+
+    // my board
+    box_renderer.draw_line({MY_BOARD_X, BOARD_START_Y}, BOARD_WIDTH, BOARD_HEIGHT,
+                           Color::FOREGROUND);
+
+    Color enemy1_color = Color::CYAN;
+    Color enemy2_color = Color::ORANGE;
+    Color enemy3_color = Color::PINK;
+
+    int start_margin = MARGIN * 2;
+    int text_margin = MARGIN * 4;
+    int board_margin = MARGIN * 3;
+
+    // enemy 1 board
+    text_renderer.print_big_string({start_margin + text_margin + MY_TOTAL_WIDTH, MARGIN}, "E1",
+                                   enemy1_color);
+    box_renderer.draw_line({start_margin + MY_TOTAL_WIDTH, BOARD_START_Y}, BOARD_WIDTH,
+                           BOARD_HEIGHT, enemy1_color);
+
+    // enemy 2 board
+    text_renderer.print_big_string(
+        {start_margin + board_margin + text_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH, MARGIN},
+        "E2", enemy2_color);
+    box_renderer.draw_line(
+        {start_margin + board_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH, BOARD_START_Y},
+        BOARD_WIDTH, BOARD_HEIGHT, enemy2_color);
+
+    // enemy 3 board
+    text_renderer.print_big_string(
+        {start_margin + board_margin * 2 + text_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH * 2,
+         MARGIN},
+        "E3", enemy3_color);
+    box_renderer.draw_line(
+        {start_margin + board_margin * 2 + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH * 2, BOARD_START_Y},
+        BOARD_WIDTH, BOARD_HEIGHT, enemy3_color);
+}
+
+void WindowMultiRenderer::render_hold(const Tetromino& tetromino)
+{
+    block_renderer.render_mino_pattern({LEFT_BOX_X + 2, HOLD_Y + 2}, tetromino, Color::PANEL);
+}
+
+void WindowMultiRenderer::render_score(int score)
+{
+    string score_str = to_string(score);
+    console_renderer.set_cursor(LEFT_BOX_X + 8 - (int) score_str.size(), SCORE_Y + 3);
+    console_renderer.print_s(to_string(score), Color::CYAN, Color::PANEL);
+}
+
+void WindowMultiRenderer::render_level(int level)
+{
+    string level_str = to_string(level);
+    text_renderer.print_big_string({LEFT_BOX_X + 3, LV_Y + 1}, level_str, Color::CYAN,
+                                   Color::PANEL);
 }
 
 void WindowMultiRenderer::render_timer(int totalSec)
@@ -38,16 +120,14 @@ void WindowMultiRenderer::render_timer(int totalSec)
     string sec_str =
         to_string(min / 10) + to_string(min % 10) + ":" + to_string(sec / 10) + to_string(sec % 10);
 
-    console_renderer.set_cursor(MIDDLE_X + 2, 4);
-    console_renderer.print_s(sec_str, Color::COMMENT);
+    console_renderer.set_cursor(RIGHT_BOX_X + 3, TIMER_Y + 1);
+    console_renderer.print_s(sec_str, Color::COMMENT, Color::PANEL);
 }
 
-void WindowMultiRenderer::render_clear() { console_renderer.clear(); }
 void WindowMultiRenderer::render_next_block(const int* tetrominoArray)
 {
+    int x = RIGHT_BOX_X + 2, y = NEXT_Y + 2, diff = BOX_HEIGHT;
     for (size_t i = 0; i < 3; ++i) {
-        int x = MIDDLE_X + 1, y = 11;
-
         Tetromino m1;
         Tetromino m2;
         Tetromino m3;
@@ -57,76 +137,9 @@ void WindowMultiRenderer::render_next_block(const int* tetrominoArray)
 
         // next mino
         block_renderer.render_mino_pattern({x, y}, m1, Color::PANEL);
-        block_renderer.render_mino_pattern({x, y + 5}, m2, Color::PANEL);
-        block_renderer.render_mino_pattern({x, y + 10}, m3, Color::PANEL);
+        block_renderer.render_mino_pattern({x, y + diff}, m2, Color::PANEL);
+        block_renderer.render_mino_pattern({x, y + diff * 2}, m3, Color::PANEL);
     }
-}
-
-void WindowMultiRenderer::render_hold(const Tetromino& tetromino)
-{
-    block_renderer.render_mino_pattern({5, 11}, tetromino, Color::PANEL);
-}
-
-void WindowMultiRenderer::render_background()
-{
-    fflush(stdout);
-
-    // logo
-    text_renderer.print_big_string({MARGIN, MARGIN}, "MYBOARD");
-
-    // left box
-    box_renderer.draw_box({MARGIN, BOARD_START_Y}, BOX_WIDTH, BOX_HEIGHT, "[HOLD]", Color::GREEN,
-                          Color::PANEL);
-    box_renderer.draw_box({MARGIN, MARGIN * 2 + BOARD_START_Y + BOX_HEIGHT}, BOX_WIDTH, BOX_HEIGHT,
-                          "[SCORE]", Color::CYAN, Color::PANEL);
-    box_renderer.draw_box({MARGIN, MARGIN * 4 + BOARD_START_Y + BOX_HEIGHT * 2}, BOX_WIDTH,
-                          BOX_HEIGHT, "[LV]", Color::CYAN, Color::PANEL);
-
-    // right box
-    box_renderer.draw_box({BOX_WIDTH + BOARD_WIDTH + MARGIN * 2, BOARD_START_Y}, BOX_WIDTH,
-                          BOX_HEIGHT / 2, "[TIME]", Color::COMMENT, Color::PANEL);
-    box_renderer.draw_box(
-        {BOX_WIDTH + BOARD_WIDTH + MARGIN * 2, MARGIN + BOARD_START_Y + BOX_HEIGHT / 2}, BOX_WIDTH,
-        BOX_HEIGHT * 3, "[NEXT]", Color::PURPLE, Color::PANEL);
-
-    // my board
-    box_renderer.draw_line({MARGIN * 3 + BOX_WIDTH, BOARD_START_Y}, BOARD_WIDTH, BOARD_HEIGHT,
-                           Color::FOREGROUND);
-
-    Color enemy1_color = Color::CYAN;
-    Color enemy2_color = Color::ORANGE;
-    Color enemy3_color = Color::PINK;
-
-    // enemy 1 board
-    text_renderer.print_big_string({MARGIN * 6 + MY_BOARD_X, MARGIN}, "E1", enemy1_color);
-    box_renderer.draw_line({MARGIN * 2 + MY_BOARD_X, BOARD_START_Y}, BOARD_WIDTH, BOARD_HEIGHT,
-                           enemy1_color);
-
-    // enemy 2 board
-    text_renderer.print_big_string({MARGIN * 9 + MY_BOARD_X + ENEMY_BOARD_X, MARGIN}, "E2",
-                                   enemy2_color);
-    box_renderer.draw_line({MARGIN * 5 + MY_BOARD_X + ENEMY_BOARD_X, BOARD_START_Y}, BOARD_WIDTH,
-                           BOARD_HEIGHT, enemy2_color);
-
-    // enemy 3 board
-    text_renderer.print_big_string({MARGIN * 12 + MY_BOARD_X + ENEMY_BOARD_X * 2, MARGIN}, "E3",
-                                   enemy3_color);
-    box_renderer.draw_line({MARGIN * 8 + MY_BOARD_X + ENEMY_BOARD_X * 2, BOARD_START_Y},
-                           BOARD_WIDTH, BOARD_HEIGHT, enemy3_color);
-}
-
-void WindowMultiRenderer::render_score(int score)
-{
-    string score_str = to_string(score);
-    console_renderer.set_cursor(12 - score_str.size(), 18);
-    console_renderer.print_s(to_string(score), Color::CYAN);
-}
-
-void WindowMultiRenderer::render_level(int level)
-{
-    string level_str = to_string(level);
-    console_renderer.set_cursor(12 - level_str.size(), 23);
-    console_renderer.print_s(level_str, Color::CYAN);
 }
 
 void WindowMultiRenderer::render_board(const Board& board, const Tetromino& tetromino)
@@ -139,7 +152,7 @@ void WindowMultiRenderer::render_board(const Board& board, const Tetromino& tetr
     if (setting->shadow_on) shadows = shadow_maker.get_shadow_pos(board, tetromino);
 
     for (int r = 2; r < 22; ++r) {
-        console_renderer.set_cursor(BOARD_X, BOARD_Y + (r - 1));
+        console_renderer.set_cursor(MY_BOARD_X, BOARD_START_Y + (r - 1));
 
         for (int c = 0; c < 10; ++c) {
             bool is_falling_block = false;
@@ -245,12 +258,12 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
     */
 }
 
-void WindowMultiRenderer::render_ip_recv()
-{
-    console_renderer.set_cursor(0, 0); // 적절한 위치로 수정 필요
-    cout << "대전 상대의 IP를 입력하세요: ";
-}
-
-void WindowMultiRenderer::render_char(char c) { cout << c; }
+//void WindowMultiRenderer::render_ip_recv()
+//{
+//    console_renderer.set_cursor(0, 0); // 적절한 위치로 수정 필요
+//    cout << "대전 상대의 IP를 입력하세요: ";
+//}
+//
+//void WindowMultiRenderer::render_char(char c) { cout << c; }
 
 WindowMultiRenderer::~WindowMultiRenderer() {}

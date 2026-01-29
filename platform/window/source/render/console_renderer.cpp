@@ -3,8 +3,8 @@
 #include "render/theme.hpp"
 
 #include <conio.h>
-#include <windows.h>
 #include <iostream>
+#include <windows.h>
 
 using namespace std;
 
@@ -53,9 +53,14 @@ void ConsoleRenderer::print_s(const char* const s, Color key)
 void ConsoleRenderer::print_s(const char* const s, Color foreground, Color background)
 {
     printf("%s%s%s%s", get_color(foreground).c_str(), get_color(background, true).c_str(), s,
-           get_color(Color::BACKGROUND).c_str());
+           get_color(background).c_str());
 }
 
 void ConsoleRenderer::print_s(string s, Color key) { print_s(s.c_str(), key); }
+
+void ConsoleRenderer::print_s(string s, Color foreground, Color background)
+{
+    print_s(s.c_str(), foreground, background);
+}
 
 void ConsoleRenderer::print_s(string s) { printf("%s", s.c_str()); }

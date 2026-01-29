@@ -24,6 +24,23 @@ void TextRenderer::print_big_char(Pos pos, char c, Color key)
     }
 }
 
+void TextRenderer::print_big_char(Pos pos, char c, Color foreground, Color background)
+{
+    if (c >= 'A' && c <= 'Z') {
+        for (int i = 0; i < 5; ++i) {
+            console_renderer.set_cursor(pos.x, pos.y + i);
+            console_renderer.print_s(BIG_FONT[c - 'A'][i], foreground, background);
+        }
+    }
+
+    else if (c >= '0' && c <= '9') {
+        for (int i = 0; i < 5; ++i) {
+            console_renderer.set_cursor(pos.x, pos.y + i);
+            console_renderer.print_s(BIG_NUMBER[c - '0'][i], foreground, background);
+        }
+    }
+}
+
 void TextRenderer::print_big_char(Pos pos, char c)
 {
     print_big_char(pos, c, color_picker.get_random_color());
@@ -35,6 +52,15 @@ void TextRenderer::print_big_string(Pos pos, string& str, Color key)
         char c = str[j];
         Pos next{pos.x + j * 6, pos.y};
         print_big_char(next, c, key);
+    }
+}
+
+void TextRenderer::print_big_string(Pos pos, string& str, Color foreground, Color background)
+{
+    for (int j = 0; j < str.size(); ++j) {
+        char c = str[j];
+        Pos next{pos.x + j * 6, pos.y};
+        print_big_char(next, c, foreground, background);
     }
 }
 
