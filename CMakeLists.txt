@@ -35,15 +35,17 @@ add_subdirectory(core/source/tetromino)
 add_subdirectory(core/source/util)
 add_subdirectory(core/source/engine)
 add_subdirectory(core/source/ip_resolver)
+add_subdirectory(menu/source)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
-    #add_subdirectory(platform/linux/source/input)
-    #add_subdirectory(platform/linux/source/render)
-    #add_subdirectory(platform/linux/source/network)
-    #add_subdirectory(platform/linux/source/main)
-    #set_target_properties(tetris PROPERTIES
-    #    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
+    add_subdirectory(platform/linux/source/input)
+    add_subdirectory(platform/linux/source/render)
+    add_subdirectory(platform/linux/source/network)
+    add_subdirectory(platform/linux/source/main)
+    set_target_properties(tetris PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 # 윈도우 빌드
 elseif (WIN32)
 
@@ -54,6 +56,7 @@ elseif (WIN32)
         add_subdirectory(platform/wpf/wpf_dll/source/callback)
     # 윈도우 터미널 UI 빌드 -> window_main.exe 생성
     else()
+        add_subdirectory(platform/common/source/render)
         add_subdirectory(platform/window/source/input)
         add_subdirectory(platform/window/source/render)
         add_subdirectory(platform/window/source/network)

@@ -1,9 +1,14 @@
-add_library(window_util shadow_maker.cpp setting_storage.cpp)
+file(GLOB RENDER_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+)
 
-target_include_directories(window_util 
+add_library(common_render 
+    ${RENDER_SOURCES}
+ )
+
+target_include_directories(common_render 
     PUBLIC ${PROJECT_SOURCE_DIR}/api
     PUBLIC ${PROJECT_SOURCE_DIR}/core/include
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/common/api
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/common/include
-    PUBLIC ${PROJECT_SOURCE_DIR}/platform/window/include
 )

@@ -8,35 +8,35 @@
 
 using namespace std;
 
-MenuRenderer::MenuRenderer(Setting* a1, ConsoleRenderer a2, TextRenderer a3, BlockRenderer a4)
-    : setting(a1), console_renderer(a2), text_renderer(a3), block_renderer(a4)
+MenuRenderer::MenuRenderer(Setting* a1, IPlatformRenderer* a2, TextRenderer a3, BlockRenderer a4)
+    : setting(a1), platform_renderer(a2), text_renderer(a3), block_renderer(a4)
 {
 }
 
 void MenuRenderer::render_menu_frame()
 {
-    console_renderer.clear();
-    console_renderer.hide_cursor();
+    platform_renderer->clear();
+    platform_renderer->hide_cursor();
     text_renderer.draw_logo({20, 7});
 }
 
 void MenuRenderer::render_menu(Menu menu)
 {
     for (int i = 0; i < 4; i++) {
-        console_renderer.set_cursor(25, 18 + i * 2);
+        platform_renderer->set_cursor(25, 18 + i * 2);
 
         int menu_num = static_cast<int>(menu);
         Color color = (menu_num == i) ? Color::YELLOW : Color::COMMENT;
         string str = (menu_num == i) ? " > " : "   ";
         str += MENU[i];
-        console_renderer.print_s(str, color);
+        platform_renderer->print_s(str, color);
     }
 }
 
 void MenuRenderer::render_settings_frame()
 {
-    console_renderer.clear();
-    console_renderer.hide_cursor();
+    platform_renderer->clear();
+    platform_renderer->hide_cursor();
     text_renderer.print_big_string({20, 7}, "SETTINGS");
     if (setting->shadow_on) render_shadow();
     render_side();
@@ -83,7 +83,7 @@ void MenuRenderer::render_shadow()
 void MenuRenderer::render_settings(SettingMenu menu)
 {
     for (int i = 0; i < 4; i++) {
-        console_renderer.set_cursor(25, 18 + i * 2);
+        platform_renderer->set_cursor(25, 18 + i * 2);
 
         int menu_num = static_cast<int>(menu);
         Color color = (menu_num == i) ? Color::CYAN : Color::COMMENT;
@@ -107,6 +107,6 @@ void MenuRenderer::render_settings(SettingMenu menu)
         }
 
         str += value;
-        console_renderer.print_s(str, color);
+        platform_renderer->print_s(str, color);
     }
 }

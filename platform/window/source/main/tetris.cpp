@@ -2,9 +2,9 @@
 #include "engine/multi_engine.hpp"
 #include "engine/solo_engine.hpp"
 #include "input/window_input.hpp"
+#include "menu.hpp"
 #include "network/window_network.hpp"
 #include "render/color.hpp"
-#include "render/menu.hpp"
 #include "render/menu_renderer.hpp"
 #include "render/render_factory.hpp"
 #include "render/window_multi_renderer.hpp"
@@ -85,6 +85,7 @@ int main()
     }
 }
 
+// -> menu service : menu_renderer, input_handler interface 받아서 메뉴 생성
 AppState run_menu()
 {
     Menu menu = Menu::SINGLE_PLAY;
@@ -126,6 +127,7 @@ AppState run_menu()
     }
 }
 
+// -> setting service : setting_renderer, input_handler interface 받아서 세팅 초기화
 AppState run_settings()
 {
     SettingMenu menu = SettingMenu::NICKNAME;
@@ -255,7 +257,7 @@ AppState run_single_game()
     renderer->render_background();
 
     for (int i = 3; i >= 1; --i) {
-        text_renderer.draw_game_start_count(i);
+        text_renderer.draw_game_start_count({42, 16}, i);
         Sleep(1000);
     }
 

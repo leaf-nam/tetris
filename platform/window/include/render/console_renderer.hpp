@@ -1,16 +1,16 @@
 #ifndef __CONSOLE_RENDERER_HPP__
 #define __CONSOLE_RENDERER_HPP__
 
-#include "color.hpp"
-#include "pos.hpp"
-#include "theme.hpp"
+#include "i_platform_renderer.hpp"
+#include "render/color.hpp"
+#include "render/pos.hpp"
+#include "render/theme.hpp"
 
 #include <string>
 
-class ConsoleRenderer
+class ConsoleRenderer : public IPlatformRenderer
 {
   public:
-    ConsoleRenderer() = default;
     void clear();
 
     void show_cursor();

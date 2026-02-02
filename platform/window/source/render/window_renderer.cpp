@@ -8,27 +8,26 @@ const int BOARD_Y = 7;
 const int LEFT_X = 4;
 const int MIDDLE_X = 80;
 
-WindowRenderer::WindowRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3, TextRenderer a4,
+WindowRenderer::WindowRenderer(Setting* a1, IPlatformRenderer* a2, ColorPicker a3, TextRenderer a4,
                                BoxRenderer a5, BlockRenderer a6, ShadowMaker a7)
-    : setting(a1), console_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
+    : setting(a1), platform_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
       block_renderer(a6), shadow_maker(a7)
 {
 }
 
-//WindowRenderer::WindowRenderer()
-//{ 
-//    other_render_loc_array[0] = std::make_pair(73, 1);
-//    other_render_loc_array[1] = std::make_pair(96, 1);
-//    other_render_loc_array[2] = std::make_pair(73, 14);
-//    other_render_loc_array[3] = std::make_pair(96, 14);
+// WindowRenderer::WindowRenderer()
+//{
+//     other_render_loc_array[0] = std::make_pair(73, 1);
+//     other_render_loc_array[1] = std::make_pair(96, 1);
+//     other_render_loc_array[2] = std::make_pair(73, 14);
+//     other_render_loc_array[3] = std::make_pair(96, 14);
 //
-//    other_render_index = 0;
-//}
+//     other_render_index = 0;
+// }
 
 std::pair<int, int> WindowRenderer::other_render_loc_get_or_set(std::string id)
 {
-    if (other_land_index_map.find(id) == other_land_index_map.end())
-    {
+    if (other_land_index_map.find(id) == other_land_index_map.end()) {
         other_land_index_map[id] = other_render_index;
         return other_render_loc_array[other_render_index++];
     }
@@ -44,11 +43,11 @@ void WindowRenderer::render_timer(int totalSec)
     string sec_str =
         to_string(min / 10) + to_string(min % 10) + ":" + to_string(sec / 10) + to_string(sec % 10);
 
-    console_renderer.set_cursor(MIDDLE_X + 2, 4);
-    console_renderer.print_s(sec_str, Color::COMMENT);
+    platform_renderer->set_cursor(MIDDLE_X + 2, 4);
+    platform_renderer->print_s(sec_str, Color::COMMENT);
 }
 
-void WindowRenderer::render_clear() { console_renderer.clear(); }
+void WindowRenderer::render_clear() { platform_renderer->clear(); }
 void WindowRenderer::render_next_block(const int* tetrominoArray)
 {
     for (size_t i = 0; i < 3; ++i) {
@@ -88,40 +87,40 @@ void WindowRenderer::render_background()
 void WindowRenderer::render_score(int score)
 {
     string score_str = to_string(score);
-    console_renderer.set_cursor(12 - score_str.size(), 18);
-    console_renderer.print_s(to_string(score), Color::CYAN);
+    platform_renderer->set_cursor(12 - score_str.size(), 18);
+    platform_renderer->print_s(to_string(score), Color::CYAN);
 }
 
 void WindowRenderer::render_level(int level)
 {
     string level_str = to_string(level);
-    console_renderer.set_cursor(12 - level_str.size(), 23);
-    console_renderer.print_s(level_str, Color::CYAN);
+    platform_renderer->set_cursor(12 - level_str.size(), 23);
+    platform_renderer->print_s(level_str, Color::CYAN);
 }
 
-//void WindowRenderer::render_game_over()
+// void WindowRenderer::render_game_over()
 //{
-//    set_cursor(33, 17);
-//    printf("%s%s%s", RED, "GAMEOVER", RESET);
-//}
+//     set_cursor(33, 17);
+//     printf("%s%s%s", RED, "GAMEOVER", RESET);
+// }
 //
-//void WindowRenderer::render_other_game_over(Packet& pkt)
+// void WindowRenderer::render_other_game_over(Packet& pkt)
 //{
-//    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-//    set_cursor(start_x + 8, start_y + 10);
-//    printf("%s%s%s", RED, "GAMEOVER", RESET);
-//}
+//     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+//     set_cursor(start_x + 8, start_y + 10);
+//     printf("%s%s%s", RED, "GAMEOVER", RESET);
+// }
 //
-//void WindowRenderer::render_win() {
-//    set_cursor(35, 6);
-//    printf("%s%s%s", GREEN, "WIN", RESET);
-//}
+// void WindowRenderer::render_win() {
+//     set_cursor(35, 6);
+//     printf("%s%s%s", GREEN, "WIN", RESET);
+// }
 //
-//void WindowRenderer::render_other_win(Packet& pkt) {
-//    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-//    set_cursor(start_x + 10, start_y - 1);
-//    printf("%s%s%s", GREEN, "WIN", RESET);
-//}
+// void WindowRenderer::render_other_win(Packet& pkt) {
+//     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+//     set_cursor(start_x + 10, start_y - 1);
+//     printf("%s%s%s", GREEN, "WIN", RESET);
+// }
 
 void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino)
 {
@@ -133,7 +132,7 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
     if (setting->shadow_on) shadows = shadow_maker.get_shadow_pos(board, tetromino);
 
     for (int r = 2; r < 22; ++r) {
-        console_renderer.set_cursor(BOARD_X, BOARD_Y + (r - 1));
+        platform_renderer->set_cursor(BOARD_X, BOARD_Y + (r - 1));
 
         for (int c = 0; c < 10; ++c) {
             bool is_falling_block = false;
@@ -149,22 +148,22 @@ void WindowRenderer::render_board(const Board& board, const Tetromino& tetromino
 
             // 떨어지는 블록 그리기
             if (is_falling_block) {
-                console_renderer.print_s("██", color_picker.get_color_key(tetromino));
+                platform_renderer->print_s("██", color_picker.get_color_key(tetromino));
             }
 
             // 바닥에 쌓인 블록 그리기
             else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
-                console_renderer.print_s("██", color_picker.get_color_key(game_board[r][c]));
+                platform_renderer->print_s("██", color_picker.get_color_key(game_board[r][c]));
             }
 
             // 그림자 그리기
             else if (setting->shadow_on && shadow_maker.is_shadow(shadows, {c, r})) {
-                console_renderer.print_s("██", Color::COMMENT);
+                platform_renderer->print_s("██", Color::COMMENT);
             }
 
             // 빈 공간
             else {
-                console_renderer.print_s("  ", Color::BACKGROUND);
+                platform_renderer->print_s("  ", Color::BACKGROUND);
             }
         }
     }
@@ -187,7 +186,7 @@ void WindowRenderer::render_other_board(Packet& pkt) {}
 //    print_s(pkt.id, ColorKey::FOREGROUND);
 //    set_cursor(start_x, start_y);
 //    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
-//    
+//
 //    // 행 루프 (2~21)
 //    for (int r = 0; r < 20; ++r) {
 //        set_cursor(start_x, start_y + (r + 1));
@@ -236,12 +235,12 @@ void WindowRenderer::render_other_board(Packet& pkt) {}
 //    print_s(" ██████████████████████ ", ColorKey::FOREGROUND);
 //}
 
-//void WindowRenderer::render_ip_recv()
+// void WindowRenderer::render_ip_recv()
 //{
-//    console_renderer.set_cursor(0, 0); // 적절한 위치로 수정 필요
-//    cout << "대전 상대의 IP를 입력하세요: ";
-//}
+//     platform_renderer->set_cursor(0, 0); // 적절한 위치로 수정 필요
+//     cout << "대전 상대의 IP를 입력하세요: ";
+// }
 //
-//void WindowRenderer::render_char(char c) { cout << c; }
+// void WindowRenderer::render_char(char c) { cout << c; }
 
 WindowRenderer::~WindowRenderer() {}
