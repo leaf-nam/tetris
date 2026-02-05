@@ -9,6 +9,7 @@
 #include "render/render_factory.hpp"
 #include "render/window_multi_renderer.hpp"
 #include "render/window_renderer.hpp"
+#include "util/app_state.hpp"
 #include "util/setting_storage.hpp"
 
 #include <Windows.h>
@@ -24,15 +25,6 @@ static Setting* setting;
 static bool finished = false;
 
 using namespace std;
-
-enum class AppState
-{
-    MENU,
-    SINGLE_PLAY,
-    MULTI_PLAY,
-    SETTINGS,
-    EXIT
-};
 
 AppState run_menu();
 AppState run_single_game();
@@ -88,49 +80,24 @@ int main()
 // -> menu service : menu_renderer, input_handler interface 받아서 메뉴 생성
 AppState run_menu()
 {
-    Menu menu = Menu::SINGLE_PLAY;
-
     RenderFactory& render_factory = RenderFactory::getInstance();
     MenuRenderer menu_renderer = render_factory.create_menu_renderer();
 
     menu_renderer.render_menu_frame();
-    menu_renderer.render_menu(menu);
+    menu_renderer.render_menu(MenuTitle::SINGLE_PLAY);
+    Menu menu(&menu_renderer, new WindowInput());
 
-    while (true) {
-        char in = _getch();
-
-        if (in == '\r' || in == ' ') {
-            switch (menu) {
-            case Menu::SINGLE_PLAY:
-                return AppState::SINGLE_PLAY;
-            case Menu::MULTI_PLAY:
-                return AppState::MULTI_PLAY;
-            case Menu::SETTINGS:
-                return AppState::SETTINGS;
-            case Menu::EXIT:
-                return AppState::EXIT;
-            default:
-                return AppState::EXIT;
-            }
-        }
-
-        if (in == 80 || in == '\t') // down arrow
-            menu = next_menu(menu);
-
-        else if (in == 72) // up arrow
-            menu = prev_menu(menu);
-
-        else if (in == 27) // esc
-            return AppState::EXIT;
-
-        menu_renderer.render_menu(menu);
+    AppState app_state = AppState::MENU;
+    while (app_state == AppState::MENU) {
+        app_state = menu.update();
     }
+    return app_state;
 }
 
 // -> setting service : setting_renderer, input_handler interface 받아서 세팅 초기화
 AppState run_settings()
 {
-    SettingMenu menu = SettingMenu::NICKNAME;
+    SettingTitle menu = SettingTitle::NICKNAME;
 
     RenderFactory render_factory = RenderFactory::getInstance();
     MenuRenderer menu_renderer = render_factory.create_menu_renderer();
@@ -148,7 +115,7 @@ AppState run_settings()
         if (in == '\r' || in == ' ') {
             switch (menu) {
             // 닉네임 변경
-            case SettingMenu::NICKNAME: {
+            case SettingTitle::NICKNAME: {
                 string nickname;
                 input_window_renderer.render_input_window({27, 20},
                                                           "Type your nickname.[length : 1 ~ 8]");
@@ -164,7 +131,7 @@ AppState run_settings()
             }
 
             // 테마 변경
-            case SettingMenu::THEME: {
+            case SettingTitle::THEME: {
                 setting->color_theme = (setting->color_theme + 1) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
                 menu_renderer.render_settings_frame();
@@ -172,14 +139,14 @@ AppState run_settings()
             }
 
             // 그림자 토글
-            case SettingMenu::SHADOW: {
+            case SettingTitle::SHADOW: {
                 setting->shadow_on = !setting->shadow_on;
                 menu_renderer.render_settings_frame();
                 break;
             }
 
             // 저장 및 종료
-            case SettingMenu::SAVE: {
+            case SettingTitle::SAVE: {
                 setting_storage.save(*setting);
                 finish = true;
                 break;
@@ -192,12 +159,12 @@ AppState run_settings()
         // left arrow
         if (in == 75) {
             switch (menu) {
-            case SettingMenu::THEME:
+            case SettingTitle::THEME:
                 setting->color_theme = (setting->color_theme + 3) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
                 menu_renderer.render_settings_frame();
                 break;
-            case SettingMenu::SHADOW:
+            case SettingTitle::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
                 menu_renderer.render_settings_frame();
                 break;
@@ -209,12 +176,12 @@ AppState run_settings()
         // right arrow
         if (in == 77) {
             switch (menu) {
-            case SettingMenu::THEME:
+            case SettingTitle::THEME:
                 setting->color_theme = (setting->color_theme + 1) % 4;
                 Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
                 menu_renderer.render_settings_frame();
                 break;
-            case SettingMenu::SHADOW:
+            case SettingTitle::SHADOW:
                 setting->shadow_on = !setting->shadow_on;
                 menu_renderer.render_settings_frame();
                 break;

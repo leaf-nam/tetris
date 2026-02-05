@@ -5,6 +5,7 @@ add_executable(tetris
 target_include_directories(tetris 
     PRIVATE ${PROJECT_SOURCE_DIR}/api
     PRIVATE ${PROJECT_SOURCE_DIR}/core/include
+    PRIVATE ${PROJECT_SOURCE_DIR}/menu/api
     PRIVATE ${PROJECT_SOURCE_DIR}/menu/include
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/common/api
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/common/include

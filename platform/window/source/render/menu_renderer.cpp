@@ -20,15 +20,15 @@ void MenuRenderer::render_menu_frame()
     text_renderer.draw_logo({20, 7});
 }
 
-void MenuRenderer::render_menu(Menu menu)
+void MenuRenderer::render_menu(MenuTitle menu)
 {
     for (int i = 0; i < 4; i++) {
         platform_renderer->set_cursor(25, 18 + i * 2);
 
         int menu_num = static_cast<int>(menu);
-        Color color = (menu_num == i) ? Color::YELLOW : Color::COMMENT;
-        string str = (menu_num == i) ? " > " : "   ";
-        str += MENU[i];
+        Color color = (menu_num - 1 == i) ? Color::YELLOW : Color::COMMENT;
+        string str = (menu_num - 1 == i) ? " > " : "   ";
+        str += MENU_TITLE[i];
         platform_renderer->print_s(str, color);
     }
 }
@@ -80,7 +80,7 @@ void MenuRenderer::render_shadow()
     }
 }
 
-void MenuRenderer::render_settings(SettingMenu menu)
+void MenuRenderer::render_settings(SettingTitle menu)
 {
     for (int i = 0; i < 4; i++) {
         platform_renderer->set_cursor(25, 18 + i * 2);
@@ -88,18 +88,18 @@ void MenuRenderer::render_settings(SettingMenu menu)
         int menu_num = static_cast<int>(menu);
         Color color = (menu_num == i) ? Color::CYAN : Color::COMMENT;
         string str = (menu_num == i) ? " > " : "   ";
-        str += SETTING_MENU[i];
+        str += SETTING_TITLE[i];
 
         string value;
 
-        switch (static_cast<SettingMenu>(i)) {
-        case SettingMenu::NICKNAME:
+        switch (static_cast<SettingTitle>(i)) {
+        case SettingTitle::NICKNAME:
             value = " : " + setting->nick_name;
             break;
-        case SettingMenu::THEME:
+        case SettingTitle::THEME:
             value = " : " + THEME[static_cast<int>(setting->color_theme)];
             break;
-        case SettingMenu::SHADOW:
+        case SettingTitle::SHADOW:
             value = setting->shadow_on ? " : ON " : " : OFF";
             break;
         default:

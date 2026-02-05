@@ -1,39 +1,35 @@
 #ifndef __MENU_HPP__
 #define __MENU_HPP__
 
+#include "i_menu_input_handler.hpp"
+#include "i_menu_renderer.hpp"
+#include "menu_title.hpp"
+#include "setting_title.hpp"
+
 #include <cstdint>
+#include <util/app_state.hpp>
 
-enum class Menu
+class Menu
 {
-    BEGIN = 0,
+  private:
+    IMenuRenderer* renderer;
+    IMenuInputHandler* input;
+    MenuTitle menu;
+    MenuTitle next_menu(MenuTitle);
+    MenuTitle prev_menu(MenuTitle);
 
-    SINGLE_PLAY = BEGIN,
-    MULTI_PLAY,
-    SETTINGS,
-    EXIT,
-
-    END
-};
-
-enum class SettingMenu
-{
-    BEGIN = 0,
-
-    NICKNAME = BEGIN,
-    THEME,
-    SHADOW,
-    SAVE,
-
-    END
+  public:
+    Menu(IMenuRenderer*, IMenuInputHandler*);
+    AppState update();
 };
 
 extern int menu_size;
-extern const char* MENU[4];
-extern const char* SETTING_MENU[4];
+extern const char* MENU_TITLE[4];
+extern const char* SETTING_TITLE[4];
 
 Menu next_menu(Menu);
 Menu prev_menu(Menu);
-SettingMenu next_menu(SettingMenu);
-SettingMenu prev_menu(SettingMenu);
+SettingTitle next_menu(SettingTitle);
+SettingTitle prev_menu(SettingTitle);
 
 #endif

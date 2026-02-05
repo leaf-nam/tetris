@@ -63,8 +63,8 @@ elseif (WIN32)
         add_subdirectory(platform/window/source/ip_resolver_network)
         add_subdirectory(platform/window/source/ip_resolver_renderer)
         add_subdirectory(platform/window/source/ip_resolver_input_handler)
-        add_subdirectory(platform/window/source/main)
         add_subdirectory(platform/window/source/util)
+        add_subdirectory(platform/window/source/main)
         #터미널 구조에 맞게 수정했습니다. 
     # 윈도우 터미널 UI 빌드 -> tetris.exe 생성
     endif()
