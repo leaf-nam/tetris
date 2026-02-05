@@ -36,6 +36,7 @@ add_subdirectory(core/source/util)
 add_subdirectory(core/source/engine)
 add_subdirectory(core/source/ip_resolver)
 add_subdirectory(menu/source)
+add_subdirectory(setting/source)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)

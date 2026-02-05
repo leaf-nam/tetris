@@ -5,11 +5,12 @@
 #include "render/box_renderer.hpp"
 #include "render/color.hpp"
 #include "render/color_picker.hpp"
-#include "render/console_renderer.hpp"
 #include "render/input_window_renderer.hpp"
 #include "render/pos.hpp"
 #include "render/text_renderer.hpp"
 #include "render/theme.hpp"
+#include "render/window_console_renderer.hpp"
+#include "setting.hpp"
 #include "util/shadow_maker.hpp"
 
 #include <board/board.hpp>
@@ -21,7 +22,6 @@
 #include <string>
 #include <tetromino/tetromino.hpp>
 #include <unordered_map>
-#include <util/setting.hpp>
 #include <vector>
 
 class WindowRenderer : public IRenderer

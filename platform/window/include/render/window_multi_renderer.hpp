@@ -1,7 +1,6 @@
 #ifndef __WINDOW_MULTI_RENDERER_H__
 #define __WINDOW_MULTI_RENDERER_H__
 
-#include "console_renderer.hpp"
 #include "render/block_renderer.hpp"
 #include "render/box_renderer.hpp"
 #include "render/color.hpp"
@@ -10,7 +9,9 @@
 #include "render/pos.hpp"
 #include "render/text_renderer.hpp"
 #include "render/theme.hpp"
+#include "setting.hpp"
 #include "util/shadow_maker.hpp"
+#include "window_console_renderer.hpp"
 
 #include <board/board.hpp>
 #include <cstdint>
@@ -20,7 +21,6 @@
 #include <iostream>
 #include <string>
 #include <tetromino/tetromino.hpp>
-#include <util/setting.hpp>
 #include <vector>
 
 class WindowMultiRenderer : public IRenderer

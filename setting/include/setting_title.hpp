@@ -13,4 +13,7 @@ enum class SettingTitle
     END
 };
 
+extern const char* SETTING_TITLE[4];
+extern int setting_size;
+
 #endif
