@@ -50,13 +50,6 @@ if (UNIX)
 # 윈도우 빌드
 elseif (WIN32)
 
-    add_subdirectory(core/source/board)
-    add_subdirectory(core/source/game_rule)
-    add_subdirectory(core/source/tetromino)
-    add_subdirectory(core/source/util)
-    add_subdirectory(core/source/engine)
-    add_subdirectory(core/source/ip_resolver)
-
     # WPF UI 빌드 -> wpf_dll.dll 생성
     if (USE_WPF)
         add_subdirectory(platform/wpf/wpf_dll/source/input)
