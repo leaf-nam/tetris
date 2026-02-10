@@ -1,9 +1,11 @@
 #ifndef __RENDER_FACTORY_HPP__
 #define __RENDER_FACTORY_HPP__
 
-#include "menu_renderer.hpp"
+#include "i_platform_renderer.hpp"
+#include "window_menu_renderer.hpp"
 #include "window_multi_renderer.hpp"
 #include "window_renderer.hpp"
+#include "window_setting_renderer.hpp"
 
 #include <i_renderer.hpp>
 
@@ -13,7 +15,7 @@ class RenderFactory
     RenderFactory() = default;
 
     Setting* setting;
-    ConsoleRenderer console_renderer;
+    IPlatformRenderer* platform_renderer;
     ColorPicker color_picker;
     ShadowMaker shadow_maker;
 
@@ -24,9 +26,10 @@ class RenderFactory
         return instance;
     }
 
-    void initialize(Setting* setting);
+    void initialize(Setting*);
     InputWindowRenderer create_input_window_renderer();
     MenuRenderer create_menu_renderer();
+    SettingRenderer create_setting_renderer();
     WindowRenderer create_window_renderer();
     WindowMultiRenderer create_window_multi_renderer();
     TextRenderer create_text_renderer();

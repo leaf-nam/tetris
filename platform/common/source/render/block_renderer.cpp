@@ -6,8 +6,8 @@
 
 using namespace std;
 
-BlockRenderer::BlockRenderer(ConsoleRenderer a1, ColorPicker a2)
-    : console_renderer(a1), color_picker(a2)
+BlockRenderer::BlockRenderer(IPlatformRenderer* a1, ColorPicker a2)
+    : platform_renderer(a1), color_picker(a2)
 {
 }
 
@@ -35,12 +35,12 @@ void BlockRenderer::render_mino_pattern(Pos pos, const Tetromino& tetromino, Col
         string line;
         for (int j = 0; j < 4; j++) {
             if (tetromino.get_shape()[i][j] != 0) {
-                console_renderer.set_cursor(pos.x + j * 2, pos.y + i);
-                console_renderer.print_s("██", mino_color);
+                platform_renderer->set_cursor(pos.x + j * 2, pos.y + i);
+                platform_renderer->print_s("██", mino_color);
             }
             else if (!transparent) {
-                console_renderer.set_cursor(pos.x + j * 2, pos.y + i);
-                console_renderer.print_s("██", background_color);
+                platform_renderer->set_cursor(pos.x + j * 2, pos.y + i);
+                platform_renderer->print_s("██", background_color);
             }
         }
     }

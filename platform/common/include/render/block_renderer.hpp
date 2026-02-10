@@ -2,18 +2,19 @@
 #define __BLOCK_RENDERER_HPP__
 
 #include "color_picker.hpp"
-#include "console_renderer.hpp"
+#include "i_platform_renderer.hpp"
+#include "pos.hpp"
 
 #include <tetromino/tetromino.hpp>
 
 class BlockRenderer
 {
   private:
-    ConsoleRenderer console_renderer;
+    IPlatformRenderer* platform_renderer;
     ColorPicker color_picker;
 
   public:
-    BlockRenderer(ConsoleRenderer, ColorPicker);
+    BlockRenderer(IPlatformRenderer*, ColorPicker);
     void render_mino_pattern(Pos, const Tetromino&, bool transparent = false);
     void render_mino_pattern(Pos, const Tetromino&, Color, bool transparent = false);
     void render_mino_pattern(Pos pos, const Tetromino& tetromino, Color mino_color,

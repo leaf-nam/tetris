@@ -1,7 +1,11 @@
 #include "input/window_input.hpp"
 
 #include <conio.h>
+#include <iostream>
 #include <stdio.h>
+#include <string>
+
+using namespace std;
 
 int WindowInput::scan()
 {
@@ -20,6 +24,14 @@ int WindowInput::scan()
     }
 
     return (int) c;
+}
+
+string WindowInput::get_line()
+{
+    string s;
+    getline(cin, s);
+
+    return s;
 }
 
 WindowInput::~WindowInput() {}

@@ -1,8 +1,9 @@
 #ifndef __SETTING_STORAGE_HPP__
 #define __SETTING_STORAGE_HPP__
 
+#include "setting.hpp"
+
 #include <string>
-#include <util/setting.hpp>
 
 class SettingStorage
 {

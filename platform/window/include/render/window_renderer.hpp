@@ -1,15 +1,16 @@
 #ifndef __WINDOW_RENDERER_H__
 #define __WINDOW_RENDERER_H__
 
-#include "block_renderer.hpp"
-#include "box_renderer.hpp"
-#include "color.hpp"
-#include "color_picker.hpp"
-#include "console_renderer.hpp"
-#include "input_window_renderer.hpp"
-#include "pos.hpp"
-#include "text_renderer.hpp"
-#include "theme.hpp"
+#include "render/block_renderer.hpp"
+#include "render/box_renderer.hpp"
+#include "render/color.hpp"
+#include "render/color_picker.hpp"
+#include "render/input_window_renderer.hpp"
+#include "render/pos.hpp"
+#include "render/text_renderer.hpp"
+#include "render/theme.hpp"
+#include "render/window_console_renderer.hpp"
+#include "setting.hpp"
 #include "util/shadow_maker.hpp"
 
 #include <board/board.hpp>
@@ -20,15 +21,14 @@
 #include <iostream>
 #include <string>
 #include <tetromino/tetromino.hpp>
-#include <util/setting.hpp>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 class WindowRenderer : public IRenderer
 {
   private:
     Setting* setting;
-    ConsoleRenderer console_renderer;
+    IPlatformRenderer* platform_renderer;
     ColorPicker color_picker;
     TextRenderer text_renderer;
     BoxRenderer box_renderer;
@@ -40,9 +40,10 @@ class WindowRenderer : public IRenderer
     int other_render_index;
 
     std::pair<int, int> other_render_loc_get_or_set(std::string id);
+
   public:
-    WindowRenderer(Setting*, ConsoleRenderer, ColorPicker, TextRenderer, BoxRenderer, BlockRenderer,
-                   ShadowMaker);
+    WindowRenderer(Setting*, IPlatformRenderer*, ColorPicker, TextRenderer, BoxRenderer,
+                   BlockRenderer, ShadowMaker);
     /**
      * @brief 렌더링 로직 초기화
      */
@@ -96,18 +97,18 @@ class WindowRenderer : public IRenderer
 
     void render_other_board(Packet& pkt) override;
 
-    //void render_ip_recv() override;
+    // void render_ip_recv() override;
 
-    //void render_char(char c) override;
+    // void render_char(char c) override;
 
     void render_clear() override;
 
-    //void render_game_over() override;
+    // void render_game_over() override;
 
-    //void render_other_game_over(Packet& pkt) override;
+    // void render_other_game_over(Packet& pkt) override;
 
-    //void render_win() override;
+    // void render_win() override;
 
-    //void render_other_win(Packet& pkt) override;
+    // void render_other_win(Packet& pkt) override;
 };
 #endif

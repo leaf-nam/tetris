@@ -2,16 +2,17 @@
 #define __TEXT_RENDERER_HPP__
 
 #include "color_picker.hpp"
-#include "console_renderer.hpp"
+#include "i_platform_renderer.hpp"
+#include "pos.hpp"
 
 class TextRenderer
 {
   private:
-    ConsoleRenderer console_renderer;
+    IPlatformRenderer* platform_renderer;
     ColorPicker color_picker;
 
   public:
-    TextRenderer(ConsoleRenderer, ColorPicker);
+    TextRenderer(IPlatformRenderer*, ColorPicker);
     void print_big_char(Pos, char, Color);
     void print_big_char(Pos, char, Color foreground, Color background);
     void print_big_char(Pos, char);
@@ -23,7 +24,7 @@ class TextRenderer
     void print_small_string(Pos, std::string&, Color);
     void print_small_string(Pos, std::string&);
     void print_small_string(Pos pos, const char* str);
-    void draw_game_start_count(int count);
+    void draw_game_start_count(Pos pos, int count);
     void draw_game_over(Pos pos);
     void draw_logo(Pos pos);
 };

@@ -2,8 +2,8 @@
 
 using namespace std;
 
-TextRenderer::TextRenderer(ConsoleRenderer a1, ColorPicker a2)
-    : console_renderer(a1), color_picker(a2)
+TextRenderer::TextRenderer(IPlatformRenderer* a1, ColorPicker a2)
+    : platform_renderer(a1), color_picker(a2)
 {
 }
 
@@ -11,15 +11,15 @@ void TextRenderer::print_big_char(Pos pos, char c, Color key)
 {
     if (c >= 'A' && c <= 'Z') {
         for (int i = 0; i < 5; ++i) {
-            console_renderer.set_cursor(pos.x, pos.y + i);
-            console_renderer.print_s(BIG_FONT[c - 'A'][i], key);
+            platform_renderer->set_cursor(pos.x, pos.y + i);
+            platform_renderer->print_s(BIG_FONT[c - 'A'][i], key);
         }
     }
 
     else if (c >= '0' && c <= '9') {
         for (int i = 0; i < 5; ++i) {
-            console_renderer.set_cursor(pos.x, pos.y + i);
-            console_renderer.print_s(BIG_NUMBER[c - '0'][i], key);
+            platform_renderer->set_cursor(pos.x, pos.y + i);
+            platform_renderer->print_s(BIG_NUMBER[c - '0'][i], key);
         }
     }
 }
@@ -28,15 +28,15 @@ void TextRenderer::print_big_char(Pos pos, char c, Color foreground, Color backg
 {
     if (c >= 'A' && c <= 'Z') {
         for (int i = 0; i < 5; ++i) {
-            console_renderer.set_cursor(pos.x, pos.y + i);
-            console_renderer.print_s(BIG_FONT[c - 'A'][i], foreground, background);
+            platform_renderer->set_cursor(pos.x, pos.y + i);
+            platform_renderer->print_s(BIG_FONT[c - 'A'][i], foreground, background);
         }
     }
 
     else if (c >= '0' && c <= '9') {
         for (int i = 0; i < 5; ++i) {
-            console_renderer.set_cursor(pos.x, pos.y + i);
-            console_renderer.print_s(BIG_NUMBER[c - '0'][i], foreground, background);
+            platform_renderer->set_cursor(pos.x, pos.y + i);
+            platform_renderer->print_s(BIG_NUMBER[c - '0'][i], foreground, background);
         }
     }
 }
@@ -72,15 +72,15 @@ void TextRenderer::print_big_string(Pos pos, string& str)
 
         if (c >= 'A' && c <= 'Z') {
             for (int i = 0; i < 5; ++i) {
-                console_renderer.set_cursor(pos.x + j * 6, pos.y + i);
-                console_renderer.print_s(BIG_FONT[c - 'A'][i], random_color);
+                platform_renderer->set_cursor(pos.x + j * 6, pos.y + i);
+                platform_renderer->print_s(BIG_FONT[c - 'A'][i], random_color);
             }
         }
 
         else if (c >= '0' && c <= '9') {
             for (int i = 0; i < 5; ++i) {
-                console_renderer.set_cursor(pos.x + j * 6, pos.y + i);
-                console_renderer.print_s(BIG_NUMBER[c - '0'][i], random_color);
+                platform_renderer->set_cursor(pos.x + j * 6, pos.y + i);
+                platform_renderer->print_s(BIG_NUMBER[c - '0'][i], random_color);
             }
         }
     }
@@ -102,8 +102,8 @@ void TextRenderer::print_big_string(Pos pos, const char* str)
 
 void TextRenderer::print_small_string(Pos pos, string& str, Color key)
 {
-    console_renderer.set_cursor(pos.x, pos.y);
-    console_renderer.print_s(str, key);
+    platform_renderer->set_cursor(pos.x, pos.y);
+    platform_renderer->print_s(str, key);
 }
 
 void TextRenderer::print_small_string(Pos pos, string& str)
@@ -118,10 +118,10 @@ void TextRenderer::print_small_string(Pos pos, const char* str)
     print_small_string(pos, s);
 }
 
-void TextRenderer::draw_game_start_count(int count)
+void TextRenderer::draw_game_start_count(Pos pos, int count)
 {
     string count_str = to_string(count);
-    print_big_string({32, 15}, count_str);
+    print_big_string(pos, count_str);
 }
 
 void TextRenderer::draw_game_over(Pos pos)

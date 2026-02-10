@@ -1,15 +1,17 @@
+#include "app_state.hpp"
 #include "engine/engine.hpp"
 #include "engine/multi_engine.hpp"
 #include "engine/solo_engine.hpp"
 #include "input/window_input.hpp"
+#include "menu.hpp"
 #include "network/window_network.hpp"
 #include "render/color.hpp"
-#include "render/menu.hpp"
-#include "render/menu_renderer.hpp"
-#include "render/render_factory.hpp"
+#include "render/window_menu_renderer.hpp"
 #include "render/window_multi_renderer.hpp"
+#include "render/window_render_factory.hpp"
 #include "render/window_renderer.hpp"
-#include "util/setting_storage.hpp"
+#include "setting_manager.hpp"
+#include "setting_storage.hpp"
 
 #include <Windows.h>
 #include <chrono>
@@ -24,15 +26,6 @@ static Setting* setting;
 static bool finished = false;
 
 using namespace std;
-
-enum class AppState
-{
-    MENU,
-    SINGLE_PLAY,
-    MULTI_PLAY,
-    SETTINGS,
-    EXIT
-};
 
 AppState run_menu();
 AppState run_single_game();
@@ -85,157 +78,39 @@ int main()
     }
 }
 
+// -> menu service : menu_renderer, input_handler interface 받아서 메뉴 생성
 AppState run_menu()
 {
-    Menu menu = Menu::SINGLE_PLAY;
-
     RenderFactory& render_factory = RenderFactory::getInstance();
     MenuRenderer menu_renderer = render_factory.create_menu_renderer();
 
-    menu_renderer.render_menu_frame();
-    menu_renderer.render_menu(menu);
+    Menu menu(&menu_renderer, new WindowInput());
+    menu.reload();
 
-    while (true) {
-        char in = _getch();
-
-        if (in == '\r' || in == ' ') {
-            switch (menu) {
-            case Menu::SINGLE_PLAY:
-                return AppState::SINGLE_PLAY;
-            case Menu::MULTI_PLAY:
-                return AppState::MULTI_PLAY;
-            case Menu::SETTINGS:
-                return AppState::SETTINGS;
-            case Menu::EXIT:
-                return AppState::EXIT;
-            default:
-                return AppState::EXIT;
-            }
-        }
-
-        if (in == 80 || in == '\t') // down arrow
-            menu = next_menu(menu);
-
-        else if (in == 72) // up arrow
-            menu = prev_menu(menu);
-
-        else if (in == 27) // esc
-            return AppState::EXIT;
-
-        menu_renderer.render_menu(menu);
+    AppState app_state = AppState::MENU;
+    while (app_state == AppState::MENU) {
+        app_state = menu.update();
     }
+
+    return app_state;
 }
 
+// -> setting service : setting_renderer, input_handler interface 받아서 세팅 초기화
 AppState run_settings()
 {
-    SettingMenu menu = SettingMenu::NICKNAME;
-
     RenderFactory render_factory = RenderFactory::getInstance();
-    MenuRenderer menu_renderer = render_factory.create_menu_renderer();
-    InputWindowRenderer input_window_renderer = render_factory.create_input_window_renderer();
     SettingStorage& setting_storage = SettingStorage::getInstance();
+    SettingRenderer setting_renderer = render_factory.create_setting_renderer();
 
-    menu_renderer.render_settings_frame();
-    menu_renderer.render_settings(menu);
+    SettingManager setting_manager(setting, &setting_renderer, new WindowInput(), &setting_storage);
+    setting_manager.reload();
 
-    bool finish = false;
-    while (!finish) {
-        char in = _getch();
-
-        // 엔터 처리
-        if (in == '\r' || in == ' ') {
-            switch (menu) {
-            // 닉네임 변경
-            case SettingMenu::NICKNAME: {
-                string nickname;
-                input_window_renderer.render_input_window({27, 20},
-                                                          "Type your nickname.[length : 1 ~ 8]");
-                getline(std::cin, nickname);
-
-                if (!nickname.empty() && nickname.size() <= 8) {
-                    setting->nick_name = nickname;
-                }
-
-                menu_renderer.render_settings_frame();
-                menu_renderer.render_settings(menu);
-                break;
-            }
-
-            // 테마 변경
-            case SettingMenu::THEME: {
-                setting->color_theme = (setting->color_theme + 1) % 4;
-                Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
-                menu_renderer.render_settings_frame();
-                break;
-            }
-
-            // 그림자 토글
-            case SettingMenu::SHADOW: {
-                setting->shadow_on = !setting->shadow_on;
-                menu_renderer.render_settings_frame();
-                break;
-            }
-
-            // 저장 및 종료
-            case SettingMenu::SAVE: {
-                setting_storage.save(*setting);
-                finish = true;
-                break;
-            }
-            default:
-                break;
-            }
-        }
-
-        // left arrow
-        if (in == 75) {
-            switch (menu) {
-            case SettingMenu::THEME:
-                setting->color_theme = (setting->color_theme + 3) % 4;
-                Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
-                menu_renderer.render_settings_frame();
-                break;
-            case SettingMenu::SHADOW:
-                setting->shadow_on = !setting->shadow_on;
-                menu_renderer.render_settings_frame();
-                break;
-            default:
-                break;
-            }
-        }
-
-        // right arrow
-        if (in == 77) {
-            switch (menu) {
-            case SettingMenu::THEME:
-                setting->color_theme = (setting->color_theme + 1) % 4;
-                Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
-                menu_renderer.render_settings_frame();
-                break;
-            case SettingMenu::SHADOW:
-                setting->shadow_on = !setting->shadow_on;
-                menu_renderer.render_settings_frame();
-                break;
-            default:
-                break;
-            }
-        }
-
-        // down arrow
-        if (in == 80 || in == '\t') menu = next_menu(menu);
-
-        // up arrow
-        else if (in == 72)
-            menu = prev_menu(menu);
-
-        // esc
-        else if (in == 27)
-            return AppState::EXIT;
-
-        menu_renderer.render_settings(menu);
+    AppState app_state = AppState::SETTINGS;
+    while (app_state == AppState::SETTINGS) {
+        app_state = setting_manager.update();
     }
 
-    return AppState::MENU;
+    return app_state;
 }
 
 AppState run_single_game()
@@ -255,7 +130,7 @@ AppState run_single_game()
     renderer->render_background();
 
     for (int i = 3; i >= 1; --i) {
-        text_renderer.draw_game_start_count(i);
+        text_renderer.draw_game_start_count({42, 16}, i);
         Sleep(1000);
     }
 

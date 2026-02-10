@@ -26,15 +26,15 @@ const int LEFT_BOX_X = MARGIN;
 const int RIGHT_BOX_X = BOX_WIDTH + BOARD_WIDTH + MARGIN * 2;
 const int MY_BOARD_X = MARGIN * 3 + BOX_WIDTH;
 
-WindowMultiRenderer::WindowMultiRenderer(Setting* a1, ConsoleRenderer a2, ColorPicker a3,
+WindowMultiRenderer::WindowMultiRenderer(Setting* a1, IPlatformRenderer* a2, ColorPicker a3,
                                          TextRenderer a4, BoxRenderer a5, BlockRenderer a6,
                                          ShadowMaker a7)
-    : setting(a1), console_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
+    : setting(a1), platform_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
       block_renderer(a6), shadow_maker(a7)
 {
 }
 
-void WindowMultiRenderer::render_clear() { console_renderer.clear(); }
+void WindowMultiRenderer::render_clear() { platform_renderer->clear(); }
 
 void WindowMultiRenderer::render_background()
 {
@@ -101,8 +101,8 @@ void WindowMultiRenderer::render_hold(const Tetromino& tetromino)
 void WindowMultiRenderer::render_score(int score)
 {
     string score_str = to_string(score);
-    console_renderer.set_cursor(LEFT_BOX_X + 8 - (int) score_str.size(), SCORE_Y + 3);
-    console_renderer.print_s(to_string(score), Color::CYAN, Color::PANEL);
+    platform_renderer->set_cursor(LEFT_BOX_X + 8 - (int) score_str.size(), SCORE_Y + 3);
+    platform_renderer->print_s(to_string(score), Color::CYAN, Color::PANEL);
 }
 
 void WindowMultiRenderer::render_level(int level)
@@ -120,8 +120,8 @@ void WindowMultiRenderer::render_timer(int totalSec)
     string sec_str =
         to_string(min / 10) + to_string(min % 10) + ":" + to_string(sec / 10) + to_string(sec % 10);
 
-    console_renderer.set_cursor(RIGHT_BOX_X + 3, TIMER_Y + 1);
-    console_renderer.print_s(sec_str, Color::COMMENT, Color::PANEL);
+    platform_renderer->set_cursor(RIGHT_BOX_X + 3, TIMER_Y + 1);
+    platform_renderer->print_s(sec_str, Color::COMMENT, Color::PANEL);
 }
 
 void WindowMultiRenderer::render_next_block(const int* tetrominoArray)
@@ -152,7 +152,7 @@ void WindowMultiRenderer::render_board(const Board& board, const Tetromino& tetr
     if (setting->shadow_on) shadows = shadow_maker.get_shadow_pos(board, tetromino);
 
     for (int r = 2; r < 22; ++r) {
-        console_renderer.set_cursor(MY_BOARD_X, BOARD_START_Y + (r - 1));
+        platform_renderer->set_cursor(MY_BOARD_X, BOARD_START_Y + (r - 1));
 
         for (int c = 0; c < 10; ++c) {
             bool is_falling_block = false;
@@ -168,22 +168,22 @@ void WindowMultiRenderer::render_board(const Board& board, const Tetromino& tetr
 
             // 떨어지는 블록 그리기
             if (is_falling_block) {
-                console_renderer.print_s("██", color_picker.get_color_key(tetromino));
+                platform_renderer->print_s("██", color_picker.get_color_key(tetromino));
             }
 
             // 바닥에 쌓인 블록 그리기
             else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
-                console_renderer.print_s("██", color_picker.get_color_key(game_board[r][c]));
+                platform_renderer->print_s("██", color_picker.get_color_key(game_board[r][c]));
             }
 
             // 그림자 그리기
             else if (setting->shadow_on && shadow_maker.is_shadow(shadows, {c, r})) {
-                console_renderer.print_s("██", Color::COMMENT);
+                platform_renderer->print_s("██", Color::COMMENT);
             }
 
             // 빈 공간
             else {
-                console_renderer.print_s("  ", Color::BACKGROUND);
+                platform_renderer->print_s("  ", Color::BACKGROUND);
             }
         }
     }
@@ -205,12 +205,12 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
     string mino_color = color_picker.get_block_color(mino_type); // 기존에 만든 색상 함수 활용
 
     /*
-    console_renderer.set_cursor(start_x, start_y);
+    platform_renderer->set_cursor(start_x, start_y);
     cout << BOLD << "┏" << "━━━━━━━━━━━━━━━━━━━━━━" << "┓" << RESET;
 
     // 행 루프 (2~21)
     for (int r = 0; r < 20; ++r) {
-        console_renderer.set_cursor(start_x, start_y + (r + 1));
+        platform_renderer->set_cursor(start_x, start_y + (r + 1));
         cout << BOLD << "┃ " << RESET;
 
         // 열 루프 (0~9)
@@ -253,17 +253,17 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
         cout << BOLD << " ┃" << RESET;
     }
 
-    console_renderer.set_cursor(start_x, start_y + 21);
+    platform_renderer->set_cursor(start_x, start_y + 21);
     cout << BOLD << "┗" << "━━━━━━━━━━━━━━━━━━━━━━" << "┛" << RESET;
     */
 }
 
-//void WindowMultiRenderer::render_ip_recv()
+// void WindowMultiRenderer::render_ip_recv()
 //{
-//    console_renderer.set_cursor(0, 0); // 적절한 위치로 수정 필요
-//    cout << "대전 상대의 IP를 입력하세요: ";
-//}
+//     platform_renderer->set_cursor(0, 0); // 적절한 위치로 수정 필요
+//     cout << "대전 상대의 IP를 입력하세요: ";
+// }
 //
-//void WindowMultiRenderer::render_char(char c) { cout << c; }
+// void WindowMultiRenderer::render_char(char c) { cout << c; }
 
 WindowMultiRenderer::~WindowMultiRenderer() {}
