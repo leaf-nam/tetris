@@ -165,8 +165,6 @@ AppState run_multi_game()
     ILobbyRenderer* window_lobby_renderer = new WindowLobbyRenderer();
     lobby = new Lobby(window_lobby_network, window_lobby_renderer, window_lobby_input_handler);
     bool is_server = lobby->start();
-    
-    network = new WindowNetwork();
 
     RenderFactory& render_factory = RenderFactory::getInstance();
 

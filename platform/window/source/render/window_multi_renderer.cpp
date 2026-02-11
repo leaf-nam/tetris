@@ -240,8 +240,8 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
             }
 
             // 바닥에 쌓인 블록 그리기
-            else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
-                platform_renderer->print_s("██", color_picker.get_color_key(game_board[r][c]));
+            else if (game_board[r-2][c] < 8 && game_board[r-2][c] > -1) {
+                platform_renderer->print_s("██", color_picker.get_color_key(game_board[r-2][c]));
             }
 
             // 빈 공간
@@ -254,28 +254,28 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
 
 void WindowMultiRenderer::render_game_over()
 {
-    platform_renderer->set_cursor(33, 17);
-    printf("%s%s%s", Color::RED, "GAMEOVER", Color::BACKGROUND);
+    platform_renderer->set_cursor(MY_BOARD_X + 6, BOARD_START_Y + 10);
+    platform_renderer->print_s("GAMEOVER", Color::RED);
 }
 
 void WindowMultiRenderer::render_other_game_over(Packet& pkt)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-    platform_renderer->set_cursor(start_x + 8, start_y + 10);
-    printf("%s%s%s", Color::RED, "GAMEOVER", Color::BACKGROUND);
+    platform_renderer->set_cursor(start_x + 6, start_y + 10);
+    platform_renderer->print_s("GAMEOVER", Color::RED);
 }
 
 void WindowMultiRenderer::render_win()
 {
-    platform_renderer->set_cursor(36, 7);
-    printf("%s%s%s", Color::GREEN, "WIN", Color::BACKGROUND);
+    platform_renderer->set_cursor(MY_BOARD_X + 9, BOARD_START_Y + 10);
+    platform_renderer->print_s("WIN", Color::GREEN);
 }
 
 void WindowMultiRenderer::render_other_win(Packet& pkt)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-    platform_renderer->set_cursor(start_x + 11, start_y + 10);
-    printf("%s%s%s", Color::GREEN, "WIN", Color::BACKGROUND);
+    platform_renderer->set_cursor(start_x + 9, start_y + 10);
+    platform_renderer->print_s("WIN", Color::GREEN);
 }
 
 WindowMultiRenderer::~WindowMultiRenderer() {}
