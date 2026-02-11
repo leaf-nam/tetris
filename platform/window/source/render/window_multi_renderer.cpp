@@ -252,4 +252,30 @@ void WindowMultiRenderer::render_other_board(Packet& pkt)
     }
 }
 
+void WindowMultiRenderer::render_game_over()
+{
+    platform_renderer->set_cursor(33, 17);
+    printf("%s%s%s", Color::RED, "GAMEOVER", Color::BACKGROUND);
+}
+
+void WindowMultiRenderer::render_other_game_over(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    platform_renderer->set_cursor(start_x + 8, start_y + 10);
+    printf("%s%s%s", Color::RED, "GAMEOVER", Color::BACKGROUND);
+}
+
+void WindowMultiRenderer::render_win()
+{
+    platform_renderer->set_cursor(36, 7);
+    printf("%s%s%s", Color::GREEN, "WIN", Color::BACKGROUND);
+}
+
+void WindowMultiRenderer::render_other_win(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    platform_renderer->set_cursor(start_x + 11, start_y + 10);
+    printf("%s%s%s", Color::GREEN, "WIN", Color::BACKGROUND);
+}
+
 WindowMultiRenderer::~WindowMultiRenderer() {}
