@@ -164,7 +164,7 @@ AppState run_multi_game()
     ILobbyNetwork* window_lobby_network = new WindowLobbyNetwork();
     ILobbyRenderer* window_lobby_renderer = new WindowLobbyRenderer();
     lobby = new Lobby(window_lobby_network, window_lobby_renderer, window_lobby_input_handler);
-    lobby->start();
+    bool is_server = lobby->start();
     
     network = new WindowNetwork();
 
@@ -179,7 +179,7 @@ AppState run_multi_game()
     renderer->render_clear();
     renderer->render_background();
 
-    engine->run(true);
+    engine->run(is_server);
     engine->finish();
     lobby->finish();
 
