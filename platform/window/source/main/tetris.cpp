@@ -4,6 +4,10 @@
 #include "engine/solo_engine.hpp"
 #include "input/window_input.hpp"
 #include "menu.hpp"
+#include "lobby.hpp"
+#include "lobby_input_handler/window_lobby_input_handler.hpp"
+#include "lobby_network/window_lobby_network.hpp"
+#include "lobby_renderer/window_lobby_renderer.hpp"
 #include "network/window_network.hpp"
 #include "render/color.hpp"
 #include "render/window_menu_renderer.hpp"
@@ -23,6 +27,7 @@ static IRenderer* renderer;
 static INetwork* network;
 static Engine* engine;
 static Setting* setting;
+static Lobby* lobby;
 static bool finished = false;
 
 using namespace std;
@@ -155,19 +160,28 @@ AppState run_single_game()
 
 AppState run_multi_game()
 {
+    ILobbyInputHandler* window_lobby_input_handler = new WindowLobbyInputHandler();
+    ILobbyNetwork* window_lobby_network = new WindowLobbyNetwork();
+    ILobbyRenderer* window_lobby_renderer = new WindowLobbyRenderer();
+    lobby = new Lobby(window_lobby_network, window_lobby_renderer, window_lobby_input_handler);
+    lobby->start();
+    
+    network = new WindowNetwork();
+
     RenderFactory& render_factory = RenderFactory::getInstance();
 
     WindowMultiRenderer window_renderer = render_factory.create_window_multi_renderer();
     renderer = &window_renderer;
     input = new WindowInput();
     network = new WindowNetwork();
-    engine = new SoloEngine(setting, input, renderer);
+    engine = new MultiEngine(setting, input, renderer, network, lobby);
 
     renderer->render_clear();
     renderer->render_background();
 
     engine->run(true);
     engine->finish();
+    lobby->finish();
 
     (void) _getch();
 

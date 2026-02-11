@@ -6,7 +6,7 @@
 #include <i_input_handler.hpp>
 #include <i_network.hpp>
 #include <i_renderer.hpp>
-#include <ip_resolver/ip_resolver.hpp>
+#include <lobby.hpp>
 
 class Engine
 {
@@ -15,7 +15,7 @@ class Engine
     IInputHandler* input_handler;
     IRenderer* renderer;
     INetwork* network;
-    IpResolver* ip_resolver;
+    Lobby* lobby;
 
   public:
     /**
@@ -24,7 +24,7 @@ class Engine
      * @return 게임엔진
      */
     Engine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network,
-           IpResolver* ip_resolver);
+           Lobby* lobby);
 
     /**
      * @brief 게임 메인루프

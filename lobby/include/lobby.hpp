@@ -1,25 +1,25 @@
-#ifndef __IP_RESOLVER_HPP__
-#define __IP_RESOLVER_HPP__
+#ifndef __LOBBY_HPP__
+#define __LOBBY_HPP__
 
 #define ROOM_PORT 44321
 
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include "i_ip_resolver_network.hpp"
-#include "i_ip_resolver_renderer.hpp"
-#include "i_ip_resolver_input_handler.hpp"
+#include "i_lobby_renderer.hpp"
+#include "i_lobby_input_handler.hpp"
+#include "i_lobby_network.hpp"
 
-class IpResolver
+class Lobby
 {
   private:
     std::unordered_map<std::string, std::string> server_ip_address; // key=>ip, value=>id
     std::unordered_map<std::string, std::string> client_ip_address; // server: key=>id, value=>ip / client: key=>room_host_id, value=>room_user_id
     char selected_server_ip_address[16];
     char my_id[9];
-    IIpResolverNetwork* ip_resolver_network;
-    IIpResolverRenderer* ip_resolver_renderer;
-    IIpResolverInputHandler* ip_resolver_input_handler;
+    ILobbyNetwork* lobby_network;
+    ILobbyRenderer* lobby_renderer;
+    ILobbyInputHandler* lobby_input_handler;
     /**
      * @brief (서버)브로드캐스트 주소를 찾는 함수
      */
@@ -35,9 +35,9 @@ class IpResolver
      */
     bool enter_room();
   public:
-    IpResolver(IIpResolverNetwork* ip_resolver_network,
-               IIpResolverRenderer* ip_resolver_renderer,
-               IIpResolverInputHandler* ip_resolver_input_handler);
+    Lobby(ILobbyNetwork* lobby_network,
+               ILobbyRenderer* lobby_renderer,
+               ILobbyInputHandler* lobby_input_handler);
 
     /**
      * @brief 현재 어떤 모드로 들어갈지 확인하는 함수

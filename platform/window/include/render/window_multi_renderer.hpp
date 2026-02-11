@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string>
 #include <tetromino/tetromino.hpp>
+#include <unordered_map>
 #include <vector>
 
 class WindowMultiRenderer : public IRenderer
@@ -33,6 +34,12 @@ class WindowMultiRenderer : public IRenderer
     BoxRenderer box_renderer;
     BlockRenderer block_renderer;
     ShadowMaker shadow_maker;
+
+    std::unordered_map<std::string, int> other_land_index_map;
+    std::pair<int, int> other_render_loc_array[3];
+    int other_render_index;
+
+    std::pair<int, int> other_render_loc_get_or_set(std::string id);
 
   public:
     WindowMultiRenderer(Setting*, IPlatformRenderer*, ColorPicker, TextRenderer, BoxRenderer,

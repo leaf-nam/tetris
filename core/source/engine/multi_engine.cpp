@@ -16,8 +16,8 @@
 
 using namespace std;
 
-MultiEngine::MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, IpResolver* ip_resolver) : 
-    Engine(setting, input_handler, renderer, network, ip_resolver) {}
+MultiEngine::MultiEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network, Lobby* lobby) : 
+    Engine(setting, input_handler, renderer, network, lobby) {}
 
 void MultiEngine::run(bool is_server)
 {
@@ -26,8 +26,8 @@ void MultiEngine::run(bool is_server)
     KeyMapper key_mapper;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
     Timer& timer = Timer::get_instance();
-    std::vector<std::pair<std::string, std::string>> ids_ips = ip_resolver->get_client_ids_ips();
-    std::unordered_map<std::string, std::string> active_user = ip_resolver->get_ids(is_server);
+    std::vector<std::pair<std::string, std::string>> ids_ips = lobby->get_client_ids_ips();
+    std::unordered_map<std::string, std::string> active_user = lobby->get_ids(is_server);
     PacketStruct recv_pkt;
     int curr_mino = 0;
     int action;
@@ -54,12 +54,11 @@ void MultiEngine::run(bool is_server)
                 attack = rule->update_score();
                 if (is_server == true)
                     network->send_multi_udp(board, board.get_active_mino(), attack, 1, 0,
-                                            ip_resolver->get_my_id(), ids_ips);
+                                            lobby->get_my_id(), ids_ips);
                 else
                     network->send_udp(board, board.get_active_mino(), attack, 1, 0,
-                                      ip_resolver->get_server_ip_address(),
-                                      ip_resolver->get_my_id());
-                active_user.erase(ip_resolver->get_my_id());
+                                      lobby->get_server_ip_address(), lobby->get_my_id());
+                active_user.erase(lobby->get_my_id());
                 //renderer->render_game_over();
                 break;
             }
@@ -91,11 +90,11 @@ void MultiEngine::run(bool is_server)
             renderer->render_hold(board.get_saved_mino());
             if (is_server == true)
                 network->send_multi_udp(board, board.get_active_mino(), attack, 0, 0,
-                                        ip_resolver->get_my_id(), ids_ips);
+                                        lobby->get_my_id(), ids_ips);
             else
                 network->send_udp(board, board.get_active_mino(), attack,
                                   0, 0,
-                                  ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
+                                  lobby->get_server_ip_address(), lobby->get_my_id());
         }
 
         if (attack > 0) renderer->render_score(attack);
@@ -115,10 +114,10 @@ void MultiEngine::run(bool is_server)
                 attack = rule->update_score();
                 if (is_server == true)
                     network->send_multi_udp(board, board.get_active_mino(), attack, 0, 1,
-                                            ip_resolver->get_my_id(), ids_ips);
+                                            lobby->get_my_id(), ids_ips);
                 else
                     network->send_udp(board, board.get_active_mino(), attack, 0, 1,
-                                      ip_resolver->get_server_ip_address(), ip_resolver->get_my_id());
+                                      lobby->get_server_ip_address(), lobby->get_my_id());
                 break;
             }
 
@@ -161,7 +160,7 @@ int MultiEngine::finish()
     delete renderer;
     delete input_handler;
     delete network;
-    delete ip_resolver;
+    delete lobby;
     return 0;
 }
 

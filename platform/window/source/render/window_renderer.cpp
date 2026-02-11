@@ -15,26 +15,6 @@ WindowRenderer::WindowRenderer(Setting* a1, IPlatformRenderer* a2, ColorPicker a
 {
 }
 
-// WindowRenderer::WindowRenderer()
-//{
-//     other_render_loc_array[0] = std::make_pair(73, 1);
-//     other_render_loc_array[1] = std::make_pair(96, 1);
-//     other_render_loc_array[2] = std::make_pair(73, 14);
-//     other_render_loc_array[3] = std::make_pair(96, 14);
-//
-//     other_render_index = 0;
-// }
-
-std::pair<int, int> WindowRenderer::other_render_loc_get_or_set(std::string id)
-{
-    if (other_land_index_map.find(id) == other_land_index_map.end()) {
-        other_land_index_map[id] = other_render_index;
-        return other_render_loc_array[other_render_index++];
-    }
-    else
-        return other_render_loc_array[other_land_index_map[id]];
-}
-
 void WindowRenderer::render_timer(int totalSec)
 {
     int min = (totalSec / 60);

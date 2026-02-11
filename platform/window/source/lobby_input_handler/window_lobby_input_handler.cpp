@@ -1,10 +1,10 @@
-#include "ip_resolver_input_handler/window_ip_resolver_input_handler.hpp"
+#include "lobby_input_handler/window_lobby_input_handler.hpp"
 
 #include <string>
 #include <stdio.h>
 #include <conio.h>
 
-int WindowIpResolverInputHandler::scan(char* buf, int buf_len, int is_blocking)
+int WindowLobbyInputHandler::scan(char* buf, int buf_len, int is_blocking)
 {
     std::string s;
     int hit_keyboard = 0;
@@ -23,7 +23,7 @@ int WindowIpResolverInputHandler::scan(char* buf, int buf_len, int is_blocking)
     return hit_keyboard;
 }
 
-int WindowIpResolverInputHandler::scan(int* buf, int is_blocking)
+int WindowLobbyInputHandler::scan(int* buf, int is_blocking)
 {
     int hit_keyboard = 0;
 
