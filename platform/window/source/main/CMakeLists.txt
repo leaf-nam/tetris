@@ -3,8 +3,9 @@ add_executable(tetris
 )
 
 target_include_directories(tetris 
-    PRIVATE ${PROJECT_SOURCE_DIR}/api
     PRIVATE ${PROJECT_SOURCE_DIR}/core/include
+    PRIVATE ${PROJECT_SOURCE_DIR}/lobby/api
+    PRIVATE ${PROJECT_SOURCE_DIR}/lobby/include
     PRIVATE ${PROJECT_SOURCE_DIR}/menu/api
     PRIVATE ${PROJECT_SOURCE_DIR}/menu/include
     PRIVATE ${PROJECT_SOURCE_DIR}/setting/api
@@ -24,8 +25,8 @@ target_link_libraries(tetris
         common_render
         window_render
         window_util
-        ip_resolver
-        ip_resolver_network
-        ip_resolver_renderer
-        ip_resolver_input_handler
+        lobby
+        window_lobby_network
+        window_lobby_renderer
+        window_lobby_input_handler
 )

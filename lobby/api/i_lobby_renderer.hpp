@@ -1,10 +1,10 @@
-#ifndef __I_IP_RESOLVER_RENDERER_HPP__
-#define __I_IP_RESOLVER_RENDERER_HPP__
+#ifndef __I_LOBBY_RENDERER_HPP__
+#define __I_LOBBY_RENDERER_HPP__
 
 #include <unordered_map>
 #include <string>
 
-class IIpResolverRenderer
+class ILobbyRenderer
 {
   public:
     virtual void render_server_view_room(char* server_id,
@@ -15,7 +15,7 @@ class IIpResolverRenderer
     virtual void render_view_enter_room(std::unordered_map<std::string, std::string> server_ip_address) = 0;
     virtual void render_clear() = 0;
     virtual void render_select() = 0;
-    ~IIpResolverRenderer() = default;
+    ~ILobbyRenderer() = default;
 };
 
 #endif

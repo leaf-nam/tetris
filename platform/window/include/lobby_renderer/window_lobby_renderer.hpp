@@ -1,12 +1,12 @@
-#ifndef __WINDOW_IP_RESOLVER_RENDERER_HPP__
-#define __WINDOW_IP_RESOLVER_RENDERER_HPP__
+#ifndef __WINDOW_LOBBY_RENDERER_HPP__
+#define __WINDOW_LOBBY_RENDERER_HPP__
 
-#include "i_ip_resolver_renderer.hpp"
+#include "i_lobby_renderer.hpp"
 
 #include <unordered_map>
 #include <string>
 
-class WindowIpResolverRenderer : public IIpResolverRenderer
+class WindowLobbyRenderer : public ILobbyRenderer
 {
   public:
     void render_server_view_room(char* server_id,

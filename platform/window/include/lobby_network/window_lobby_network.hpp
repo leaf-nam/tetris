@@ -1,7 +1,7 @@
-#ifndef __WINDOW_IP_RESOLVER_NETWORK_HPP__
-#define __WINDOW_IP_RESOLVER_NETWORK_HPP__
+#ifndef __WINDOW_LOBBY_NETWORK_HPP__
+#define __WINDOW_LOBBY_NETWORK_HPP__
 
-#include "i_ip_resolver_network.hpp"
+#include "i_lobby_network.hpp"
 
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -10,7 +10,7 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-class WindowIpResolverNetwork : public IIpResolverNetwork
+class WindowLobbyNetwork : public ILobbyNetwork
 {
   private:
     SOCKET sock;
@@ -27,7 +27,7 @@ class WindowIpResolverNetwork : public IIpResolverNetwork
     void serialize(uint8_t* buf, const room_data& pkt);
     void deserialize(const uint8_t* buf, room_data& pkt);
   public:
-    WindowIpResolverNetwork();
+    WindowLobbyNetwork();
     void find_broadcast_ip(char* broadcast_ip) override;
     // user_data
     void send_udp(const char* id, int is_enter, const char* send_ip) override;
@@ -43,7 +43,7 @@ class WindowIpResolverNetwork : public IIpResolverNetwork
                         int is_enter_not_success, int is_game_start, int is_broadcast,
                         int is_update, int is_broadcast_delete,
                         std::unordered_map<std::string, std::string> ids_ips) override;
-    ~WindowIpResolverNetwork();
+    ~WindowLobbyNetwork();
 };
 
 #endif

@@ -1,6 +1,6 @@
-#include "ip_resolver_renderer/window_ip_resolver_renderer.hpp"
+#include "lobby_renderer/window_lobby_renderer.hpp"
 
-void WindowIpResolverRenderer::render_server_view_room(
+void WindowLobbyRenderer::render_server_view_room(
     char* server_id, std::unordered_map<std::string, std::string> client_ip_address)
 {
     printf("\033[2J\033[1;1H");
@@ -11,7 +11,7 @@ void WindowIpResolverRenderer::render_server_view_room(
     printf("Press Any key + enter for start game or Press q + enter for get out from room\n");
 }
 
-void WindowIpResolverRenderer::render_user_id_input()
+void WindowLobbyRenderer::render_user_id_input()
 {
     printf("\033[2J\033[1;1H");
     fflush(stdout);
@@ -20,7 +20,7 @@ void WindowIpResolverRenderer::render_user_id_input()
     fflush(stdout);
 }
 
-void WindowIpResolverRenderer::render_client_view_room(
+void WindowLobbyRenderer::render_client_view_room(
     char* server_id, std::unordered_map<std::string, std::string> client_ip_address)
 {
     printf("\033[2J\033[1;1H");
@@ -31,7 +31,7 @@ void WindowIpResolverRenderer::render_client_view_room(
     printf("Press Any key + enter for get out room\n");
 }
 
-void WindowIpResolverRenderer::render_view_enter_room(
+void WindowLobbyRenderer::render_view_enter_room(
     std::unordered_map<std::string, std::string> server_ip_address)
 {
     printf("\033[2J\033[1;1H");
@@ -41,13 +41,13 @@ void WindowIpResolverRenderer::render_view_enter_room(
     printf("Get Room constantly...(exit q + enter)\n");
 }
 
-void WindowIpResolverRenderer::render_clear()
+void WindowLobbyRenderer::render_clear()
 {
     printf("\033[2J\033[1;1H");
     fflush(stdout);
 }
 
-void WindowIpResolverRenderer::render_select()
+void WindowLobbyRenderer::render_select()
 { 
     printf("\033[37m"); // foreground white
     fflush(stdout);

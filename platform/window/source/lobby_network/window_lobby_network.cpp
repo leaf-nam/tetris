@@ -1,4 +1,4 @@
-#include "ip_resolver_network/window_ip_resolver_network.hpp"
+#include "lobby_network/window_lobby_network.hpp"
 
 #include <stdio.h>
 #include <iphlpapi.h>
@@ -6,7 +6,7 @@
 #pragma comment(lib, "iphlpapi.lib")
 #pragma comment(lib, "ws2_32.lib")
 
-WindowIpResolverNetwork::WindowIpResolverNetwork()
+WindowLobbyNetwork::WindowLobbyNetwork()
 {
     WSADATA wsa_data;
     SOCKADDR_IN room_addr;
@@ -34,7 +34,7 @@ WindowIpResolverNetwork::WindowIpResolverNetwork()
     // 5. Bind data setting
     ZeroMemory(&room_addr, sizeof(room_addr));
     room_addr.sin_family = AF_INET;
-    room_addr.sin_port = htons(ROOM_PORT);
+    room_addr.sin_port = htons(LOBBY_PORT);
     room_addr.sin_addr.s_addr = INADDR_ANY;
 
     // 6. BroadCast settting
@@ -51,7 +51,7 @@ WindowIpResolverNetwork::WindowIpResolverNetwork()
 /**
  * @brief (서버)브로드캐스트 주소를 찾는 함수
  */
-void WindowIpResolverNetwork::find_broadcast_ip(char* broadcast_ip)
+void WindowLobbyNetwork::find_broadcast_ip(char* broadcast_ip)
 {
     ULONG size = 0;
     GetAdaptersAddresses(AF_INET, 0, nullptr, nullptr, &size);
@@ -87,20 +87,20 @@ void WindowIpResolverNetwork::find_broadcast_ip(char* broadcast_ip)
     free(adapters);
 }
 
-void WindowIpResolverNetwork::write_32b(uint8_t*& p, int32_t v)
+void WindowLobbyNetwork::write_32b(uint8_t*& p, int32_t v)
 {
     int32_t n = htonl(v);
     memcpy(p, &n, 4);
     p += 4;
 }
 
-void WindowIpResolverNetwork::write_bytes(uint8_t*& p, const void* data, size_t size)
+void WindowLobbyNetwork::write_bytes(uint8_t*& p, const void* data, size_t size)
 {
     memcpy(p, data, size);
     p += size;
 }
 
-int32_t WindowIpResolverNetwork::read_32b(const uint8_t*& p)
+int32_t WindowLobbyNetwork::read_32b(const uint8_t*& p)
 {
     int32_t n;
     memcpy(&n, p, 4);
@@ -108,14 +108,14 @@ int32_t WindowIpResolverNetwork::read_32b(const uint8_t*& p)
     return ntohl(n);
 }
 
-void WindowIpResolverNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
+void WindowLobbyNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
 {
     memcpy(dst, p, size);
     p += size;
 }
 
 // user_data
-void WindowIpResolverNetwork::serialize(uint8_t* buf, const user_data& pkt)
+void WindowLobbyNetwork::serialize(uint8_t* buf, const user_data& pkt)
 {
     uint8_t* p = buf;
 
@@ -123,7 +123,7 @@ void WindowIpResolverNetwork::serialize(uint8_t* buf, const user_data& pkt)
     write_32b(p, pkt.is_enter);
 }
 
-void WindowIpResolverNetwork::deserialize(const uint8_t* buf, user_data& pkt)
+void WindowLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
 {
     const uint8_t* p = buf;
 
@@ -133,7 +133,7 @@ void WindowIpResolverNetwork::deserialize(const uint8_t* buf, user_data& pkt)
 }
 
 // room_data
-void WindowIpResolverNetwork::serialize(uint8_t* buf, const room_data& pkt)
+void WindowLobbyNetwork::serialize(uint8_t* buf, const room_data& pkt)
 {
     uint8_t* p = buf;
 
@@ -150,7 +150,7 @@ void WindowIpResolverNetwork::serialize(uint8_t* buf, const room_data& pkt)
     write_32b(p, pkt.is_broadcast_delete);
 }
 
-void WindowIpResolverNetwork::deserialize(const uint8_t* buf, room_data& pkt)
+void WindowLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
 {
     const uint8_t* p = buf;
 
@@ -168,7 +168,7 @@ void WindowIpResolverNetwork::deserialize(const uint8_t* buf, room_data& pkt)
     pkt.is_broadcast_delete = read_32b(p);
 }
 
-void WindowIpResolverNetwork::send_udp(const char* id, int is_enter, const char* send_ip)
+void WindowLobbyNetwork::send_udp(const char* id, int is_enter, const char* send_ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
@@ -179,7 +179,7 @@ void WindowIpResolverNetwork::send_udp(const char* id, int is_enter, const char*
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(ROOM_PORT);
+    addr.sin_port = htons(LOBBY_PORT);
     inet_pton(AF_INET, send_ip, &addr.sin_addr);
     
     snprintf(data.id, sizeof(data.id), "%s", id);
@@ -191,7 +191,7 @@ void WindowIpResolverNetwork::send_udp(const char* id, int is_enter, const char*
     if (send_result == SOCKET_ERROR) printf("sendto failed: %d\n", send_result);
 }
 
-bool WindowIpResolverNetwork::recv_udp(user_data& ud, char* ip)
+bool WindowLobbyNetwork::recv_udp(user_data& ud, char* ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
@@ -223,7 +223,7 @@ bool WindowIpResolverNetwork::recv_udp(user_data& ud, char* ip)
     return true;
 }
 
-void WindowIpResolverNetwork::send_udp(const char* room_master_id,
+void WindowLobbyNetwork::send_udp(const char* room_master_id,
                                        std::unordered_map<std::string, std::string> ids_ips,
                                        int id_len,
     int is_enter_not_success, int is_game_start, int is_broadcast,
@@ -239,7 +239,7 @@ void WindowIpResolverNetwork::send_udp(const char* room_master_id,
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(ROOM_PORT);
+    addr.sin_port = htons(LOBBY_PORT);
     inet_pton(AF_INET, send_ip, &addr.sin_addr);
 
     snprintf(data.room_master_id, sizeof(data.room_master_id), "%s", room_master_id);
@@ -257,7 +257,7 @@ void WindowIpResolverNetwork::send_udp(const char* room_master_id,
     if (send_result == SOCKET_ERROR) printf("sendto failed: %d\n", send_result);
 }
 
-bool WindowIpResolverNetwork::recv_udp(room_data& rd, char* ip)
+bool WindowLobbyNetwork::recv_udp(room_data& rd, char* ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
@@ -289,7 +289,7 @@ bool WindowIpResolverNetwork::recv_udp(room_data& rd, char* ip)
     return true;
 }
 
-void WindowIpResolverNetwork::send_multi_udp(
+void WindowLobbyNetwork::send_multi_udp(
     const char* room_master_id, std::unordered_map<std::string, std::string> pkt_ids_ips,
     int id_len,
     int is_enter_not_success, int is_game_start, int is_broadcast,
@@ -300,7 +300,7 @@ void WindowIpResolverNetwork::send_multi_udp(
                  is_update, is_broadcast_delete, user_ip.c_str());
 }
 
-WindowIpResolverNetwork::~WindowIpResolverNetwork()
+WindowLobbyNetwork::~WindowLobbyNetwork()
 { 
     closesocket(sock); 
     WSACleanup();

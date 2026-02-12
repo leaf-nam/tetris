@@ -1,15 +1,15 @@
-#ifndef __I_IP_RESOLVER_NETWORK_HPP__
-#define __I_IP_RESOLVER_NETWORK_HPP__
+#ifndef __I_LOBBY_NETWORK_HPP__
+#define __I_LOBBY_NETWORK_HPP__
 
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include <util/network_packet.hpp>
+#include <lobby_network_packet.hpp>
 
-#define ROOM_PORT 44111
+#define LOBBY_PORT 44111
 #define BUF_SIZE 1024
 
-class IIpResolverNetwork
+class ILobbyNetwork
 {
   public:
     virtual void find_broadcast_ip(char* broadcast_ip) = 0;
@@ -28,7 +28,7 @@ class IIpResolverNetwork
                                 int is_enter_not_success, int is_game_start, int is_broadcast,
                                 int is_update, int is_broadcast_delete,
                                 std::unordered_map<std::string, std::string> ids_ips) = 0;
-    ~IIpResolverNetwork() = default;
+    ~ILobbyNetwork() = default;
 };
 
 #endif

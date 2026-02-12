@@ -21,7 +21,6 @@
 #include <iostream>
 #include <string>
 #include <tetromino/tetromino.hpp>
-#include <unordered_map>
 #include <vector>
 
 class WindowRenderer : public IRenderer
@@ -34,12 +33,6 @@ class WindowRenderer : public IRenderer
     BoxRenderer box_renderer;
     BlockRenderer block_renderer;
     ShadowMaker shadow_maker;
-
-    std::unordered_map<std::string, int> other_land_index_map;
-    std::pair<int, int> other_render_loc_array[4];
-    int other_render_index;
-
-    std::pair<int, int> other_render_loc_get_or_set(std::string id);
 
   public:
     WindowRenderer(Setting*, IPlatformRenderer*, ColorPicker, TextRenderer, BoxRenderer,
@@ -97,18 +90,14 @@ class WindowRenderer : public IRenderer
 
     void render_other_board(Packet& pkt) override;
 
-    // void render_ip_recv() override;
-
-    // void render_char(char c) override;
-
     void render_clear() override;
 
-    // void render_game_over() override;
+    void render_game_over() override;
 
-    // void render_other_game_over(Packet& pkt) override;
+    void render_other_game_over(Packet& pkt) override;
 
-    // void render_win() override;
+    void render_win() override;
 
-    // void render_other_win(Packet& pkt) override;
+    void render_other_win(Packet& pkt) override;
 };
 #endif
