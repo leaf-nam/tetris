@@ -1,11 +1,12 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include "util/setting.hpp"
+#include "setting.hpp"
 
 #include <i_input_handler.hpp>
 #include <i_network.hpp>
 #include <i_renderer.hpp>
+#include <lobby.hpp>
 
 class Engine
 {
@@ -14,13 +15,21 @@ class Engine
     IInputHandler* input_handler;
     IRenderer* renderer;
     INetwork* network;
+    Lobby* lobby;
 
   public:
-    Engine(Setting*, IInputHandler*, IRenderer*, INetwork*);
+    /**
+     * @brief 게임 수행 전 필드 초기화(생성자)
+     * @param 핸들러, 렌더러, 네트워크 인터페이스
+     * @return 게임엔진
+     */
+    Engine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network,
+           Lobby* lobby);
+
     /**
      * @brief 게임 메인루프
      */
-    virtual void run() = 0;
+    virtual void run(bool is_server) = 0;
 
     /**
      * @brief 게임 메인루프 정지

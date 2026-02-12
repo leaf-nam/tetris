@@ -37,20 +37,21 @@ add_subdirectory(core/source/game_rule)
 add_subdirectory(core/source/tetromino)
 add_subdirectory(core/source/util)
 add_subdirectory(core/source/engine)
+add_subdirectory(lobby/source)
+add_subdirectory(menu/source)
+add_subdirectory(setting/source)
 
 # 웹 빌드
 if (EMSCRIPTEN)
     message(STATUS "Building for WebAssembly (Emscripten)")
-    # 실행 파일 확장자를 .html로 설정
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     
     add_subdirectory(platform/web/source/input)
     add_subdirectory(platform/web/source/render)
     add_subdirectory(platform/web/source/network)
-    # main도 필요하다면 여기에 추가 (예: add_subdirectory(platform/web/source/main))
     add_subdirectory(platform/web/source/main)
     # 링커 옵션 (SDL2 사용 시 필수)
-    add_link_options("-sUSE_SDL=2" "-sUSE_SDL_TTF=2")# 리눅스 터미널 UI 빌드
+    add_link_options("-sUSE_SDL=2" "-sUSE_SDL_TTF=2")
 
 elseif (UNIX)
     add_subdirectory(platform/linux/source/input)
@@ -60,7 +61,6 @@ elseif (UNIX)
     set_target_properties(tetris PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
-
 # 윈도우 빌드
 elseif (WIN32)
 
@@ -71,14 +71,18 @@ elseif (WIN32)
         add_subdirectory(platform/wpf/wpf_dll/source/callback)
     # 윈도우 터미널 UI 빌드 -> window_main.exe 생성
     else()
+        add_subdirectory(platform/common/source/render)
         add_subdirectory(platform/window/source/input)
         add_subdirectory(platform/window/source/render)
         add_subdirectory(platform/window/source/network)
-        add_subdirectory(platform/window/source/main)
+        add_subdirectory(platform/window/source/lobby_network)
+        add_subdirectory(platform/window/source/lobby_renderer)
+        add_subdirectory(platform/window/source/lobby_input_handler)
         add_subdirectory(platform/window/source/util)
-        #터미널 구조에 맞게 수정했습니다.
+        add_subdirectory(platform/window/source/main)
+        
+        #터미널 구조에 맞게 수정했습니다. 
     # 윈도우 터미널 UI 빌드 -> tetris.exe 생성
-
     endif()
 
 endif()

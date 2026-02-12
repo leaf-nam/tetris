@@ -15,11 +15,11 @@
 using namespace std;
 
 SoloEngine::SoloEngine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer)
-    : Engine(setting, input_handler, renderer, nullptr)
+    : Engine(setting, input_handler, renderer, nullptr, nullptr)
 {
 }
 
-void SoloEngine::run()
+void SoloEngine::run(bool is_server)
 {
     Board board;
     unique_ptr<GameRule> rule = create_rule("ZEN", board);

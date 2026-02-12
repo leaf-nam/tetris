@@ -1,0 +1,37 @@
+#ifndef __RENDER_FACTORY_HPP__
+#define __RENDER_FACTORY_HPP__
+
+#include "menu_renderer.hpp"
+#include "web_multi_renderer.hpp"
+#include "web_renderer.hpp"
+
+#include <i_renderer.hpp>
+
+class RenderFactory
+{
+  private:
+    RenderFactory() = default;
+
+    Setting* setting;
+    ConsoleRenderer console_renderer;
+    ColorPicker color_picker;
+    ShadowMaker shadow_maker;
+
+  public:
+    static RenderFactory& getInstance()
+    {
+        static RenderFactory instance;
+        return instance;
+    }
+
+    void initialize(Setting* setting);
+    InputwebRenderer create_input_web_renderer();
+    MenuRenderer create_menu_renderer();
+    WebRenderer create_web_renderer();
+    WebMultiRenderer create_web_multi_renderer();
+    TextRenderer create_text_renderer();
+    BoxRenderer create_box_renderer();
+    BlockRenderer create_block_renderer();
+};
+
+#endif // !__RENDER_FACTORY_HPP__
