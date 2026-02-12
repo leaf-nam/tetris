@@ -179,7 +179,6 @@ AppState run_multi_game()
 
     engine->run(is_server);
     engine->finish();
-    lobby->finish();
 
     (void) _getch();
 
