@@ -129,7 +129,18 @@ void MultiEngine::run(bool is_server)
                 // 상쇄되고 2만 적용됨 반대로 상대편 측에서는 5 던졌는데, 상대가 3을 던졌으므로
                 // garbage를 모두 상쇄하여 아무 불이익도 받지 않음
                 is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - attack);
-                if (!is_line_fill_complete) break;
+                if (!is_line_fill_complete) {
+                    attack = rule->update_score();
+                    if (is_server == true)
+                        network->send_multi_udp(board, board.get_active_mino(), attack, 1, 0,
+                                                lobby->get_my_id(), ids_ips);
+                    else
+                        network->send_udp(board, board.get_active_mino(), attack, 1, 0,
+                                          lobby->get_server_ip_address(), lobby->get_my_id());
+                    active_user.erase(lobby->get_my_id());
+                    renderer->render_game_over();
+                    break;
+                }
                 renderer->render_board(board, board.get_active_mino());
                 renderer->render_hold(board.get_saved_mino());
             }
