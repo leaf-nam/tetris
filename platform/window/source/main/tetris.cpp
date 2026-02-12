@@ -183,11 +183,18 @@ AppState run_multi_game()
     (void) _getch();
 
     delete engine;
+    delete network;
+    delete input;
+    delete lobby;
+    delete window_lobby_network;
+    delete window_lobby_renderer;
+    delete window_lobby_input_handler;
 
     input = nullptr;
     renderer = nullptr;
     network = nullptr;
     engine = nullptr;
+    lobby = nullptr;
 
     return AppState::MENU;
 }
