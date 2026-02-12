@@ -166,13 +166,6 @@ void MultiEngine::run(bool is_server)
 
 void MultiEngine::stop() {}
 
-int MultiEngine::finish()
-{
-    delete renderer;
-    delete input_handler;
-    delete network;
-    delete lobby;
-    return 0;
-}
+int MultiEngine::finish() { return 0; }
 
 MultiEngine::~MultiEngine() {}
