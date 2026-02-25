@@ -2,6 +2,7 @@
 #define __ACTION_RESOLVER_HPP__
 
 #include <vector>
+#include <tuple>
 #include "util/action.hpp"
 
 typedef std::tuple<int, int, int> Pose;
