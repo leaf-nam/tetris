@@ -6,6 +6,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <stdint.h>
+#include <array>
 
 LinuxLobbyNetwork::LinuxLobbyNetwork()
 {
