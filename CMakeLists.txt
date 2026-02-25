@@ -40,9 +40,14 @@ add_subdirectory(setting/source)
 
 # 리눅스 터미널 UI 빌드
 if (UNIX)
+    add_subdirectory(platform/common/source/render)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
+    add_subdirectory(platform/linux/source/lobby_network)
+    add_subdirectory(platform/linux/source/lobby_renderer)
+    add_subdirectory(platform/linux/source/lobby_input_handler)
+    add_subdirectory(platform/linux/source/util)
     add_subdirectory(platform/linux/source/main)
     set_target_properties(tetris PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}

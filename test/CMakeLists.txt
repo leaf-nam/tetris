@@ -14,7 +14,7 @@ add_custom_target(windows-test
 
 add_custom_target(linux-test
     COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR}/test
-    COMMAND lcov --quiet --directory . --capture --ignore-errors mismatch --output-file coverage.info
+    COMMAND lcov --quiet --directory . --capture --output-file coverage.info
     COMMAND lcov --quiet --remove coverage.info '/usr/*' '*/_deps/*' '*/test/*' '*/include/*'
                  --output-file coverage.filtered.info
     COMMAND genhtml coverage.filtered.info --output-directory coverage
@@ -32,6 +32,7 @@ enable_testing()
 
 if(WIN32)
     add_subdirectory(platform/window/util)
+endif()
     add_subdirectory(core/util)
     add_subdirectory(core/board)
     #add_subdirectory(core/game_rule)
@@ -51,18 +52,19 @@ target_link_libraries(
     $<TARGET_OBJECTS:util_test>
 #    engine_test
 #    tetris_test
-    engine
+    tetromino
+    util
+    board
     GTest::gtest_main
 )
-endif()
 
 if(WIN32)
     target_link_libraries(unit_test 
         window_util
         shadow_maker_test
 )
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(unit_test)
 
-endif()
