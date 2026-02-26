@@ -14,9 +14,8 @@ add_custom_target(windows-test
 
 add_custom_target(linux-test
     COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR}/test
-    COMMAND lcov --quiet --directory . --capture --output-file coverage.info
-    COMMAND lcov --quiet --remove coverage.info '/usr/*' '*/_deps/*' '*/test/*' '*/include/*'
-                 --output-file coverage.filtered.info
+    COMMAND lcov --quiet --directory . --capture --ignore-errors mismatch,inconsistent,inconsistent --output-file coverage.info
+    COMMAND lcov --quiet --remove coverage.info '/usr/*' '*/_deps/*' '*/test/*' --output-file coverage.filtered.info
     COMMAND genhtml coverage.filtered.info --output-directory coverage
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
