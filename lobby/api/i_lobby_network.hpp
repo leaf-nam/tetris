@@ -28,7 +28,7 @@ class ILobbyNetwork
                                 int is_enter_not_success, int is_game_start, int is_broadcast,
                                 int is_update, int is_broadcast_delete,
                                 std::unordered_map<std::string, std::string> ids_ips) = 0;
-    ~ILobbyNetwork() = default;
+    virtual ~ILobbyNetwork() = default;
 };
 
 #endif

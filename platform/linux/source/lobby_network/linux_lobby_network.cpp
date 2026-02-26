@@ -315,5 +315,6 @@ void LinuxLobbyNetwork::send_multi_udp(
 
 LinuxLobbyNetwork::~LinuxLobbyNetwork()
 { 
-    close(sock); 
+    close(sock);
+    close(epfd);
 }
