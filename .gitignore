@@ -37,6 +37,7 @@
 *.out
 *.app
 tetris
+settings.txt
 
 # debug information files
 *.dwo

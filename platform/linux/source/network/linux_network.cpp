@@ -53,6 +53,12 @@ void LinuxNetwork::write_32b(uint8_t*& p, int32_t v)
     p += 4;
 }
 
+void LinuxNetwork::write_bytes(uint8_t*& p, const void* data, size_t size)
+{
+    memcpy(p, data, size);
+    p += size;
+}
+
 void LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
 {
     uint8_t* p = buf;
@@ -66,6 +72,10 @@ void LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
     write_32b(p, pkt.r);
     write_32b(p, pkt.c);
     write_32b(p, pkt.deleted_line);
+    write_32b(p, pkt.is_game_over);
+    write_32b(p, pkt.is_win);
+
+    write_bytes(p, pkt.id, 9);
 }
 
 int32_t LinuxNetwork::read_32b(const uint8_t*& p)
@@ -74,6 +84,12 @@ int32_t LinuxNetwork::read_32b(const uint8_t*& p)
     memcpy(&n, p, 4);
     p += 4;
     return ntohl(n);
+}
+
+void LinuxNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
+{
+    memcpy(dst, p, size);
+    p += size;
 }
 
 void LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
@@ -89,15 +105,20 @@ void LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     pkt.r = read_32b(p);
     pkt.c = read_32b(p);
     pkt.deleted_line = read_32b(p);
+    pkt.is_game_over = read_32b(p);
+    pkt.is_win = read_32b(p);
+
+    read_bytes(p, pkt.id, 9);
+    pkt.id[8] = '\0';
 }
 
-void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line,
-                            const char* another_user_ip)
+void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, int is_game_over, int is_win, const char* another_user_ip, const char* my_id)
 {
     Packet pkt;
     uint8_t buf[PACKET_SIZE];
     auto [pos_r, pos_c] = tetromino.get_pos();
     sockaddr_in another_user;
+    int send_result;
 
     another_user.sin_family = AF_INET;
     another_user.sin_port = htons(PORT);
@@ -111,18 +132,75 @@ void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, cons
     pkt.r = pos_r;
     pkt.c = pos_c;
     pkt.deleted_line = deleted_line;
+    pkt.is_game_over = is_game_over;
+    pkt.is_win = is_win;
+    snprintf(pkt.id, sizeof(pkt.id), "%s", my_id);
 
     serialize(buf, pkt);
 
-    sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (sockaddr*) &another_user,
-           sizeof(another_user));
+    send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (sockaddr*) &another_user, sizeof(another_user));
+
+    if(send_result < 0)
+        perror("sendto failed: ");
+}
+
+void LinuxNetwork::send_multi_udp(
+    const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over,
+    int is_win, const char* my_id,
+    std::vector<std::pair<std::string, std::string>> ids_ips)
+{
+    for (const auto& [id, ip] : ids_ips)
+        send_udp(board, tetromino, deleted_line, is_game_over, is_win, ip.c_str(), my_id);
+}
+
+void LinuxNetwork::send_relay_udp(const Packet& packet,
+                                   std::vector<std::pair<std::string, std::string>> ids_ips)
+{
+    char* another_user_ip;
+    uint8_t buf[PACKET_SIZE];
+    int send_result;
+
+    for (const auto& [id, ip] : ids_ips) {
+        if (strcmp(id.c_str(), packet.id) == 0) continue;
+        Packet pkt{};
+        memset(buf, 0, sizeof(buf));
+        sockaddr_in another_user{};
+        another_user.sin_family = AF_INET;
+        another_user.sin_port = htons(PORT);
+
+        inet_pton(AF_INET, ip.c_str(), &another_user.sin_addr);
+
+        // 보드 데이터 복사
+        for (int r = 0; r < 20; ++r)
+            for (int c = 0; c < 10; ++c)
+                pkt.board[r][c] = packet.board[r][c]; // 숨겨진 2줄 제외하고 복사
+
+        pkt.type = packet.type;
+        pkt.rotation = packet.rotation;
+        pkt.r = packet.r;
+        pkt.c = packet.c;
+        pkt.deleted_line = packet.deleted_line;
+        pkt.is_game_over = packet.is_game_over;
+        pkt.is_win = packet.is_win;
+        snprintf(pkt.id, sizeof(pkt.id), "%s", packet.id);
+
+        serialize(buf, pkt);
+
+        send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (sockaddr*) &another_user, sizeof(another_user));
+
+        if (send_result < 0) {
+            perror("sendto failed: ");
+        }
+    }
 }
 
 bool LinuxNetwork::recv_udp(Packet& recv_pkt)
 {
     uint8_t buf[PACKET_SIZE];
+    bool data_received = false;
     int n = epoll_wait(epfd, events, MAX_EVENTS, 0);
     int r;
+
     if (n < 0) {
         if (errno == EINTR) return false;
         perror("epoll_wait");
@@ -145,17 +223,18 @@ bool LinuxNetwork::recv_udp(Packet& recv_pkt)
                     }
                     else {
                         perror("recvfrom");
-                        exit(0);
+                        return false;
                     }
                 }
                 else if (r != PACKET_SIZE)
                     return false;
 
                 deserialize(buf, recv_pkt);
+                data_received = true;
             }
         }
     }
-    return true;
+    return data_received;
 }
 
 LinuxNetwork::~LinuxNetwork()

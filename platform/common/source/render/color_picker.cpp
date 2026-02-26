@@ -2,7 +2,6 @@
 
 #include <random>
 #include <string>
-#include <wtypes.h>
 
 using namespace std;
 
