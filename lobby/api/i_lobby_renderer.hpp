@@ -15,7 +15,7 @@ class ILobbyRenderer
     virtual void render_view_enter_room(std::unordered_map<std::string, std::string> server_ip_address) = 0;
     virtual void render_clear() = 0;
     virtual void render_select() = 0;
-    ~ILobbyRenderer() = default;
+    virtual ~ILobbyRenderer() = default;
 };
 
 #endif
