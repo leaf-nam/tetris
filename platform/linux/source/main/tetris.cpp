@@ -36,6 +36,7 @@ AppState run_single_game();
 AppState run_multi_game();
 AppState run_settings();
 void wait_key();
+void restore_terminal_setting();
 
 int main()
 {
@@ -77,6 +78,10 @@ int main()
             state = AppState::EXIT;
         }
     }
+
+    restore_terminal_setting();
+
+    return 0;
 }
 
 void wait_key()
@@ -91,6 +96,18 @@ void wait_key()
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     read(STDIN_FILENO, &ch, 1);
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+}
+
+void restore_terminal_setting()
+{
+    struct termios oldt, newt;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag |= ICANON | ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    printf("\033[?25h");
+    fflush(stdin);
 }
 
 // -> menu service : menu_renderer, input_handler interface 받아서 메뉴 생성
