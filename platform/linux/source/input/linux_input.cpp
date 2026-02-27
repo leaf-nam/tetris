@@ -42,6 +42,8 @@ int LinuxInput::_kbhit() {
 
 int LinuxInput::scan()
 {
+    enable_noncanonical_noecho();
+
     unsigned char ch = '\0';
 
     while(_kbhit() != 0) {
