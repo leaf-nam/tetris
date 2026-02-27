@@ -21,7 +21,14 @@ void LinuxInput::enable_noncanonical_noecho() {
 
 void LinuxInput::restore()
 {
-    if (inited) tcsetattr(STDIN_FILENO, TCSANOW, &old);
+    termios t;
+    
+    tcgetattr(STDIN_FILENO, &old);
+
+    t = old;
+    t.c_lflag |= ICANON | ECHO;
+   
+    tcsetattr(STDIN_FILENO, TCSANOW, &t);
 }
 
 int LinuxInput::_kbhit() {
@@ -35,9 +42,10 @@ int LinuxInput::_kbhit() {
 
 int LinuxInput::scan()
 {
+    enable_noncanonical_noecho();
+
     unsigned char ch = '\0';
 
-    enable_noncanonical_noecho();
     while(_kbhit() != 0) {
         read(0, &ch, 1);
         if (ch == 27) {
@@ -53,15 +61,18 @@ int LinuxInput::scan()
             }
         }
     }
-    restore();
 
     return (int)ch;
 }
 
 std::string LinuxInput::get_line()
 {
+    restore();
+
     std::string s;
     getline(std::cin, s);
+
+    enable_noncanonical_noecho();
 
     return s;
 }
