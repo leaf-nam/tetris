@@ -48,6 +48,18 @@ tags
 # cmake build folder
 build
 out
+*.cmake
+CMakeCache.txt
+Makefile
+CMakeFiles
 
+# clang
+compile_commands.json
+.clangd
+_deps
+llvm.sh
+
+
+# vs
 .vs
 .vscode

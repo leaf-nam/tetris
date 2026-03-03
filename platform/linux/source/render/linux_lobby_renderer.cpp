@@ -1,4 +1,10 @@
-#include "lobby_renderer/linux_lobby_renderer.hpp"
+#include "render/linux_lobby_renderer.hpp"
+
+void LinuxLobbyRenderer::render_entrance() {}
+
+void LinuxLobbyRenderer::render_set_nickname() {}
+void LinuxLobbyRenderer::render_create_room() {}
+void LinuxLobbyRenderer::render_enter_room() {}
 
 void LinuxLobbyRenderer::render_server_view_room(
     char* server_id, std::unordered_map<std::string, std::string> client_ip_address)
@@ -48,11 +54,10 @@ void LinuxLobbyRenderer::render_clear()
 }
 
 void LinuxLobbyRenderer::render_select()
-{ 
+{
     printf("\033[37m"); // foreground white
     fflush(stdout);
     printf("\033[%d;%dH", 1, 1);
     printf("1. open room, 2. enter room\n");
     fflush(stdout);
 }
-
