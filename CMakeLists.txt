@@ -45,7 +45,6 @@ add_subdirectory(setting/source)
 if (EMSCRIPTEN)
     message(STATUS "Building for WebAssembly (Emscripten)")
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
-    
     add_subdirectory(platform/web/source/input)
     add_subdirectory(platform/web/source/render)
     add_subdirectory(platform/web/source/network)
@@ -57,6 +56,10 @@ elseif (UNIX)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
+    add_subdirectory(platform/linux/source/lobby_network)
+    add_subdirectory(platform/linux/source/lobby_renderer)
+    add_subdirectory(platform/linux/source/lobby_input_handler)
+    add_subdirectory(platform/linux/source/util)
     add_subdirectory(platform/linux/source/main)
     set_target_properties(tetris PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}

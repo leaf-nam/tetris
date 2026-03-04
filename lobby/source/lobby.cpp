@@ -1,6 +1,7 @@
 #include "lobby.hpp"
 
 #include <chrono>
+#include <cstring>
 
 using namespace std;
 
@@ -12,9 +13,6 @@ Lobby::Lobby(ILobbyNetwork* lobby_network,
 {
 }
 
-/**
- * @brief 현재 어떤 모드로 들어갈지 확인하는 함수
- */
 bool Lobby::start()
 {
     int choice;
@@ -32,9 +30,6 @@ bool Lobby::start()
     }
 }
 
-/**
- * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
- */
 bool Lobby::open_room()
 {
     char buffer[BUF_SIZE];
@@ -107,9 +102,6 @@ bool Lobby::open_room()
     return is_game_start;
 }
 
-/**
- * @brief (클라이언트)방에 입장하는 함수
- */
 bool Lobby::enter_room()
 {
     int room_user_index = 0;
@@ -200,17 +192,11 @@ void Lobby::finish()
     delete lobby_input_handler;
 }
 
-/**
- * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수
- */
 const char* Lobby::get_client_ip_address(string key)
 {
     return client_ip_address[key].c_str();
 }
 
-/**
- * @brief 저장된 클라이언트 id들을 반환하는 함수
- */
 std::vector<std::pair<std::string, std::string>> Lobby::get_client_ids_ips()
 {
     std::vector<std::pair<std::string, std::string>> v;
@@ -220,9 +206,6 @@ std::vector<std::pair<std::string, std::string>> Lobby::get_client_ids_ips()
     return v;
 }
 
-/**
- * @brief 저장된 전체 id들을 반환하는 함수
- */
 std::unordered_map<std::string, std::string> Lobby::get_ids(bool is_server)
 {
     std::unordered_map<std::string, std::string> m;
@@ -236,12 +219,6 @@ std::unordered_map<std::string, std::string> Lobby::get_ids(bool is_server)
     return m;
 }
 
-/**
- * @brief 저장된 서버 ip 주소를 반환하는 함수
- */
 const char* Lobby::get_server_ip_address() { return selected_server_ip_address; }
 
-/**
- * @brief 저장된 내 id를 반환하는 함수
- */
 const char* Lobby::get_my_id() { return my_id; }

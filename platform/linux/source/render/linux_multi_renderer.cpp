@@ -1,0 +1,281 @@
+﻿#include "render/linux_multi_renderer.hpp"
+
+using namespace std;
+
+const int BOARD_START_Y = 7;
+const int MY_TOTAL_WIDTH = 45;
+const int MY_TOTAL_HEIGHT = 30;
+const int ENEMY_BOARD_WIDTH = 20;
+const int ENEMY_BOARD_HEIGHT = 30;
+const int BOARD_WIDTH = 22;
+const int BOARD_HEIGHT = 21;
+
+const int BOX_WIDTH = 10;
+const int BOX_HEIGHT = 6;
+
+const int MARGIN = 1;
+const int GAP_X = 3;
+
+const int HOLD_Y = BOARD_START_Y;
+const int SCORE_Y = MARGIN * 2 + BOARD_START_Y + BOX_HEIGHT;
+const int LV_Y = MARGIN * 4 + BOARD_START_Y + BOX_HEIGHT * 2;
+const int TIMER_Y = BOARD_START_Y;
+const int NEXT_Y = BOARD_START_Y + BOX_HEIGHT / 2 + MARGIN;
+
+const int LEFT_BOX_X = MARGIN;
+const int RIGHT_BOX_X = BOX_WIDTH + BOARD_WIDTH + MARGIN * 2;
+const int MY_BOARD_X = MARGIN * 3 + BOX_WIDTH;
+
+LinuxMultiRenderer::LinuxMultiRenderer(Setting* a1, IPlatformRenderer* a2, ColorPicker a3,
+                                         TextRenderer a4, BoxRenderer a5, BlockRenderer a6,
+                                         ShadowMaker a7)
+    : setting(a1), platform_renderer(a2), color_picker(a3), text_renderer(a4), box_renderer(a5),
+      block_renderer(a6), shadow_maker(a7)
+{
+    int start_margin = MARGIN * 2;
+    int board_margin = MARGIN * 3;
+
+    other_render_loc_array[0] = std::make_pair(start_margin + MY_TOTAL_WIDTH, BOARD_START_Y);
+    other_render_loc_array[1] = std::make_pair(
+        start_margin + board_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH, BOARD_START_Y);
+    other_render_loc_array[2] = std::make_pair(
+        start_margin + board_margin * 2 + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH * 2, BOARD_START_Y);
+    
+     other_render_index = 0;
+}
+
+std::pair<int, int> LinuxMultiRenderer::other_render_loc_get_or_set(std::string id)
+{
+    if (other_land_index_map.find(id) == other_land_index_map.end()) {
+        other_land_index_map[id] = other_render_index;
+        return other_render_loc_array[other_render_index++];
+    }
+    else
+        return other_render_loc_array[other_land_index_map[id]];
+}
+
+void LinuxMultiRenderer::render_clear() { platform_renderer->clear(); }
+
+void LinuxMultiRenderer::render_background()
+{
+    fflush(stdout);
+
+    // logo
+    text_renderer.print_big_string({MARGIN, MARGIN}, "MYBOARD");
+
+    // left box
+    box_renderer.draw_box({LEFT_BOX_X, HOLD_Y}, BOX_WIDTH, BOX_HEIGHT, "[HOLD]", Color::GREEN,
+                          Color::PANEL);
+    box_renderer.draw_box({LEFT_BOX_X, SCORE_Y}, BOX_WIDTH, BOX_HEIGHT, "[SCORE]", Color::CYAN,
+                          Color::PANEL);
+    box_renderer.draw_box({LEFT_BOX_X, LV_Y}, BOX_WIDTH, BOX_HEIGHT, "[LV]", Color::CYAN,
+                          Color::PANEL);
+
+    // right box
+    box_renderer.draw_box({RIGHT_BOX_X, TIMER_Y}, BOX_WIDTH, BOX_HEIGHT / 2, "[TIME]",
+                          Color::COMMENT, Color::PANEL);
+    box_renderer.draw_box({RIGHT_BOX_X, NEXT_Y}, BOX_WIDTH, BOX_HEIGHT * 3, "[NEXT]", Color::PURPLE,
+                          Color::PANEL);
+
+    // my board
+    box_renderer.draw_line({MY_BOARD_X, BOARD_START_Y}, BOARD_WIDTH, BOARD_HEIGHT,
+                           Color::FOREGROUND);
+
+    Color enemy1_color = Color::CYAN;
+    Color enemy2_color = Color::ORANGE;
+    Color enemy3_color = Color::PINK;
+
+    int start_margin = MARGIN * 2;
+    int text_margin = MARGIN * 4;
+    int board_margin = MARGIN * 3;
+
+    // enemy 1 board
+    text_renderer.print_big_string({start_margin + text_margin + MY_TOTAL_WIDTH, MARGIN}, "E1",
+                                   enemy1_color);
+    box_renderer.draw_line({start_margin + MY_TOTAL_WIDTH, BOARD_START_Y}, BOARD_WIDTH,
+                           BOARD_HEIGHT, enemy1_color);
+
+    // enemy 2 board
+    text_renderer.print_big_string(
+        {start_margin + board_margin + text_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH, MARGIN},
+        "E2", enemy2_color);
+    box_renderer.draw_line(
+        {start_margin + board_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH, BOARD_START_Y},
+        BOARD_WIDTH, BOARD_HEIGHT, enemy2_color);
+
+    // enemy 3 board
+    text_renderer.print_big_string(
+        {start_margin + board_margin * 2 + text_margin + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH * 2,
+         MARGIN},
+        "E3", enemy3_color);
+    box_renderer.draw_line(
+        {start_margin + board_margin * 2 + MY_TOTAL_WIDTH + ENEMY_BOARD_WIDTH * 2, BOARD_START_Y},
+        BOARD_WIDTH, BOARD_HEIGHT, enemy3_color);
+}
+
+void LinuxMultiRenderer::render_hold(const Tetromino& tetromino)
+{
+    block_renderer.render_mino_pattern({LEFT_BOX_X + 2, HOLD_Y + 2}, tetromino, Color::PANEL);
+}
+
+void LinuxMultiRenderer::render_score(int score)
+{
+    string score_str = to_string(score);
+    platform_renderer->set_cursor(LEFT_BOX_X + 8 - (int) score_str.size(), SCORE_Y + 3);
+    platform_renderer->print_s(to_string(score), Color::CYAN, Color::PANEL);
+}
+
+void LinuxMultiRenderer::render_level(int level)
+{
+    string level_str = to_string(level);
+    text_renderer.print_big_string({LEFT_BOX_X + 3, LV_Y + 1}, level_str, Color::CYAN,
+                                   Color::PANEL);
+}
+
+void LinuxMultiRenderer::render_timer(int totalSec)
+{
+    int min = (totalSec / 60);
+    int sec = totalSec % 60;
+
+    string sec_str =
+        to_string(min / 10) + to_string(min % 10) + ":" + to_string(sec / 10) + to_string(sec % 10);
+
+    platform_renderer->set_cursor(RIGHT_BOX_X + 3, TIMER_Y + 1);
+    platform_renderer->print_s(sec_str, Color::COMMENT, Color::PANEL);
+}
+
+void LinuxMultiRenderer::render_next_block(const int* tetrominoArray)
+{
+    int x = RIGHT_BOX_X + 2, y = NEXT_Y + 2, diff = BOX_HEIGHT;
+    for (size_t i = 0; i < 3; ++i) {
+        Tetromino m1;
+        Tetromino m2;
+        Tetromino m3;
+        m1.init_mino(tetrominoArray[0]);
+        m2.init_mino(tetrominoArray[1]);
+        m3.init_mino(tetrominoArray[2]);
+
+        // next mino
+        block_renderer.render_mino_pattern({x, y}, m1, Color::PANEL);
+        block_renderer.render_mino_pattern({x, y + diff}, m2, Color::PANEL);
+        block_renderer.render_mino_pattern({x, y + diff * 2}, m3, Color::PANEL);
+    }
+}
+
+void LinuxMultiRenderer::render_board(const Board& board, const Tetromino& tetromino)
+{
+    auto game_board = board.get_board();
+    auto [pos_r, pos_c] = tetromino.get_pos();
+    const Mino& shape = tetromino.get_shape();
+
+    vector<Pos> shadows;
+    if (setting->shadow_on) shadows = shadow_maker.get_shadow_pos(board, tetromino);
+
+    for (int r = 2; r < 22; ++r) {
+        platform_renderer->set_cursor(MY_BOARD_X, BOARD_START_Y + (r - 1));
+
+        for (int c = 0; c < 10; ++c) {
+            bool is_falling_block = false;
+            int block_type = 0;
+
+            bool inside_box = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
+
+            if (inside_box) {
+                if (shape[r - pos_r][c - pos_c] != 0) {
+                    is_falling_block = true;
+                }
+            }
+
+            // 떨어지는 블록 그리기
+            if (is_falling_block) {
+                platform_renderer->print_s("██", color_picker.get_color_key(tetromino));
+            }
+
+            // 바닥에 쌓인 블록 그리기
+            else if (game_board[r][c] < 8 && game_board[r][c] > -1) {
+                platform_renderer->print_s("██", color_picker.get_color_key(game_board[r][c]));
+            }
+
+            // 그림자 그리기
+            else if (setting->shadow_on && shadow_maker.is_shadow(shadows, {c, r})) {
+                platform_renderer->print_s("██", Color::COMMENT);
+            }
+
+            // 빈 공간
+            else {
+                platform_renderer->print_s("  ", Color::BACKGROUND);
+            }
+        }
+    }
+}
+
+void LinuxMultiRenderer::render_other_board(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    auto game_board = pkt.board;
+    int pos_r = pkt.r;
+    int pos_c = pkt.c;
+    int mino_type = pkt.type;
+    int rotation = pkt.rotation;
+    const Mino& shape = TETROMINO[mino_type][rotation];
+
+    for (int r = 2; r < 22; ++r) {
+        platform_renderer->set_cursor(start_x, start_y + (r - 1));
+
+        for (int c = 0; c < 10; ++c) {
+            bool is_falling_block = false;
+            int block_type = 0;
+
+            bool inside_box = (r >= pos_r && r < pos_r + 4) && (c >= pos_c && c < pos_c + 4);
+
+            if (inside_box) {
+                if (shape[r - pos_r][c - pos_c] != 0) {
+                    is_falling_block = true;
+                }
+            }
+
+            // 떨어지는 블록 그리기
+            if (is_falling_block) {
+                platform_renderer->print_s("██", color_picker.get_color_key(mino_type));
+            }
+
+            // 바닥에 쌓인 블록 그리기
+            else if (game_board[r-2][c] < 8 && game_board[r-2][c] > -1) {
+                platform_renderer->print_s("██", color_picker.get_color_key(game_board[r-2][c]));
+            }
+
+            // 빈 공간
+            else {
+                platform_renderer->print_s("  ", Color::BACKGROUND);
+            }
+        }
+    }
+}
+
+void LinuxMultiRenderer::render_game_over()
+{
+    platform_renderer->set_cursor(MY_BOARD_X + 6, BOARD_START_Y + 10);
+    platform_renderer->print_s("GAMEOVER", Color::RED);
+}
+
+void LinuxMultiRenderer::render_other_game_over(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    platform_renderer->set_cursor(start_x + 6, start_y + 10);
+    platform_renderer->print_s("GAMEOVER", Color::RED);
+}
+
+void LinuxMultiRenderer::render_win()
+{
+    platform_renderer->set_cursor(MY_BOARD_X + 9, BOARD_START_Y + 10);
+    platform_renderer->print_s("WIN", Color::GREEN);
+}
+
+void LinuxMultiRenderer::render_other_win(Packet& pkt)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
+    platform_renderer->set_cursor(start_x + 9, start_y + 10);
+    platform_renderer->print_s("WIN", Color::GREEN);
+}
+
+LinuxMultiRenderer::~LinuxMultiRenderer() {}

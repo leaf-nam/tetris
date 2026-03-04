@@ -81,7 +81,6 @@ jobs:
              '/usr/*' \
              '*/_deps/*' \
              '*/test/*' \
-             '*/include/*' \
              --output-file coverage.info
 
         lcov --list coverage.info
