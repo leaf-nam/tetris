@@ -24,7 +24,7 @@ void SoloEngine::run(bool is_server)
     Board board;
     unique_ptr<GameRule> rule = create_rule("ZEN", board);
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
-    Timer& timer = Timer::get_instance();
+    Timer timer;
     KeyMapper key_mapper;
 
     int curr_mino = 0;

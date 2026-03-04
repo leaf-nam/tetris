@@ -9,12 +9,6 @@ Timer::Timer()
     curr_time = base_500ms_time;
 }
 
-Timer& Timer::get_instance()
-{
-    static Timer instance;
-    return instance;
-}
-
 void Timer::set_curr_time() { curr_time = std::chrono::steady_clock::now(); }
 
 bool Timer::check_500ms_time()

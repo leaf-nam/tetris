@@ -7,7 +7,7 @@
 
 TEST(TimerTest, all)
 {
-    Timer& t = Timer::get_instance();
+    Timer t;
     t.set_curr_time();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     t.set_curr_time();

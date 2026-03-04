@@ -25,7 +25,7 @@ void MultiEngine::run(bool is_server)
     unique_ptr<GameRule> rule = create_rule("VERSUS", board);
     KeyMapper key_mapper;
     TetrominoQueue& tetromino_queue = TetrominoQueue::get_instance();
-    Timer& timer = Timer::get_instance();
+    Timer timer;
     std::vector<std::pair<std::string, std::string>> ids_ips = lobby->get_client_ids_ips();
     std::unordered_map<std::string, std::string> active_user = lobby->get_ids(is_server);
     PacketStruct recv_pkt;
