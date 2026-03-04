@@ -26,15 +26,17 @@ class Engine
     Engine(Setting* setting, IInputHandler* input_handler, IRenderer* renderer, INetwork* network,
            Lobby* lobby);
 
+    virtual void init(bool is_server) = 0;
+
     /**
      * @brief 게임 메인루프
      */
-    virtual void run(bool is_server) = 0;
+    virtual bool run(bool is_server) = 0;
 
     /**
      * @brief 게임 메인루프 정지
      */
-    virtual void stop() = 0;
+    virtual bool stop(bool is_server) = 0;
 
     /**
      * @brief 게임 종료 시 메모리 및 기타 자원정리
