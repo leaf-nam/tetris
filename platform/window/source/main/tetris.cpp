@@ -120,6 +120,8 @@ AppState run_settings()
 
 AppState run_single_game()
 {
+    bool is_run_continue = true;
+    bool is_stop_continue = true;
     RenderFactory& render_factory = RenderFactory::getInstance();
 
     WindowRenderer window_renderer = render_factory.create_window_renderer();
@@ -139,7 +141,9 @@ AppState run_single_game()
         Sleep(1000);
     }
 
-    engine->run(false);
+    engine->init(false);
+    while(is_run_continue) is_run_continue = engine->run(false);
+    while(is_stop_continue) is_stop_continue = engine->stop(false);
     engine->finish();
 
     box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
@@ -160,6 +164,8 @@ AppState run_single_game()
 
 AppState run_multi_game()
 {
+    bool is_run_continue = true;
+    bool is_stop_continue = true;
     ILobbyInputHandler* window_lobby_input_handler = new WindowLobbyInputHandler();
     ILobbyNetwork* window_lobby_network = new WindowLobbyNetwork();
     ILobbyRenderer* window_lobby_renderer = new WindowLobbyRenderer();
@@ -177,7 +183,9 @@ AppState run_multi_game()
     renderer->render_clear();
     renderer->render_background();
 
-    engine->run(is_server);
+    engine->init(is_server);
+    while(is_run_continue) is_run_continue = engine->run(is_server);
+    while(is_stop_continue) is_stop_continue = engine->stop(is_server);
     engine->finish();
 
     (void) _getch();
