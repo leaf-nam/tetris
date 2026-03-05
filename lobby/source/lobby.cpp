@@ -12,20 +12,29 @@ Lobby::Lobby(ILobbyNetwork* lobby_network, ILobbyRenderer* lobby_renderer,
 {
 }
 
+EntranceMenu Lobby::next_entrance_menu()
+{
+    entrance_menu++;
+    lobby_renderer->render_entrance_menu(entrance_menu);
+    return entrance_menu;
+}
+
+EntranceMenu Lobby::prev_entrance_menu()
+{
+    entrance_menu--;
+    lobby_renderer->render_entrance_menu(entrance_menu);
+    return entrance_menu;
+}
+
 bool Lobby::start()
 {
     int choice;
     lobby_renderer->render_clear();
+    lobby_renderer->render_entrance();
 
     while (true) {
-        lobby_renderer->render_select();
         lobby_input_handler->scan(&choice, 1);
-        if (choice == 1) {
-            if (open_room()) return true;
-        }
-        else if (choice == 2) {
-            if (enter_room()) return false;
-        }
+        lobby_renderer->render_entrance_menu(choice);
     }
 }
 

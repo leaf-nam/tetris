@@ -3,13 +3,13 @@
 #include "engine/multi_engine.hpp"
 #include "engine/solo_engine.hpp"
 #include "input/linux_input.hpp"
-#include "menu.hpp"
 #include "lobby.hpp"
 #include "lobby_input_handler/linux_lobby_input_handler.hpp"
 #include "lobby_network/linux_lobby_network.hpp"
-#include "lobby_renderer/linux_lobby_renderer.hpp"
+#include "menu.hpp"
 #include "network/linux_network.hpp"
 #include "render/color.hpp"
+#include "render/linux_lobby_renderer.hpp"
 #include "render/linux_menu_renderer.hpp"
 #include "render/linux_multi_renderer.hpp"
 #include "render/linux_render_factory.hpp"
@@ -17,8 +17,8 @@
 #include "setting_manager.hpp"
 #include "setting_storage.hpp"
 
-#include <termios.h>
 #include <chrono>
+#include <termios.h>
 #include <thread>
 
 static IInputHandler* input;

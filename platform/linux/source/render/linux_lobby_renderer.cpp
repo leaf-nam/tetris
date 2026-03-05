@@ -1,6 +1,29 @@
 #include "render/linux_lobby_renderer.hpp"
 
-void LinuxLobbyRenderer::render_entrance() {}
+#include <string>
+
+using namespace std;
+
+static string ENTRANCE_TITLE[2] = {"방 생성", "방 입장"};
+void LinuxLobbyRenderer::render_entrance()
+{
+    platform_renderer->clear();
+    platform_renderer->hide_cursor();
+
+    text_renderer->draw_logo({20, 7});
+}
+
+void LinuxLobbyRenderer::render_entrance_menu(int cur)
+{
+    for (int i = 0; i < 2; i++) {
+        platform_renderer->set_cursor(25, 18 + i * 3);
+
+        Color color = (cur == i) ? Color::YELLOW : Color::COMMENT;
+        string str = (cur == i) ? " > " : "   ";
+        str += ENTRANCE_TITLE[i];
+        platform_renderer->print_s(str, color);
+    }
+}
 
 void LinuxLobbyRenderer::render_set_nickname() {}
 void LinuxLobbyRenderer::render_create_room() {}

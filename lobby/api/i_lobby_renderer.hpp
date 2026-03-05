@@ -1,6 +1,8 @@
 #ifndef __I_LOBBY_RENDERER_HPP__
 #define __I_LOBBY_RENDERER_HPP__
 
+#include "lobby_title.hpp"
+
 #include <string>
 #include <unordered_map>
 
@@ -8,6 +10,7 @@ class ILobbyRenderer
 {
   public:
     virtual void render_entrance() = 0;
+    virtual void render_entrance_menu(EntranceMenu) = 0;
     virtual void render_set_nickname() = 0;
     virtual void render_create_room() = 0;
     virtual void render_enter_room() = 0;

@@ -3,20 +3,27 @@
 
 #define ROOM_PORT 44321
 
-#include <unordered_map>
-#include <vector>
-#include <string>
-#include "i_lobby_renderer.hpp"
 #include "i_lobby_input_handler.hpp"
 #include "i_lobby_network.hpp"
+#include "i_lobby_renderer.hpp"
+#include "lobby_title.hpp"
+
+#include <array>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 class Lobby
 {
   private:
     std::unordered_map<std::string, std::string> server_ip_address; // key=>ip, value=>id
-    std::unordered_map<std::string, std::string> client_ip_address; // server: key=>id, value=>ip / client: key=>room_host_id, value=>room_user_id
+    std::unordered_map<std::string, std::string>
+        client_ip_address; // server: key=>id, value=>ip / client: key=>room_host_id,
+                           // value=>room_user_id
     char selected_server_ip_address[16];
     char my_id[9];
+    EntranceMenu entrance_menu;
+
     ILobbyNetwork* lobby_network;
     ILobbyRenderer* lobby_renderer;
     ILobbyInputHandler* lobby_input_handler;
@@ -24,7 +31,7 @@ class Lobby
      * @brief (서버)브로드캐스트 주소를 찾는 함수
      */
     void find_broadcast_ip(char* broadcast_ip);
-    
+
     /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수
      */
@@ -34,10 +41,10 @@ class Lobby
      * @brief (클라이언트)방에 입장하는 함수
      */
     bool enter_room();
+
   public:
-    Lobby(ILobbyNetwork* lobby_network,
-               ILobbyRenderer* lobby_renderer,
-               ILobbyInputHandler* lobby_input_handler);
+    Lobby(ILobbyNetwork* lobby_network, ILobbyRenderer* lobby_renderer,
+          ILobbyInputHandler* lobby_input_handler);
 
     /**
      * @brief 현재 어떤 모드로 들어갈지 확인하는 함수
@@ -45,6 +52,9 @@ class Lobby
     bool start();
 
     void finish();
+
+    EntranceMenu next_entrance_menu();
+    EntranceMenu prev_entrance_menu();
 
     /**
      * @brief 저장된 클라이언트 ip 주소를 키에 따라 반환하는 함수
