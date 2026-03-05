@@ -1,89 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <title>My Awesome Tetris (in web/source/main/shell.html)</title>
-    <style>
-        body {
-            background-color: #222; /* 어두운 회색 배경 */
-            color: white;
-            font-family: sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-        }
-
-        /* 게임 화면(캔버스) 스타일 */
-        canvas.emscripten {
-            border: 2px solid #555; /* 테두리 */
-            background-color: black; /* 캔버스 배경 */
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); /* 그림자 효과 */
-            display: block;
-            margin: 0 auto; /* 중앙 정렬 */
-        }
-
-        /* 로딩 중일 때 보일 텍스트 */
-        #status {
-            color: #aaa;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tetris WASM</title>
+  <style>
+    body { margin: 0; background:#0d0f15; color:#e7ebf3; font-family: system-ui, sans-serif; }
+    .wrap { display:flex; gap:18px; padding:16px; align-items:flex-start; }
+    .panel { display:flex; flex-direction:column; gap:10px; min-width:180px; }
+    canvas { background:#000; image-rendering: pixelated; border:1px solid #2a2f3a; }
+    .stat { display:flex; justify-content:space-between; gap:12px; }
+    .btnrow { display:flex; gap:8px; }
+    button { padding:8px 10px; border-radius:8px; border:1px solid #394255; background:#1a2030; color:#e7ebf3; cursor:pointer; }
+    button:hover { background:#242d43; }
+    .help { font-size: 12px; opacity: 0.85; line-height: 1.4; }
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <div>
+      <canvas id="game" width="220" height="484"></canvas>
+    </div>
 
-    <h1>🎮 C++ Tetris on Web (location) platform web source main shell.html</h1>
+    <div class="panel">
+      <div class="stat"><div>TIME</div><div id="timer">0</div></div>
+      <div class="stat"><div>SCORE</div><div id="score">0</div></div>
+      <div class="stat"><div>LEVEL</div><div id="level">1</div></div>
 
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+      <div class="btnrow">
+        <button id="btnStart">Start</button>
+        <button id="btnReset">Reset</button>
+      </div>
 
-    <div id="status">Loading...</div>
+      <div class="help">
+        A/D: �¿� �̵�<br/>
+        S: ����Ʈ ���<br/>
+        E/Q: ȸ��<br/>
+        F �Ǵ� Space: �ϵ� ���<br/>
+        W: Ȧ��
+      </div>
+    </div>
+  </div>
 
-    {{{ SCRIPT }}}
+  <script>
+    var Module = {
+      onRuntimeInitialized: function() {}
+    };
+  </script>
 
-    <script>
-        // 게임 로딩이 끝나면 'Loading...' 글자 숨기기 등 추가 스크립트 작성 가능
-        var Module = {
-        preRun: [],
-        postRun: [],
-        print: (function() {
-        return function(text) {
-        console.log(text);
-        };
-        })(),
-        canvas: (function() {
-        var canvas = document.getElementById('canvas');
-        return canvas;
-        })(),
-        setStatus: function(text) {
-        if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
-        if (text === Module.setStatus.last.text) return;
-        var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-        var now = Date.now();
-        if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
-        Module.setStatus.last.time = now;
-        Module.setStatus.last.text = text;
-        var statusElement = document.getElementById('status');
-        if (statusElement) {
-        statusElement.innerHTML = text;
-        if(text === "") statusElement.style.display = 'none'; // 로딩 끝나면 숨김
-        }
-        },
-        totalDependencies: 0,
-        monitorRunDependencies: function(left) {
-        this.totalDependencies = Math.max(this.totalDependencies, left);
-        Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        }
-        };
-        Module.setStatus('Downloading...');
-        window.onerror = function(event) {
-        Module.setStatus('Exception thrown, see JavaScript console');
-        Module.setStatus = function(text) {
-        if (text) Module.printErr('[post-exception status] ' + text);
-        };
-        };
-    </script>
+  {{{ SCRIPT }}}
+
+  <script type="module">
+    import { attachRendererToModule } from "./renderer.js";
+
+    const prevInit = Module.onRuntimeInitialized;
+    Module.onRuntimeInitialized = function () {
+      if (prevInit) prevInit();
+      attachRendererToModule(Module);
+    };
+
+    document.getElementById("btnStart").addEventListener("click", () => {
+      if (Module.ccall) Module.ccall("game_start", null, [], []);
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      if (Module.ccall) Module.ccall("game_reset", null, [], []);
+    });
+  </script>
 </body>
 </html>
