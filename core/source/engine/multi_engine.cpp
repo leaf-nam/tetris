@@ -22,6 +22,8 @@ void MultiEngine::init(bool is_server)
     is_line_fill_complete = false;
     is_tetromino_or_board_change = false;
     index = 0;
+    is_game_over = 0;
+    is_win = 0;
 
     renderer->render_background();
     renderer->render_board(board, board.get_active_mino());
@@ -39,11 +41,13 @@ bool MultiEngine::run(bool is_server)
     {
         if (!board.spawn_mino(TetrominoQueue::get_instance().get_new_tetromino())) {
             attack = rule->update_score();
+            is_game_over = 1;
+            is_win = 0;
             if (is_server == true)
-                network->send_multi_udp(board, board.get_active_mino(), attack, 1, 0,
-                                        lobby->get_my_id(), ids_ips);
+                network->send_multi_udp(board, board.get_active_mino(), attack, is_game_over,
+                                        is_win, lobby->get_my_id(), ids_ips);
             else
-                network->send_udp(board, board.get_active_mino(), attack, 1, 0,
+                network->send_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
                                   lobby->get_server_ip_address(), lobby->get_my_id());
             active_user.erase(lobby->get_my_id());
             renderer->render_game_over();
@@ -75,12 +79,13 @@ bool MultiEngine::run(bool is_server)
     if (is_tetromino_or_board_change) {
         renderer->render_board(board, board.get_active_mino());
         renderer->render_hold(board.get_saved_mino());
+        is_game_over = 0;
+        is_win = 0;
         if (is_server == true)
-            network->send_multi_udp(board, board.get_active_mino(), attack, 0, 0,
+            network->send_multi_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
                                     lobby->get_my_id(), ids_ips);
         else
-            network->send_udp(board, board.get_active_mino(), attack,
-                              0, 0,
+            network->send_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
                               lobby->get_server_ip_address(), lobby->get_my_id());
     }
 
@@ -99,12 +104,15 @@ bool MultiEngine::run(bool is_server)
         {
             renderer->render_win();
             attack = rule->update_score();
+            is_game_over = 0;
+            is_win = 1;
             if (is_server == true)
-                network->send_multi_udp(board, board.get_active_mino(), attack, 0, 1,
-                                        lobby->get_my_id(), ids_ips);
+                network->send_multi_udp(board, board.get_active_mino(), attack, is_game_over,
+                                        is_win, lobby->get_my_id(), ids_ips);
             else
-                network->send_udp(board, board.get_active_mino(), attack, 0, 1,
+                network->send_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
                                   lobby->get_server_ip_address(), lobby->get_my_id());
+            active_user.erase(lobby->get_my_id());
             goto out;
         }
 
@@ -117,15 +125,17 @@ bool MultiEngine::run(bool is_server)
             // garbage를 모두 상쇄하여 아무 불이익도 받지 않음
             is_line_fill_complete = board.insert_line(recv_pkt.deleted_line - attack);
             if (!is_line_fill_complete) {
+                renderer->render_game_over();
                 attack = rule->update_score();
+                is_game_over = 1;
+                is_win = 0;
                 if (is_server == true)
-                    network->send_multi_udp(board, board.get_active_mino(), attack, 1, 0,
-                                            lobby->get_my_id(), ids_ips);
+                    network->send_multi_udp(board, board.get_active_mino(), attack, is_game_over,
+                                            is_win, lobby->get_my_id(), ids_ips);
                 else
-                    network->send_udp(board, board.get_active_mino(), attack, 1, 0,
+                    network->send_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
                                       lobby->get_server_ip_address(), lobby->get_my_id());
                 active_user.erase(lobby->get_my_id());
-                renderer->render_game_over();
                 goto out;
             }
             renderer->render_board(board, board.get_active_mino());
@@ -153,6 +163,16 @@ bool MultiEngine::stop(bool is_server)
                 renderer->render_other_win(recv_pkt);
                 goto out;
             }
+        }
+
+        timer.set_curr_time();
+        if (timer.check_500ms_time()) {
+            if (is_server)
+                network->send_multi_udp(board, board.get_active_mino(), 0, is_game_over,
+                                        is_win, lobby->get_my_id(), ids_ips);
+            else
+                network->send_udp(board, board.get_active_mino(), 0, is_game_over, is_win,
+                                  lobby->get_server_ip_address(), lobby->get_my_id());
         }
     }
     else

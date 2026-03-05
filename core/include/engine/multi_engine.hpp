@@ -28,6 +28,7 @@ class MultiEngine : public Engine {
     int key;
     int index;
     char c;
+    int is_game_over, is_win;
 
     public:
     /**
