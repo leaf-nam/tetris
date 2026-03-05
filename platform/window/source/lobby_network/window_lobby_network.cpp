@@ -61,11 +61,11 @@ void WindowLobbyNetwork::find_broadcast_ip(char* broadcast_ip)
     if (GetAdaptersAddresses(AF_INET, 0, nullptr, adapters, &size) != NO_ERROR) return;
 
     for (auto a = adapters; a; a = a->Next) {
+        if (a->Ipv4Enabled == 0) continue;
+
+        if (a->Dhcpv4Enabled == 0) continue;
+
         if (a->OperStatus != IfOperStatusUp) continue;
-
-        if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK) continue;
-
-        if (a->PhysicalAddressLength == 0) continue;
 
         for (auto u = a->FirstUnicastAddress; u; u = u->Next) {
             SOCKADDR_IN* sa = (SOCKADDR_IN*) u->Address.lpSockaddr;
