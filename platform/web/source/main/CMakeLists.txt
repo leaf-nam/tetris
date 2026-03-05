@@ -31,7 +31,7 @@ set(SHELL_FILE "${CMAKE_CURRENT_LIST_DIR}/shell.html")
 target_link_options(tetris PRIVATE
   "SHELL:--shell-file=${SHELL_FILE}"
   "SHELL:-sALLOW_MEMORY_GROWTH=1"
-  "SHELL:-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap']"
+  "SHELL:-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','HEAP32']"
   "SHELL:-sEXPORTED_FUNCTIONS=['_main','_game_start','_game_reset','_web_set_key','_get_board_ptr','_get_active_shape_ptr','_get_meta_ptr']"
 )
 
