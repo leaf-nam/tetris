@@ -53,35 +53,54 @@ WindowLobbyNetwork::WindowLobbyNetwork()
  */
 void WindowLobbyNetwork::find_broadcast_ip(char* broadcast_ip)
 {
+    if (!broadcast_ip) return;
+    broadcast_ip[0] = '\0';
+
+    DWORD bestIf = 0;
+    DWORD err = GetBestInterface(inet_addr("8.8.8.8"), &bestIf);
+    if (err != NO_ERROR || bestIf == 0) return;
+
     ULONG size = 0;
-    GetAdaptersAddresses(AF_INET, 0, nullptr, nullptr, &size);
+    ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
+    ULONG ret = GetAdaptersAddresses(AF_INET, flags, nullptr, nullptr, &size);
+    if (ret != ERROR_BUFFER_OVERFLOW || size == 0) return;
 
     IP_ADAPTER_ADDRESSES* adapters = (IP_ADAPTER_ADDRESSES*) malloc(size);
+    if (!adapters) return;
 
-    if (GetAdaptersAddresses(AF_INET, 0, nullptr, adapters, &size) != NO_ERROR) return;
+    ret = GetAdaptersAddresses(AF_INET, flags, nullptr, adapters, &size);
+    if (ret != NO_ERROR) {
+        free(adapters);
+        return;
+    }
 
     for (auto a = adapters; a; a = a->Next) {
-        if (a->Ipv4Enabled == 0) continue;
-
-        if (a->Dhcpv4Enabled == 0) continue;
-
-        if (a->OperStatus != IfOperStatusUp) continue;
+        if (a->IfIndex != bestIf) continue;
+        if (a->OperStatus != IfOperStatusUp) break;
 
         for (auto u = a->FirstUnicastAddress; u; u = u->Next) {
-            SOCKADDR_IN* sa = (SOCKADDR_IN*) u->Address.lpSockaddr;
+            if (!u->Address.lpSockaddr) continue;
+            if (u->Address.lpSockaddr->sa_family != AF_INET) continue;
 
-            uint32_t ip = ntohl(sa->sin_addr.s_addr);
-            uint32_t mask =
-                (u->OnLinkPrefixLength == 0 ? 0 : (0xFFFFFFFF << (32 - u->OnLinkPrefixLength)));
-            uint32_t broadcast = ip | ~mask;
-            broadcast = htonl(broadcast);
+            auto* sa = (SOCKADDR_IN*) u->Address.lpSockaddr;
 
-            IN_ADDR b;
-            b.s_addr = broadcast;
+            // prefix 길이 확인
+            if (u->OnLinkPrefixLength == 0 || u->OnLinkPrefixLength > 32) continue;
+
+            uint32_t ip_host = ntohl(sa->sin_addr.s_addr);
+            uint32_t mask_host = 0xFFFFFFFFu << (32 - u->OnLinkPrefixLength);
+            uint32_t bc_host = ip_host | ~mask_host;
+
+            IN_ADDR b{};
+            b.s_addr = htonl(bc_host);
 
             inet_ntop(AF_INET, &b, broadcast_ip, 16);
+
+            free(adapters);
             return;
         }
+
+        break; // IfIndex 매칭 어댑터는 하나면 충분
     }
 
     free(adapters);
