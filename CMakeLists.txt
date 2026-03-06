@@ -94,6 +94,6 @@ elseif (WIN32)
 endif()
 
 # 테스트는 웹 빌드가 아닐 때만 추가
-if (NOT EMSCRIPTEN)
+if (NOT EMSCRIPTEN AND ENABLE_TEST)
     add_subdirectory(test)
 endif()
