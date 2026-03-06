@@ -7,6 +7,8 @@ project(
   LANGUAGES CXX
 )
 
+option(ENABLE_TEST "Enable Test" ON)
+
 # 윈도우 std::byte 오류 해결용
 if (WIN32)
     add_compile_definitions(_HAS_STD_BYTE=0)
@@ -75,4 +77,6 @@ elseif (WIN32)
 
 endif()
 
-add_subdirectory(test)
+if (ENABLE_TEST)
+    add_subdirectory(test)
+endif()
