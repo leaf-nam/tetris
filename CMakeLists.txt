@@ -7,6 +7,9 @@ project(
   LANGUAGES CXX
 )
 
+
+option(ENABLE_TEST "Enable Test" ON)
+
 # 윈도우 std::byte 오류 해결용
 if (WIN32)
     add_compile_definitions(_HAS_STD_BYTE=0)
@@ -54,6 +57,7 @@ if (EMSCRIPTEN)
     #add_link_options("-sUSE_SDL=2" "-sUSE_SDL_TTF=2")
 
 elseif (UNIX)
+    add_subdirectory(platform/common/source/render)
     add_subdirectory(platform/linux/source/input)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
