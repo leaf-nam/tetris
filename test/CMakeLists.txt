@@ -13,7 +13,7 @@ add_custom_target(windows-test
 )
 
 add_custom_target(linux-test
-    COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR}/test
+    COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR}/test 
     COMMAND lcov --quiet --directory . --capture --ignore-errors mismatch,inconsistent,inconsistent --output-file coverage.info
     COMMAND lcov --quiet --remove coverage.info '/usr/*' '*/_deps/*' '*/test/*' --output-file coverage.filtered.info
     COMMAND genhtml coverage.filtered.info --output-directory coverage
@@ -34,7 +34,7 @@ if(WIN32)
 endif()
     add_subdirectory(core/util)
     add_subdirectory(core/board)
-    #add_subdirectory(core/game_rule)
+    add_subdirectory(core/game_rule)
     add_subdirectory(core/tetromino)
 
 
@@ -46,7 +46,7 @@ add_executable(
 target_link_libraries(
     unit_test
     $<TARGET_OBJECTS:board_test>
-#    game_rule_test
+    $<TARGET_OBJECTS:game_rule_test>
     $<TARGET_OBJECTS:tetromino_test>
     $<TARGET_OBJECTS:util_test>
 #    engine_test
@@ -54,6 +54,7 @@ target_link_libraries(
     tetromino
     util
     board
+    game_rule
     GTest::gtest_main
 )
 
