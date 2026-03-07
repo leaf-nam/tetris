@@ -4,10 +4,10 @@
 #include "engine/solo_engine.hpp"
 #include "i_input_factory.hpp"
 #include "input/window_input_factory.hpp"
-#include "menu.hpp"
 #include "lobby.hpp"
 #include "lobby_network/window_lobby_network.hpp"
 #include "lobby_renderer/window_lobby_renderer.hpp"
+#include "menu.hpp"
 #include "network/window_network.hpp"
 #include "render/color.hpp"
 #include "render/window_menu_renderer.hpp"
@@ -138,7 +138,7 @@ AppState run_single_game()
     BoxRenderer box_renderer = render_factory.create_box_renderer();
 
     renderer = &window_renderer;
-    IInputHandler* input_handler = input_factory->create_input_handler();   
+    IInputHandler* input_handler = input_factory->create_input_handler();
     engine = new SoloEngine(setting, input_handler, renderer);
 
     renderer->render_clear();
@@ -150,8 +150,10 @@ AppState run_single_game()
     }
 
     engine->init(false);
-    while(is_run_continue) is_run_continue = engine->run(false);
-    while(is_stop_continue) is_stop_continue = engine->stop(false);
+    while (is_run_continue)
+        is_run_continue = engine->run(false);
+    while (is_stop_continue)
+        is_stop_continue = engine->stop(false);
     engine->finish();
 
     box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
@@ -174,7 +176,7 @@ AppState run_multi_game()
 {
     bool is_run_continue = true;
     bool is_stop_continue = true;
-    ILobbyInputHandler* window_lobby_input_handler = input_factory->create_lobby_input_handler();   
+    ILobbyInputHandler* window_lobby_input_handler = input_factory->create_lobby_input_handler();
     ILobbyNetwork* window_lobby_network = new WindowLobbyNetwork();
     ILobbyRenderer* window_lobby_renderer = new WindowLobbyRenderer();
     lobby = new Lobby(window_lobby_network, window_lobby_renderer, window_lobby_input_handler);
@@ -184,7 +186,7 @@ AppState run_multi_game()
 
     WindowMultiRenderer window_renderer = render_factory.create_window_multi_renderer();
     renderer = &window_renderer;
-    IInputHandler* input_handler = input_factory->create_input_handler();   
+    IInputHandler* input_handler = input_factory->create_input_handler();
     network = new WindowNetwork();
     engine = new MultiEngine(setting, input_handler, renderer, network, lobby);
 
@@ -192,8 +194,10 @@ AppState run_multi_game()
     renderer->render_background();
 
     engine->init(is_server);
-    while(is_run_continue) is_run_continue = engine->run(is_server);
-    while(is_stop_continue) is_stop_continue = engine->stop(is_server);
+    while (is_run_continue)
+        is_run_continue = engine->run(is_server);
+    while (is_stop_continue)
+        is_stop_continue = engine->stop(is_server);
     engine->finish();
 
     (void) _getch();

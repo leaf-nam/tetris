@@ -5,7 +5,9 @@ enum class AppState
 {
     MENU,
     SINGLE_PLAY,
-    MULTI_PLAY,
+    LOBBY,
+    MULTI_SERVER,
+    MULTI_CLIENT,
     SETTINGS,
     EXIT
 };

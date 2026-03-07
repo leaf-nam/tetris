@@ -19,12 +19,12 @@ AppState Menu::update()
 {
     int in = input->scan();
 
-    if (in == '\r' || in == ' ') {
+    if (in == '\n' || in == ' ') {
         switch (menu) {
         case MenuTitle::SINGLE_PLAY:
             return AppState::SINGLE_PLAY;
         case MenuTitle::MULTI_PLAY:
-            return AppState::MULTI_PLAY;
+            return AppState::LOBBY;
         case MenuTitle::SETTINGS:
             return AppState::SETTINGS;
         case MenuTitle::EXIT:

@@ -62,7 +62,6 @@ elseif (UNIX)
     add_subdirectory(platform/linux/source/render)
     add_subdirectory(platform/linux/source/network)
     add_subdirectory(platform/linux/source/lobby_network)
-    add_subdirectory(platform/linux/source/lobby_renderer)
     add_subdirectory(platform/linux/source/util)
     add_subdirectory(platform/linux/source/main)
     set_target_properties(tetris PROPERTIES

@@ -27,5 +27,4 @@ target_link_libraries(tetris
         linux_util
         lobby
         linux_lobby_network
-        linux_lobby_renderer
 )

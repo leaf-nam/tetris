@@ -4,12 +4,12 @@
 #include "engine/solo_engine.hpp"
 #include "i_input_factory.hpp"
 #include "input/linux_input_factory.hpp"
-#include "menu.hpp"
 #include "lobby.hpp"
 #include "lobby_network/linux_lobby_network.hpp"
-#include "lobby_renderer/linux_lobby_renderer.hpp"
+#include "menu.hpp"
 #include "network/linux_network.hpp"
 #include "render/color.hpp"
+#include "render/linux_lobby_renderer.hpp"
 #include "render/linux_menu_renderer.hpp"
 #include "render/linux_multi_renderer.hpp"
 #include "render/linux_render_factory.hpp"
@@ -17,8 +17,8 @@
 #include "setting_manager.hpp"
 #include "setting_storage.hpp"
 
-#include <termios.h>
 #include <chrono>
+#include <termios.h>
 #include <thread>
 
 static IRenderer* renderer;
@@ -67,7 +67,7 @@ int main()
             state = run_single_game();
             break;
 
-        case AppState::MULTI_PLAY:
+        case AppState::LOBBY:
             state = run_multi_game();
             break;
 
@@ -100,7 +100,7 @@ AppState run_menu()
 {
     RenderFactory& render_factory = RenderFactory::getInstance();
     MenuRenderer menu_renderer = render_factory.create_menu_renderer();
-    IMenuInputHandler* input_handler = input_factory->create_menu_input_handler();   
+    IMenuInputHandler* input_handler = input_factory->create_menu_input_handler();
 
     Menu menu(&menu_renderer, input_handler);
     menu.reload();
@@ -121,7 +121,7 @@ AppState run_settings()
     RenderFactory render_factory = RenderFactory::getInstance();
     SettingStorage& setting_storage = SettingStorage::getInstance();
     SettingRenderer setting_renderer = render_factory.create_setting_renderer();
-    ISettingInputHandler* input_handler = input_factory->create_setting_input_handler();   
+    ISettingInputHandler* input_handler = input_factory->create_setting_input_handler();
 
     SettingManager setting_manager(setting, &setting_renderer, input_handler, &setting_storage);
     setting_manager.reload();
@@ -148,7 +148,7 @@ AppState run_single_game()
     BoxRenderer box_renderer = render_factory.create_box_renderer();
 
     renderer = &linux_renderer;
-    IInputHandler* input_handler = input_factory->create_input_handler();   
+    IInputHandler* input_handler = input_factory->create_input_handler();
     engine = new SoloEngine(setting, input_handler, renderer);
 
     renderer->render_clear();
@@ -158,10 +158,12 @@ AppState run_single_game()
         text_renderer.draw_game_start_count({42, 16}, i);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    
+
     engine->init(false);
-    while(is_run_continue) is_run_continue = engine->run(false);
-    while(is_stop_continue) is_stop_continue = engine->stop(false);
+    while (is_run_continue)
+        is_run_continue = engine->run(false);
+    while (is_stop_continue)
+        is_stop_continue = engine->stop(false);
     engine->finish();
 
     box_renderer.draw_box({10, 12}, 54, 18, "", Color::GREEN, Color::BACKGROUND);
@@ -182,19 +184,36 @@ AppState run_single_game()
 
 AppState run_multi_game()
 {
+    bool is_server;
     bool is_run_continue = true;
     bool is_stop_continue = true;
-    ILobbyInputHandler* linux_lobby_input_handler = input_factory->create_lobby_input_handler();   
-    ILobbyNetwork* linux_lobby_network = new LinuxLobbyNetwork();
-    ILobbyRenderer* linux_lobby_renderer = new LinuxLobbyRenderer();
-    lobby = new Lobby(linux_lobby_network, linux_lobby_renderer, linux_lobby_input_handler);
-    bool is_server = lobby->start();
 
     RenderFactory& render_factory = RenderFactory::getInstance();
 
+    ILobbyNetwork* linux_lobby_network = new LinuxLobbyNetwork();
+    LinuxLobbyRenderer linux_lobby_renderer_ = render_factory.create_lobby_renderer();
+    ILobbyRenderer* linux_lobby_renderer = &linux_lobby_renderer_;
+    ILobbyInputHandler* linux_lobby_input_handler = input_factory->create_lobby_input_handler();
+    Lobby* lobby =
+        new Lobby(setting, linux_lobby_network, linux_lobby_renderer, linux_lobby_input_handler);
+
+    AppState lobby_state = lobby->start();
+
+    switch (lobby_state) {
+    case AppState::MULTI_SERVER:
+        is_server = true;
+        break;
+    case AppState::MULTI_CLIENT:
+        is_server = false;
+        break;
+
+    default: // default fallback : MENU
+        return AppState::MENU;
+    }
+
     LinuxMultiRenderer linux_renderer = render_factory.create_linux_multi_renderer();
     renderer = &linux_renderer;
-    IInputHandler* input_handler = input_factory->create_input_handler();   
+    IInputHandler* input_handler = input_factory->create_input_handler();
     network = new LinuxNetwork();
     engine = new MultiEngine(setting, input_handler, renderer, network, lobby);
 
@@ -202,8 +221,10 @@ AppState run_multi_game()
     renderer->render_background();
 
     engine->init(is_server);
-    while(is_run_continue) is_run_continue = engine->run(is_server);
-    while(is_stop_continue) is_stop_continue = engine->stop(is_server);
+    while (is_run_continue)
+        is_run_continue = engine->run(is_server);
+    while (is_stop_continue)
+        is_stop_continue = engine->stop(is_server);
     engine->finish();
 
     wait_key();

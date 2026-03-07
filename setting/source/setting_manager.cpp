@@ -25,10 +25,10 @@ AppState SettingManager::update()
 {
     int in = input->scan();
 
-    // ¿£ÅÍ Ã³¸®
-    if (in == '\r' || in == ' ') {
+    // ì—”í„° ì²˜ë¦¬
+    if (in == '\n' || in == ' ') {
         switch (setting_title) {
-        // ´Ð³×ÀÓ º¯°æ
+        // ë‹‰ë„¤ìž„ ë³€ê²½
         case SettingTitle::NICKNAME: {
             render->render_input_window({27, 20}, "Type your nickname.[length : 1 ~ 8]");
             string nickname = input->get_line();
@@ -41,7 +41,7 @@ AppState SettingManager::update()
             break;
         }
 
-        // Å×¸¶ º¯°æ
+        // í…Œë§ˆ ë³€ê²½
         case SettingTitle::THEME: {
             setting->color_theme = (setting->color_theme + 1) % 4;
             Theme::getInstance().apply(static_cast<ThemeKey>(setting->color_theme));
@@ -49,14 +49,14 @@ AppState SettingManager::update()
             break;
         }
 
-        // ±×¸²ÀÚ Åä±Û
+        // ê·¸ë¦¼ìž í† ê¸€
         case SettingTitle::SHADOW: {
             setting->shadow_on = !setting->shadow_on;
             reload();
             break;
         }
 
-        // ÀúÀå ¹× Á¾·á
+        // ì €ìž¥ ë° ì¢…ë£Œ
         case SettingTitle::SAVE: {
             setting_storage->save(*setting);
             return AppState::MENU;
