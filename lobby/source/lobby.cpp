@@ -23,6 +23,8 @@ AppState Lobby::start()
 
     switch (entrance) {
     case Entrance::CREATE_ROOM:
+        create_room();
+        waiting_client();
         break;
     case Entrance::ENTER_ROOM:
         break;
@@ -32,20 +34,7 @@ AppState Lobby::start()
         break;
     }
 
-    int choice;
-
-    while (true) {
-        render->render_clear();
-        render->render_select();
-        input->scan(&choice, 1);
-        if (choice == 1) {
-            if (open_room()) return AppState::MULTI_SERVER;
-        }
-        else if (choice == 2) {
-            if (enter_room()) return AppState::MULTI_CLIENT;
-        }
-        render->render_clear();
-    }
+    return AppState::MENU;
 }
 
 void Lobby::set_nickname()
@@ -53,7 +42,7 @@ void Lobby::set_nickname()
     char nickname[9];
 
     SettingStorage& setting_storage = SettingStorage::getInstance();
-    render->render_set_nickname("Current Nickname : [ " + setting->nick_name + " ]");
+    render->render_set_nickname(setting->nick_name);
 
     while (true) {
         input->scan(nickname, 8, true);
@@ -90,7 +79,20 @@ void Lobby::choose_entrance()
     }
 }
 
-bool Lobby::open_room()
+void Lobby::create_room()
+{
+    render->render_create_room();
+
+    while (true) {
+        input->scan(room_name, 8, true);
+
+        if (room_name[0] != '\0') {
+            break;
+        }
+    }
+}
+
+bool Lobby::waiting_client()
 {
     char buffer[BUF_SIZE];
     char broadcast_ip[16];
@@ -101,16 +103,13 @@ bool Lobby::open_room()
     bool is_game_start = false;
     char s[BUF_SIZE];
     char ip[16];
+    vector<string> clients;
 
-    memset(my_id, 0, sizeof(my_id));
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
     client_ip_address.clear();
     server_ip_address.clear();
     network->find_broadcast_ip(broadcast_ip);
-
-    render->render_user_id_input();
-    input->scan(my_id, sizeof(my_id), 1);
-    render->render_server_view_room(my_id, client_ip_address);
+    render->render_lobby(room_name, setting->nick_name);
 
     base_time = std::chrono::steady_clock::now();
     while (true) {
@@ -163,6 +162,7 @@ bool Lobby::open_room()
             network->send_multi_udp(my_id, client_ip_address, client_ip_address.size(), 0, 0, 0, 1,
                                     0, client_ip_address_for_send);
         }
+        render->render_lobby_clients(clients);
     }
 
     return is_game_start;

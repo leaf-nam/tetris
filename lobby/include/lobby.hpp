@@ -23,6 +23,7 @@ class Lobby
                            // value=>room_host_id
     char selected_server_ip_address[16];
     char my_id[9];
+    char room_name[9];
     Setting* setting;
     Entrance entrance = Entrance::CREATE_ROOM;
     ILobbyNetwork* network;
@@ -36,6 +37,10 @@ class Lobby
     void set_nickname();
 
     void choose_entrance();
+
+    void create_room();
+
+    bool waiting_client();
 
     /**
      * @brief (서버)방을 열고 다른 사용자들의 ip 주소를 저장하게 하는 함수

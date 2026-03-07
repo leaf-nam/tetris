@@ -4,6 +4,7 @@
 #include "i_platform_renderer.hpp"
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -34,13 +35,13 @@ void LinuxLobbyRenderer::render_set_nickname(const string& cur_nickname)
 {
     render_clear();
     render_big_text(20, 7, "SET NICKNAME");
-    render_small_text(27, 18, cur_nickname);
-    render_input_window(27, 20, "type your nickname.[length : 1 ~ 8]");
+    render_small_text(27, 18, "Current Nickname : [ " + cur_nickname + " ] ");
+    render_input_window(27, 20, "Type Your Nickname.[length : 1 ~ 8]");
 }
 void LinuxLobbyRenderer::render_entrance()
 {
     render_clear();
-    render_big_text(12, 10, "ENTRANCE");
+    render_big_text(12, 7, "ENTRANCE");
 }
 
 void LinuxLobbyRenderer::render_entrance_choice(Entrance entrance)
@@ -60,6 +61,27 @@ void LinuxLobbyRenderer::render_entrance_choice(Entrance entrance)
         text += ENTRANCE_TITLE[i];
 
         platform_renderer->print_s(text, text_color);
+    }
+}
+
+void LinuxLobbyRenderer::render_create_room()
+{
+    render_clear();
+    render_big_text(10, 7, "CRAETE ROOM");
+    render_input_window(27, 20, "Type New Room Name.[length : 1 ~ 8]");
+}
+
+void LinuxLobbyRenderer::render_lobby(const string& room_name, const string& host_name)
+{
+    render_clear();
+    render_big_text(14, 7, "LOBBY");
+    render_small_text(27, 20, "ROOM NAME : [ " + room_name + " ] ");
+    render_small_text(27, 22, "HOST : [ " + host_name + " ] ");
+}
+
+void LinuxLobbyRenderer::render_lobby_clients(vector<string>& clients)
+{
+    for (auto client : clients) {
     }
 }
 
