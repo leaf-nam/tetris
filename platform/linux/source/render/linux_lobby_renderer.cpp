@@ -1,21 +1,26 @@
 #include "render/linux_lobby_renderer.hpp"
 
-LinuxLobbyRenderer::LinuxLobbyRenderer(
-		const InputWindowRenderer& input_render,
-		const TextRenderer& text_render)
+LinuxLobbyRenderer::LinuxLobbyRenderer(const InputWindowRenderer& input_render,
+                                       const TextRenderer& text_render)
     : input_window_renderer(input_render), text_renderer(text_render)
 {
 }
 
-void LinuxLobbyRenderer::render_input_window(int x, int y, std::string&& str)
+void LinuxLobbyRenderer::render_input_window(int x, int y, const std::string& str)
 {
     input_window_renderer.render_input_window({x, y}, str);
 }
 
-void LinuxLobbyRenderer::render_big_text(int x, int y, std::string&& str)
+void LinuxLobbyRenderer::render_big_text(int x, int y, const std::string& str)
 {
     text_renderer.print_big_string({x, y}, str);
 }
+
+void LinuxLobbyRenderer::render_small_text(int x, int y, const std::string& str)
+{
+    text_renderer.print_small_string({x, y}, str, Color::CYAN);
+}
+
 void LinuxLobbyRenderer::render_server_view_room(
     char* server_id, std::unordered_map<std::string, std::string> client_ip_address)
 {
@@ -43,7 +48,7 @@ void LinuxLobbyRenderer::render_client_view_room(
     fflush(stdout);
     printf("ROOM HOST: %s\n", server_id);
     for (const auto& [key, value] : client_ip_address)
-	    printf("%s\n", key.c_str());
+        printf("%s\n", key.c_str());
     printf("Press Any key + enter for get out room\n");
 }
 

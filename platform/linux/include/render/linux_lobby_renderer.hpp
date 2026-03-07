@@ -16,8 +16,9 @@ class LinuxLobbyRenderer : public ILobbyRenderer
 
   public:
     LinuxLobbyRenderer(const InputWindowRenderer&, const TextRenderer&);
-    void render_input_window(int x, int y, std::string&&) override;
-    void render_big_text(int x, int y, std::string&&) override;
+    void render_input_window(int x, int y, const std::string&) override;
+    void render_big_text(int x, int y, const std::string&) override;
+    void render_small_text(int x, int y, const std::string&) override;
     void render_server_view_room(
         char* server_id, std::unordered_map<std::string, std::string> client_ip_address) override;
     void render_user_id_input() override;

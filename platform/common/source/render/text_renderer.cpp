@@ -46,7 +46,7 @@ void TextRenderer::print_big_char(Pos pos, char c)
     print_big_char(pos, c, color_picker.get_random_color());
 }
 
-void TextRenderer::print_big_string(Pos pos, string& str, Color key)
+void TextRenderer::print_big_string(Pos pos, const string& str, Color key)
 {
     for (int j = 0; j < str.size(); ++j) {
         char c = str[j];
@@ -55,7 +55,7 @@ void TextRenderer::print_big_string(Pos pos, string& str, Color key)
     }
 }
 
-void TextRenderer::print_big_string(Pos pos, string& str, Color foreground, Color background)
+void TextRenderer::print_big_string(Pos pos, const string& str, Color foreground, Color background)
 {
     for (int j = 0; j < str.size(); ++j) {
         char c = str[j];
@@ -64,7 +64,7 @@ void TextRenderer::print_big_string(Pos pos, string& str, Color foreground, Colo
     }
 }
 
-void TextRenderer::print_big_string(Pos pos, string& str)
+void TextRenderer::print_big_string(Pos pos, const string& str)
 {
     for (int j = 0; j < str.size(); ++j) {
         Color random_color = color_picker.get_random_color();
@@ -100,13 +100,13 @@ void TextRenderer::print_big_string(Pos pos, const char* str)
     print_big_string(pos, s);
 }
 
-void TextRenderer::print_small_string(Pos pos, string& str, Color key)
+void TextRenderer::print_small_string(Pos pos, const string& str, Color key)
 {
     platform_renderer->set_cursor(pos.x, pos.y);
     platform_renderer->print_s(str, key);
 }
 
-void TextRenderer::print_small_string(Pos pos, string& str)
+void TextRenderer::print_small_string(Pos pos, const string& str)
 {
     print_small_string(pos, str, color_picker.get_random_color());
 }
