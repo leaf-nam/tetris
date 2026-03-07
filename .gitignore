@@ -56,6 +56,7 @@ CMakeFiles
 # clang
 compile_commands.json
 .clangd
+.cache
 _deps
 llvm.sh
 

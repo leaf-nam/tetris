@@ -7,6 +7,7 @@
 class ILobbyRenderer
 {
   public:
+    virtual void render_big_text(int x, int y, std::string&&) = 0;
     virtual void render_input_window(int x, int y, std::string&&) = 0;
     virtual void
     render_server_view_room(char* server_id,

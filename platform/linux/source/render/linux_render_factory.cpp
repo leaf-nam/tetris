@@ -21,7 +21,8 @@ SettingRenderer RenderFactory::create_setting_renderer()
 
 LinuxLobbyRenderer RenderFactory::create_lobby_renderer()
 {
-    return LinuxLobbyRenderer(create_input_window_renderer());
+    return LinuxLobbyRenderer(create_input_window_renderer(),
+		    create_text_renderer());
 }
 
 LinuxRenderer RenderFactory::create_linux_renderer()

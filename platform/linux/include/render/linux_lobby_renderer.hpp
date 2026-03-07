@@ -3,6 +3,7 @@
 
 #include "i_lobby_renderer.hpp"
 #include "render/input_window_renderer.hpp"
+#include "render/text_renderer.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -11,10 +12,12 @@ class LinuxLobbyRenderer : public ILobbyRenderer
 {
   private:
     InputWindowRenderer input_window_renderer;
+    TextRenderer text_renderer;
 
   public:
-    LinuxLobbyRenderer(const InputWindowRenderer&);
+    LinuxLobbyRenderer(const InputWindowRenderer&, const TextRenderer&);
     void render_input_window(int x, int y, std::string&&) override;
+    void render_big_text(int x, int y, std::string&&) override;
     void render_server_view_room(
         char* server_id, std::unordered_map<std::string, std::string> client_ip_address) override;
     void render_user_id_input() override;

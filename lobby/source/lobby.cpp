@@ -32,6 +32,8 @@ bool Lobby::start()
 
 void Lobby::set_nickname()
 {
+    render->render_clear();
+    render->render_big_text(20, 7, "SET NICKNAME");
     render->render_input_window(27, 20, "type your nickname.[length : 1 ~ 8]");
 
     char nickname[9];
