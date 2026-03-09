@@ -80,7 +80,7 @@ void LinuxLobbyRenderer::render_room(const string& room_name, const string& host
     render_clear();
     render_big_text(15, 7, "WAITNG ROOM", Color::GREEN);
     if (is_server) {
-        render_small_text(27, 14, " > Start Game : Press [ Enter ]", Color::ORANGE);
+        render_small_text(27, 14, " > Start Game : Press [ Space ]", Color::ORANGE);
         render_small_text(27, 16, " > Delete Room : Press [ ESC ]", Color::ORANGE);
     } else {
         render_small_text(27, 14, " > Out Room : Press [ ESC ]", Color::ORANGE);
@@ -110,7 +110,7 @@ void LinuxLobbyRenderer::render_lobby()
 {
     render_clear();
     render_big_text(24, 7, "LOBBY", Color::ORANGE);
-    render_small_text(27, 14, " > Join Room : Press [ Enter ]", Color::CYAN);
+    render_small_text(27, 14, " > Join Room : Press [ Space ]", Color::CYAN);
     render_small_text(27, 16, " > Exit to Menu : Pres [ ESC ]", Color::CYAN);
 }
 

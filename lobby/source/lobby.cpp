@@ -127,7 +127,7 @@ bool Lobby::waiting_client()
             return false;
         }
 
-        else if (in == Key::ENTER) {
+        else if (in == Key::SPACE) {
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 1, 0, 0,
                                     0, client_ip_address);
             network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 0, 0, 0, 1,
@@ -215,7 +215,7 @@ bool Lobby::enter_lobby()
                 network->send_udp(setting->nick_name.c_str(), false, selected_server_ip_address);
             else
                 return false;
-        } else if (in == Key::ENTER) {
+        } else if (in == Key::SPACE) {
             network->send_udp(setting->nick_name.c_str(), true, rooms[selecting_idx].second.c_str());
         }
 
