@@ -13,6 +13,8 @@ target_include_directories(window_render
     PUBLIC ${PROJECT_SOURCE_DIR}/menu/include
     PUBLIC ${PROJECT_SOURCE_DIR}/setting/api
     PUBLIC ${PROJECT_SOURCE_DIR}/setting/include
+    PUBLIC ${PROJECT_SOURCE_DIR}/lobby/api
+    PUBLIC ${PROJECT_SOURCE_DIR}/lobby/include
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/common/api
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/common/include
     PUBLIC ${PROJECT_SOURCE_DIR}/platform/window/include

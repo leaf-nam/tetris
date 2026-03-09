@@ -1,5 +1,5 @@
-#ifndef __LINUX_LOBBY_RENDERER_HPP__
-#define __LINUX_LOBBY_RENDERER_HPP__
+#ifndef __WINDOW_LOBBY_RENDERER_HPP__
+#define __WINDOW_LOBBY_RENDERER_HPP__
 
 #include "i_lobby_renderer.hpp"
 #include "i_platform_renderer.hpp"
@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-class LinuxLobbyRenderer : public ILobbyRenderer
+class WindowLobbyRenderer : public ILobbyRenderer
 {
   private:
     InputWindowRenderer input_window_renderer;
@@ -22,7 +22,7 @@ class LinuxLobbyRenderer : public ILobbyRenderer
     void render_small_text(int x, int y, const std::string&, Color);
 
   public:
-    LinuxLobbyRenderer(const InputWindowRenderer&, const TextRenderer&, IPlatformRenderer*);
+    WindowLobbyRenderer(const InputWindowRenderer&, const TextRenderer&, IPlatformRenderer*);
     void render_set_nickname(const std::string&) override;
     void render_entrance() override;
     void render_entrance_choice(Entrance entrance) override;

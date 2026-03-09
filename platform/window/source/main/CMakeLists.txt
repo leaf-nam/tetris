@@ -27,5 +27,4 @@ target_link_libraries(tetris
         window_util
         lobby
         window_lobby_network
-        window_lobby_renderer
 )

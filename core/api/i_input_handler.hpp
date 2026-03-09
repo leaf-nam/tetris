@@ -11,7 +11,6 @@ enum Arrow
 
 enum Key
 {
-    ENTER = 10,
     ESC = 27,
     SPACE = 32,
 };

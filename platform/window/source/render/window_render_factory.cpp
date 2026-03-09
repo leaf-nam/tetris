@@ -19,6 +19,12 @@ SettingRenderer RenderFactory::create_setting_renderer()
                            create_block_renderer(), create_input_window_renderer());
 }
 
+WindowLobbyRenderer RenderFactory::create_lobby_renderer()
+{
+    return WindowLobbyRenderer(create_input_window_renderer(), create_text_renderer(),
+                               platform_renderer);
+}
+
 WindowRenderer RenderFactory::create_window_renderer()
 {
     return WindowRenderer(setting, platform_renderer, color_picker, create_text_renderer(),

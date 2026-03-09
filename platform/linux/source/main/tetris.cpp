@@ -206,8 +206,10 @@ AppState run_multi_game()
     case AppState::MULTI_CLIENT:
         is_server = false;
         break;
-
     default: // default fallback : MENU
+        delete lobby;
+        delete linux_lobby_network;
+        delete linux_lobby_input_handler;
         return AppState::MENU;
     }
 
@@ -234,7 +236,6 @@ AppState run_multi_game()
     delete input_handler;
     delete lobby;
     delete linux_lobby_network;
-    delete linux_lobby_renderer;
     delete linux_lobby_input_handler;
 
     input_handler = nullptr;

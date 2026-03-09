@@ -82,7 +82,6 @@ elseif (WIN32)
         add_subdirectory(platform/window/source/render)
         add_subdirectory(platform/window/source/network)
         add_subdirectory(platform/window/source/lobby_network)
-        add_subdirectory(platform/window/source/lobby_renderer)
         add_subdirectory(platform/window/source/util)
         add_subdirectory(platform/window/source/main)
         

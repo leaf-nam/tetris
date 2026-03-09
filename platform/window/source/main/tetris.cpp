@@ -6,10 +6,10 @@
 #include "input/window_input_factory.hpp"
 #include "lobby.hpp"
 #include "lobby_network/window_lobby_network.hpp"
-#include "lobby_renderer/window_lobby_renderer.hpp"
 #include "menu.hpp"
 #include "network/window_network.hpp"
 #include "render/color.hpp"
+#include "render/window_lobby_renderer.hpp"
 #include "render/window_menu_renderer.hpp"
 #include "render/window_multi_renderer.hpp"
 #include "render/window_render_factory.hpp"
@@ -71,7 +71,7 @@ int main()
             state = run_single_game();
             break;
 
-        case AppState::MULTI_PLAY:
+        case AppState::LOBBY:
             state = run_multi_game();
             break;
 
@@ -174,15 +174,34 @@ AppState run_single_game()
 
 AppState run_multi_game()
 {
+    bool is_server;
     bool is_run_continue = true;
     bool is_stop_continue = true;
-    ILobbyInputHandler* window_lobby_input_handler = input_factory->create_lobby_input_handler();
-    ILobbyNetwork* window_lobby_network = new WindowLobbyNetwork();
-    ILobbyRenderer* window_lobby_renderer = new WindowLobbyRenderer();
-    lobby = new Lobby(window_lobby_network, window_lobby_renderer, window_lobby_input_handler);
-    bool is_server = lobby->start();
 
     RenderFactory& render_factory = RenderFactory::getInstance();
+
+    ILobbyNetwork* window_lobby_network = new WindowLobbyNetwork();
+    WindowLobbyRenderer window_lobby_renderer_ = render_factory.create_lobby_renderer();
+    ILobbyRenderer* window_lobby_renderer = &window_lobby_renderer_;
+    ILobbyInputHandler* window_lobby_input_handler = input_factory->create_lobby_input_handler();
+    Lobby* lobby =
+        new Lobby(setting, window_lobby_network, window_lobby_renderer, window_lobby_input_handler);
+
+    AppState lobby_state = lobby->start();
+
+    switch (lobby_state) {
+    case AppState::MULTI_SERVER:
+        is_server = true;
+        break;
+    case AppState::MULTI_CLIENT:
+        is_server = false;
+        break;
+    default: // default fallback : MENU
+        delete lobby;
+        delete window_lobby_network;
+        delete window_lobby_input_handler;
+        return AppState::MENU;
+    }
 
     WindowMultiRenderer window_renderer = render_factory.create_window_multi_renderer();
     renderer = &window_renderer;
@@ -207,7 +226,6 @@ AppState run_multi_game()
     delete input_handler;
     delete lobby;
     delete window_lobby_network;
-    delete window_lobby_renderer;
     delete window_lobby_input_handler;
 
     input_handler = nullptr;

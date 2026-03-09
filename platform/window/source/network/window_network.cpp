@@ -194,6 +194,8 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
         inet_pton(AF_INET, ip.c_str(), &another_user.sin_addr);
 
         // 보드 데이터 복사
+        pkt.magic = PACKET_MAGIC;
+
         for (int r = 0; r < 20; ++r)
             for (int c = 0; c < 10; ++c)
                 pkt.board[r][c] = packet.board[r][c]; // 숨겨진 2줄 제외하고 복사

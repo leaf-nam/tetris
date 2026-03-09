@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #define USER_DATA_SIZE (4 + 13)
-#define ROOM_DATA_SIZE (4 + 69)
+#define ROOM_DATA_SIZE (4 + 69 + 9)
 
 #define USER_DATA_MAGIC 0x55534552
 #define ROOM_DATA_MAGIC 0x524F4F4D
@@ -20,6 +20,7 @@ typedef struct _room_data
     int32_t magic;
     char room_master_id[9];
     char id[4][9];
+    char room_name[9];
     int32_t id_len;
     int32_t is_enter_not_success;
     int32_t is_game_start;

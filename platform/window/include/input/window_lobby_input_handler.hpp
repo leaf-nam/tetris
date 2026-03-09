@@ -6,6 +6,7 @@
 class WindowLobbyInputHandler : public ILobbyInputHandler
 {
   public:
+    int scan() override;
     int scan(char* buf, int buf_len, int is_blocking) override;
     int scan(int* buf, int is_blocking) override;
 };

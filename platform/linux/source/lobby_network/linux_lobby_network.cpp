@@ -145,6 +145,7 @@ void LinuxLobbyNetwork::serialize(uint8_t* buf, const room_data& pkt)
     {
         write_bytes(p, pkt.id[i], 9);
     }
+    write_bytes(p, pkt.room_name, 9);
     write_32b(p, pkt.id_len);
     write_32b(p, pkt.is_enter_not_success);
     write_32b(p, pkt.is_game_start);
@@ -164,6 +165,7 @@ void LinuxLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
         read_bytes(p, pkt.id[i], 9);
         pkt.id[i][8] = '\0';
     }
+    read_bytes(p, pkt.room_name, 9);
     pkt.id_len = read_32b(p);
     pkt.is_enter_not_success = read_32b(p);
     pkt.is_game_start = read_32b(p);
@@ -241,6 +243,7 @@ bool LinuxLobbyNetwork::recv_udp(user_data& ud, char* ip)
 
 void LinuxLobbyNetwork::send_udp(const char* room_master_id,
                                        std::unordered_map<std::string, std::string> ids_ips,
+                                       const char* room_name,
                                        int id_len,
     int is_enter_not_success, int is_game_start, int is_broadcast,
     int is_update, int is_broadcast_delete, const char* send_ip)
@@ -261,6 +264,7 @@ void LinuxLobbyNetwork::send_udp(const char* room_master_id,
     snprintf(data.room_master_id, sizeof(data.room_master_id), "%s", room_master_id);
     for (const auto& [id, ip] : ids_ips)
         snprintf(data.id[index++], sizeof(data.id[0]), "%s", id.c_str());
+    snprintf(data.room_name, sizeof(data.room_name), "%s", room_name);
     data.id_len = id_len;
     data.is_enter_not_success = is_enter_not_success;
     data.is_game_start = is_game_start;
@@ -319,12 +323,13 @@ bool LinuxLobbyNetwork::recv_udp(room_data& rd, char* ip)
 
 void LinuxLobbyNetwork::send_multi_udp(
     const char* room_master_id, std::unordered_map<std::string, std::string> pkt_ids_ips,
+    const char* room_name,
     int id_len,
     int is_enter_not_success, int is_game_start, int is_broadcast,
     int is_update, int is_broadcast_delete, std::unordered_map<std::string, std::string> ids_ips)
 {
     for (const auto& [user_id, user_ip] : ids_ips)
-        send_udp(room_master_id, pkt_ids_ips, id_len, is_enter_not_success, is_game_start, is_broadcast,
+        send_udp(room_master_id, pkt_ids_ips, room_name, id_len, is_enter_not_success, is_game_start, is_broadcast,
                  is_update, is_broadcast_delete, user_ip.c_str());
 }
 

@@ -129,9 +129,11 @@ void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, cons
     inet_pton(AF_INET, another_user_ip, &another_user.sin_addr);
 
     pkt.magic = PACKET_MAGIC;
+
     for (int r = 0; r < 20; ++r)
         for (int c = 0; c < 10; ++c)
             pkt.board[r][c] = board.at(r + 2, c);
+    
     pkt.type = tetromino.get_mino_type();
     pkt.rotation = tetromino.get_rotation();
     pkt.r = pos_r;
@@ -176,6 +178,8 @@ void LinuxNetwork::send_relay_udp(const Packet& packet,
         inet_pton(AF_INET, ip.c_str(), &another_user.sin_addr);
 
         // 보드 데이터 복사
+        pkt.magic = PACKET_MAGIC;
+
         for (int r = 0; r < 20; ++r)
             for (int c = 0; c < 10; ++c)
                 pkt.board[r][c] = packet.board[r][c]; // 숨겨진 2줄 제외하고 복사

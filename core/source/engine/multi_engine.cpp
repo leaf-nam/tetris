@@ -150,6 +150,8 @@ out:
 
 bool MultiEngine::stop(bool is_server)
 {
+    int three_sec_over = 0;
+
     if (active_user.size() > 0)
     {
         if (network->recv_udp(recv_pkt)) {
@@ -180,6 +182,18 @@ bool MultiEngine::stop(bool is_server)
 
     return true;
 out:
+    while (three_sec_over < 7) {
+        timer.set_curr_time();
+        if (timer.check_500ms_time()) {
+            if (is_server)
+                network->send_multi_udp(board, board.get_active_mino(), 0, is_game_over, is_win,
+                                        lobby->get_my_id(), ids_ips);
+            else
+                network->send_udp(board, board.get_active_mino(), 0, is_game_over, is_win,
+                                  lobby->get_server_ip_address(), lobby->get_my_id());
+            three_sec_over++;
+        }
+    }
     return false;
 }
 

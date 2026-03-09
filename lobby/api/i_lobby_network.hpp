@@ -18,13 +18,14 @@ class ILobbyNetwork
     virtual bool recv_udp(user_data& ud, char* ip) = 0;
     // room_data
     virtual void send_udp(const char* room_master_id,
-                          std::unordered_map<std::string, std::string> ids_ips, int id_len,
+                          std::unordered_map<std::string, std::string> ids_ips, 
+                          const char* room_name, int id_len,
                           int is_enter_not_success, int is_game_start, int is_broadcast,
                           int is_update, int is_broadcast_delete, const char* send_ip) = 0;
     virtual bool recv_udp(room_data& rd, char* ip) = 0;
     virtual void send_multi_udp(const char* room_master_id,
                                 std::unordered_map<std::string, std::string> pkt_ids_ips,
-                                int id_len,
+                                const char* room_name, int id_len,
                                 int is_enter_not_success, int is_game_start, int is_broadcast,
                                 int is_update, int is_broadcast_delete,
                                 std::unordered_map<std::string, std::string> ids_ips) = 0;
