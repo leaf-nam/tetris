@@ -36,6 +36,34 @@
 *.exe
 *.out
 *.app
+tetris
+settings.txt
 
 # debug information files
 *.dwo
+
+# ctags symbol data
+tags
+
+# cmake build folder
+build
+out
+*.cmake
+CMakeCache.txt
+Makefile
+CMakeFiles
+
+# clang
+compile_commands.json
+.clangd
+.cache
+_deps
+llvm.sh
+
+
+# vs
+build_wasm
+.vs
+.vscode
+
+.cache

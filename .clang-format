@@ -1,0 +1,79 @@
+# =========================
+# Base
+# =========================
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++20
+
+# =========================
+# Indentation
+# =========================
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+# =========================
+# Braces (중괄호 규칙)
+# =========================
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true        # 함수 중괄호 개행
+  AfterClass: true
+  AfterStruct: true
+  AfterEnum: true
+  AfterControlStatement: false
+  BeforeElse: true
+  BeforeCatch: true
+
+# =========================
+# Control Statements (if / for / while)
+# =========================
+AllowShortIfStatementsOnASingleLine: true   # if (x) foo();
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+
+# =========================
+# For / While
+# =========================
+AllowShortBlocksOnASingleLine: Never
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# =========================
+# Increment style (++i)
+# =========================
+# clang-format은 ++i / i++를 강제하지 못함
+# → clang-tidy에서 처리 (아래 설명 참고)
+
+# =========================
+# Ternary Operator
+# =========================
+BreakBeforeTernaryOperators: false
+AlignOperands: true
+
+# =========================
+# Spacing
+# =========================
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceBeforeAssignmentOperators: true
+
+# =========================
+# Line length
+# =========================
+ColumnLimit: 100
+
+# =========================
+# Includes
+# =========================
+SortIncludes: true
+IncludeBlocks: Regroup
+
+# =========================
+# Misc
+# =========================
+PointerAlignment: Left
+ReferenceAlignment: Left
+Cpp11BracedListStyle: true

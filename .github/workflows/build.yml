@@ -1,0 +1,96 @@
+# This starter workflow is for a CMake project running on multiple platforms.
+name: build
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Debug]
+        c_compiler: [gcc, clang, cl]
+        include:
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    # Linux에서만 lcov 설치
+    - name: Install coverage tools (Linux only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt update
+        sudo apt install -y lcov
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        ${{ matrix.os == 'ubuntu-latest' && matrix.c_compiler == 'gcc' && '-DENABLE_COVERAGE=ON' || '' }}
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+    # 테스트 실행
+    - name: Test
+      run: cmake --build build --target windows-test
+
+    # 커버리지 생성 (Linux + gcc)
+    - name: Generate coverage
+      if: matrix.os == 'ubuntu-latest' && matrix.c_compiler == 'gcc'
+      run: |
+        lcov --capture \
+             --directory ${{ steps.strings.outputs.build-output-dir }} \
+             --output-file coverage.info \
+             --ignore-errors mismatch \
+             --rc geninfo_unexecuted_blocks=1
+
+        lcov --remove coverage.info \
+             '/usr/*' \
+             '*/_deps/*' \
+             '*/test/*' \
+             --output-file coverage.info
+
+        lcov --list coverage.info
+
+    # Codecov 업로드
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest'
+      uses: codecov/codecov-action@v5
+      with:
+        files: coverage.info
+        flags: unittests
+        name: linux-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}

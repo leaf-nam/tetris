@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "name": "x64-msvc",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "windows-msvc-x64"
+    },
+    {
+      "name": "x64-clang",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [
+        "windows-msvc-x64",
+        "clang_cl_x64_x64"
+      ],
+      "intelliSenseMode": "windows-clang-x64",
+      "variables": []
+    }
+  ]
+}
