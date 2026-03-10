@@ -3,19 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tetris WASM</title>
+  <title>TETRISSEN</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #070a10;
-      --panel: #111826;
-      --panel-border: #2b3548;
-      --text: #edf2ff;
-      --muted: #9aa7bd;
-      --accent: #1c2433;
+      --bg: #1b1e36;
+      --panel: #45496b;
+      --panel-text: #9ea5d6;
+      --border: #e6e6e6;
+      --cyan: #78d7ff;
+      --green: #5cff9d;
+      --purple: #bc8cff;
+      --amber: #ffbe55;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -23,61 +26,128 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background:
-        radial-gradient(circle at top, rgba(68, 89, 132, 0.22), transparent 36%),
-        linear-gradient(180deg, #0b1020 0%, var(--bg) 60%);
-      color: var(--text);
+      background: var(--bg);
+      color: white;
       font-family: Consolas, "Courier New", monospace;
     }
 
-    .shell {
+    .app {
+      width: min(1160px, 100vw);
+      min-height: 690px;
+      padding: 28px 34px 22px;
+      background: var(--bg);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 160px 1fr 160px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    .brand {
       display: flex;
-      flex-direction: column;
-      gap: 18px;
-      padding: 24px;
-      border: 1px solid var(--panel-border);
-      background: rgba(11, 16, 26, 0.92);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      justify-content: center;
+      align-items: end;
+      gap: 8px;
+      line-height: 1;
+    }
+
+    .logo {
+      font-size: 112px;
+      font-weight: 700;
+      letter-spacing: -0.12em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .logo span:nth-child(1) { color: #ffbd59; }
+    .logo span:nth-child(2) { color: #ff5a5a; }
+    .logo span:nth-child(3) { color: #f0e36c; }
+    .logo span:nth-child(4) { color: #57ea89; }
+    .logo span:nth-child(5) { color: #b38cff; }
+    .logo span:nth-child(6) { color: #57ea89; }
+    .logo span:nth-child(7) { color: #ea61bf; }
+    .logo span:nth-child(8) { color: #73c2df; }
+    .logo span:nth-child(9) { color: #57ea89; }
+
+    .version {
+      color: var(--amber);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .time-panel {
+      justify-self: end;
+      width: 120px;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 118px 220px 118px;
-      gap: 18px;
+      grid-template-columns: 122px 1fr 122px;
+      gap: 44px;
       align-items: start;
     }
 
-    .stack {
+    .side {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 24px;
+      padding-top: 28px;
     }
 
     .panel {
-      padding: 10px;
-      border: 1px solid var(--panel-border);
       background: var(--panel);
+      padding: 10px;
     }
 
-    .title {
-      margin-bottom: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      letter-spacing: 0.08em;
+    .panel-title {
+      font-size: 18px;
+      margin-bottom: 14px;
+      letter-spacing: 0.03em;
     }
+
+    .panel-title.hold { color: var(--green); }
+    .panel-title.score { color: var(--cyan); }
+    .panel-title.level { color: var(--cyan); }
+    .panel-title.time { color: var(--panel-text); }
+    .panel-title.next { color: var(--purple); }
 
     .stat-value {
-      font-size: 22px;
+      min-height: 34px;
       text-align: right;
-      min-height: 27px;
+      font-size: 30px;
+      color: var(--cyan);
+      font-weight: 700;
+      padding-right: 2px;
+    }
+
+    .time-value {
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(27, 30, 54, 0.45);
+      border: 1px solid rgba(230, 230, 230, 0.15);
+      font-size: 18px;
+      color: var(--panel-text);
+    }
+
+    .board-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: start;
+    }
+
+    .board-shell {
+      padding: 12px;
+      border: 12px solid var(--border);
+      background: transparent;
     }
 
     canvas {
       display: block;
-      width: 100%;
       image-rendering: pixelated;
-      border: 1px solid var(--panel-border);
-      background: #080b12;
+      background: #1b1e36;
     }
 
     #game {
@@ -85,125 +155,151 @@
       height: 440px;
     }
 
-    .preview {
-      width: 96px;
-      height: 96px;
+    #hold {
+      width: 102px;
+      height: 136px;
+    }
+
+    .score-panel,
+    .level-panel {
+      width: 122px;
+      min-height: 92px;
+    }
+
+    .hold-panel {
+      width: 122px;
+      min-height: 136px;
+    }
+
+    .next-panel {
+      width: 122px;
+      min-height: 390px;
+    }
+
+    .next-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .next-preview {
+      width: 82px;
+      height: 92px;
     }
 
     .controls {
+      margin-top: 18px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 10px;
+      justify-content: center;
+      gap: 12px;
     }
 
     button {
-      padding: 9px 14px;
-      border: 1px solid #41506b;
-      background: var(--accent);
-      color: var(--text);
-      cursor: pointer;
+      padding: 8px 14px;
+      border: 1px solid #69719f;
+      background: #2b3150;
+      color: white;
       font: inherit;
+      cursor: pointer;
     }
 
     button:hover {
-      background: #253149;
+      background: #374064;
     }
 
-    .help {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 760px) {
-      body {
-        align-items: start;
+    @media (max-width: 980px) {
+      .app {
+        min-height: 100vh;
+        padding: 20px;
       }
 
-      .shell {
-        width: 100%;
-        min-height: 100vh;
+      .topbar {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        justify-items: center;
+      }
+
+      .time-panel {
+        justify-self: center;
       }
 
       .layout {
         grid-template-columns: 1fr;
-        justify-items: center;
+        gap: 22px;
       }
 
-      .stack {
-        width: 100%;
-        max-width: 320px;
+      .side {
+        padding-top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
-      .controls {
-        align-items: flex-start;
-        flex-direction: column;
+      .logo {
+        font-size: 72px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
+  <div class="app">
+    <div class="topbar">
+      <div></div>
+
+      <div class="brand">
+        <div class="logo" aria-label="TETRISSEN">
+          <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span><span>S</span><span>E</span><span>N</span>
+        </div>
+        <div class="version">v1</div>
+      </div>
+
+      <div class="panel time-panel">
+        <div class="panel-title time">[TIME]</div>
+        <div id="timer" class="time-value">00:00</div>
+      </div>
+    </div>
+
     <div class="layout">
-      <div class="stack">
-        <div class="panel">
-          <div class="title">[HOLD]</div>
-          <canvas id="hold" class="preview" width="96" height="96"></canvas>
+      <div class="side">
+        <div class="panel hold-panel">
+          <div class="panel-title hold">[HOLD]</div>
+          <canvas id="hold" width="102" height="136"></canvas>
         </div>
 
-        <div class="panel">
-          <div class="title">[SCORE]</div>
+        <div class="panel score-panel">
+          <div class="panel-title score">[SCORE]</div>
           <div id="score" class="stat-value">0</div>
         </div>
 
-        <div class="panel">
-          <div class="title">[LV]</div>
+        <div class="panel level-panel">
+          <div class="panel-title level">[LV]</div>
           <div id="level" class="stat-value">1</div>
         </div>
       </div>
 
-      <div class="panel">
-        <canvas id="game" width="220" height="440"></canvas>
+      <div class="board-wrap">
+        <div class="board-shell">
+          <canvas id="game" width="220" height="440"></canvas>
+        </div>
       </div>
 
-      <div class="stack">
-        <div class="panel">
-          <div class="title">[TIME]</div>
-          <div id="timer" class="stat-value">00:00</div>
-        </div>
-
-        <div class="panel">
-          <div class="title">[NEXT]</div>
-          <div class="stack">
-            <canvas id="next0" class="preview" width="96" height="96"></canvas>
-            <canvas id="next1" class="preview" width="96" height="96"></canvas>
-            <canvas id="next2" class="preview" width="96" height="96"></canvas>
+      <div class="side">
+        <div class="panel next-panel">
+          <div class="panel-title next">[NEXT]</div>
+          <div class="next-stack">
+            <canvas id="next0" class="next-preview" width="82" height="92"></canvas>
+            <canvas id="next1" class="next-preview" width="82" height="92"></canvas>
+            <canvas id="next2" class="next-preview" width="82" height="92"></canvas>
           </div>
         </div>
       </div>
     </div>
 
     <div class="controls">
-      <div class="buttons">
-        <button id="btnStart">Start</button>
-        <button id="btnReset">Reset</button>
-      </div>
-
-      <div class="help">
-        A/D: Move Left/Right<br />
-        S: Soft Drop<br />
-        E/Q: Rotate<br />
-        F or Space: Hard Drop<br />
-        W: Hold
-      </div>
+      <button id="btnStart">Start</button>
+      <button id="btnReset">Reset</button>
     </div>
   </div>
 
