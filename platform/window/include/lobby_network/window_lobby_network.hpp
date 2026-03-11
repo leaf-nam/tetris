@@ -30,7 +30,7 @@ class WindowLobbyNetwork : public ILobbyNetwork
     WindowLobbyNetwork();
     void find_broadcast_ip(char* broadcast_ip) override;
     // user_data
-    void send_udp(const char* id, int is_enter, int is_chat, const char* comment,
+    void send_udp(const char* id, int is_enter, int is_out, int is_chat, const char* comment,
                   const char* send_ip) override;
     bool recv_udp(user_data& ud, char* ip) override;
     // room_data

@@ -2,7 +2,7 @@
 #define __LOBBY_PACKET_HPP__
 
 #include <cstdint>
-#define USER_DATA_SIZE (4 + 13 + 4 + 101)
+#define USER_DATA_SIZE (4 + 13 + 4 + 4 + 101)
 #define ROOM_DATA_SIZE (4 + 69 + 9 + 4 + 9 + 101)
 #define IDSIZE 9
 #define MAXUSER 4
@@ -16,7 +16,8 @@ typedef struct _user_data
 {
     int32_t magic;
     char id[IDSIZE];
-    int32_t is_enter; // true == enter, false == out
+    int32_t is_enter;
+    int32_t is_out;
     int32_t is_chat;
     char comment[COMMENTSIZE];
 } user_data;

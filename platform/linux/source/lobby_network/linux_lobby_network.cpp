@@ -122,6 +122,7 @@ void LinuxLobbyNetwork::serialize(uint8_t* buf, const user_data& pkt)
     write_32b(p, pkt.magic);
     write_bytes(p, pkt.id, 9);
     write_32b(p, pkt.is_enter);
+    write_32b(p, pkt.is_out);
     write_32b(p, pkt.is_chat);
     write_bytes(p, pkt.comment, 101);
 }
@@ -134,6 +135,7 @@ void LinuxLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
     read_bytes(p, pkt.id, 9);
     pkt.id[8] = '\0';
     pkt.is_enter = read_32b(p);
+    pkt.is_out = read_32b(p);
     pkt.is_chat = read_32b(p);
     read_bytes(p, pkt.comment, 101);
 }
@@ -184,7 +186,7 @@ void LinuxLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
     read_bytes(p, pkt.comment, 101);
 }
 
-void LinuxLobbyNetwork::send_udp(const char* id, int is_enter, int is_chat, const char* comment,
+void LinuxLobbyNetwork::send_udp(const char* id, int is_enter, int is_out, int is_chat, const char* comment,
                                  const char* send_ip)
 {
     sockaddr_in addr{};
@@ -201,6 +203,7 @@ void LinuxLobbyNetwork::send_udp(const char* id, int is_enter, int is_chat, cons
     data.magic = USER_DATA_MAGIC;
     snprintf(data.id, sizeof(data.id), "%s", id);
     data.is_enter = is_enter;
+    data.is_out = is_out;
     data.is_chat = is_chat;
     snprintf(data.comment, sizeof(data.comment), "%s", comment);
     serialize(buf, data);

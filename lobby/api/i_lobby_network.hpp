@@ -14,7 +14,7 @@ class ILobbyNetwork
   public:
     virtual void find_broadcast_ip(char* broadcast_ip) = 0;
     // user_data
-    virtual void send_udp(const char* id, int is_enter, int is_chat, const char* comment,
+    virtual void send_udp(const char* id, int is_enter, int is_out, int is_chat, const char* comment,
                           const char* send_ip) = 0;
     virtual bool recv_udp(user_data& ud, char* ip) = 0;
     // room_data

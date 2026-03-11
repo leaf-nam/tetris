@@ -192,14 +192,14 @@ bool Lobby::waiting_client()
             network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name,
                               client_ip_address.size(), 1, 0, 0, 0, 0, 0, "NULL", comment,
                               broadcast_ip);
-        else {
+        else if (received_data.is_enter == true || received_data.is_out == true) {
             if (received_data.is_enter == true) {
                 client_ip_address[std::string(received_data.id)] = std::string(ip);
                 client_ip_address_for_send.clear();
                 client_ip_address_for_send = client_ip_address;
                 snprintf(system_comment, COMMENTSIZE, "%s ENTER", received_data.id);
             }
-            else {
+            else if (received_data.is_out == true) {
                 client_ip_address_for_send.clear();
                 client_ip_address_for_send = client_ip_address;
                 client_ip_address.erase(std::string(received_data.id));
@@ -268,11 +268,11 @@ bool Lobby::enter_lobby()
         }
         else if (in == Key::ESC) {
             if (is_in_room)
-                network->send_udp(setting->nick_name.c_str(), false, false, comment, selected_server_ip_address);
+                network->send_udp(setting->nick_name.c_str(), false, true, false, comment, selected_server_ip_address);
             else
                 return false;
         } else if (is_in_room == false && in == Key::SPACE) {
-            network->send_udp(setting->nick_name.c_str(), true, false, comment, rooms[selecting_idx].second.c_str());
+            network->send_udp(setting->nick_name.c_str(), true, false, false, comment, rooms[selecting_idx].second.c_str());
         }
         else if (in == Key::SLASH && is_in_room) {
             if (is_input_mode == false) {
@@ -280,7 +280,7 @@ bool Lobby::enter_lobby()
             }
             else {
                 comment[comment_index] = '\0';
-                network->send_udp(setting->nick_name.c_str(), false, true, comment,
+                network->send_udp(setting->nick_name.c_str(), false, false, true, comment,
                                   selected_server_ip_address);
                 comment_index = 0;
                 comment[comment_index] = '\0';
