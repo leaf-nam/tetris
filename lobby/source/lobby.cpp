@@ -112,10 +112,14 @@ bool Lobby::waiting_client()
     char comment[COMMENTSIZE];
 
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
+    comment[comment_index] = '\0';
     client_ip_address.clear();
     server_ip_address.clear();
     network->find_broadcast_ip(broadcast_ip);
     render->render_room(room_name, setting->nick_name, true);
+    render->render_room_clients(client_ip_address);
+    render->render_current_chat();
+    render->render_my_chat(comment, setting->nick_name);
 
     base_time = std::chrono::steady_clock::now();
     while (true) {
@@ -146,7 +150,11 @@ bool Lobby::waiting_client()
                                         client_ip_address);
                 comment_index = 0;
                 comment[comment_index] = '\0';
-                //render->render_my_chat(comment, setting->nick_name.c_str());
+                render->render_clear();
+                render->render_room(room_name, setting->nick_name, true);
+                render->render_room_clients(client_ip_address);
+                render->render_current_chat();
+                render->render_my_chat(comment, setting->nick_name);
                 is_input_mode = false;
             }
         }
@@ -159,7 +167,11 @@ bool Lobby::waiting_client()
                     comment_index < COMMENTSIZE - 1 ? comment_index + 1 : COMMENTSIZE - 1;
             }
             comment[comment_index] = '\0';
-            // render->render_my_chat(comment, setting->nick_name.c_str());
+            render->render_clear();
+            render->render_room(room_name, setting->nick_name, true);
+            render->render_room_clients(client_ip_address);
+            render->render_current_chat();
+            render->render_my_chat(comment, setting->nick_name);
         }
 
         if (std::chrono::steady_clock::now() - base_time >= std::chrono::milliseconds(5000)) {
@@ -181,7 +193,11 @@ bool Lobby::waiting_client()
                               comment, broadcast_ip);
         else if (received_data.is_chat == true &&
             client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()){
-            //render->render_other_user_chat(received_data.comment, received_data.id);
+            render->render_clear();
+            render->render_room(room_name, setting->nick_name, true);
+            render->render_room_clients(client_ip_address);
+            render->render_other_user_chat(received_data.comment, received_data.id);
+            render->render_my_chat(comment, setting->nick_name);
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name,
                                     client_ip_address.size(), 0, 0, 0, 0, 0, 1,
                                     received_data.id, received_data.comment, client_ip_address);
@@ -200,6 +216,8 @@ bool Lobby::waiting_client()
             render->render_clear();
             render->render_room(room_name, setting->nick_name, true);
             render->render_room_clients(client_ip_address);
+            render->render_current_chat();
+            render->render_my_chat(comment, setting->nick_name);
             index = client_ip_address.size();
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 0, 0, 1, 0, 0,
                                     "NULL", comment, client_ip_address_for_send);
@@ -217,7 +235,7 @@ bool Lobby::enter_lobby()
     char s[BUF_SIZE];
     char room_ip[16];
     int selecting_idx = 0;
-    char comment[101];
+    char comment[101], room_name[ROOMNAMESIZE], room_master_id[IDSIZE];
     std::vector<std::pair<std::string, std::string>> rooms;
 
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
@@ -261,6 +279,10 @@ bool Lobby::enter_lobby()
                                   selected_server_ip_address);
                 comment_index = 0;
                 comment[comment_index] = '\0';
+                render->render_clear();
+                render->render_current_chat();
+                render->render_room(room_name, std::string(room_master_id), false);
+                render->render_room_clients(client_ip_address);
                 render->render_my_chat(comment, setting->nick_name);
                 is_input_mode = false;
             }
@@ -326,8 +348,12 @@ bool Lobby::enter_lobby()
             }
             if (is_in_room == true) {
                 render->render_clear();
+                snprintf(room_name, ROOMNAMESIZE, "%s", received_data.room_name);
+                snprintf(room_master_id, IDSIZE, "%s", received_data.room_master_id);
                 render->render_room(received_data.room_name, std::string(received_data.room_master_id), false);
                 render->render_room_clients(client_ip_address);
+                render->render_current_chat();
+                render->render_my_chat(comment, setting->nick_name);
             } else {
                 render->render_clear();
                 render->render_lobby();

@@ -143,18 +143,20 @@ void WindowLobbyRenderer::render_clear() { platform_renderer->clear(); }
 
 void WindowLobbyRenderer::render_my_chat(const char* comment, const std::string& id)
 {
+    int x = 80, y = 28;
     int id_size = strlen(id.c_str());
     int comment_size = strlen(comment);
 
-    render_small_text(27, 30, "[", Color::CYAN);
-    render_small_text(28, 30, id.c_str(), Color::CYAN);
-    render_small_text(28 + id_size, 30, "] : ", Color::CYAN);
-    render_small_text(28 + id_size + 4, 30, comment, Color::CYAN);
-    render_small_text(27, 31, "/키로 작성 시작, 그 후 /키로 전송, \\키로 지우기", Color::CYAN);
+    render_small_text(x, y, "[", Color::CYAN);
+    render_small_text(x + 1, y, id.c_str(), Color::CYAN);
+    render_small_text(x + 1 + id_size, y, "] : ", Color::CYAN);
+    render_small_text(x + 1 + id_size + 4, y, comment, Color::CYAN);
+    render_small_text(x, y + 1, "Write: /, and send: /, delete: \\", Color::CYAN);
 }
 
 void WindowLobbyRenderer::render_other_user_chat(const char* comment, const std::string& id)
 {
+    int x = 80, y = 17;
     int id_size;
     int i = 0;
 
@@ -176,11 +178,25 @@ void WindowLobbyRenderer::render_other_user_chat(const char* comment, const std:
     else
         snprintf(comment_user_list[comment_user_list_index++], COMMENTSIZE, "%s", id.c_str());
 
+    for (i = 0; i < comment_list_index; ++i) {
+        id_size = sizeof(comment_user_list[i]);
+        render_small_text(x, y + i, "[", Color::CYAN);
+        render_small_text(x + 1, y + i, comment_user_list[i], Color::CYAN);
+        render_small_text(x + 1 + id_size, y + i, "] : ", Color::CYAN);
+        render_small_text(x + 1 + id_size + 4, y + i, comment_list[i], Color::CYAN);
+    }
+}
+
+void WindowLobbyRenderer::render_current_chat()
+{
+    int x = 80, y = 17;
+    int id_size;
+
     for (int i = 0; i < comment_list_index; ++i) {
         id_size = sizeof(comment_user_list[i]);
-        render_small_text(27, 20 + i, "[", Color::CYAN);
-        render_small_text(28, 20 + i, comment_user_list[i], Color::CYAN);
-        render_small_text(28 + id_size, 20 + i, "] : ", Color::CYAN);
-        render_small_text(28 + id_size + 4, 20 + i, comment_list[i], Color::CYAN);
+        render_small_text(x, y + i, "[", Color::CYAN);
+        render_small_text(x + 1, y + i, comment_user_list[i], Color::CYAN);
+        render_small_text(x + 1 + id_size, y + i, "] : ", Color::CYAN);
+        render_small_text(x + 1 + id_size + 4, y + i, comment_list[i], Color::CYAN);
     }
 }
