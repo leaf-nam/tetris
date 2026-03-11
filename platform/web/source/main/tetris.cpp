@@ -1,11 +1,19 @@
+#include "app_state.hpp"
 #include "engine/solo_engine.hpp"
 #include "i_input_handler.hpp"
+#include "i_lobby_input_handler.hpp"
+#include "i_lobby_renderer.hpp"
 #include "i_renderer.hpp"
+#include "lobby.hpp"
+#include "lobby_network/web_lobby_network.hpp"
 #include "setting.hpp"
 #include "setting_storage.hpp"
 
 #include <emscripten/emscripten.h>
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 EM_JS(void, js_render_background, (), { Module.webRenderer?.render_background(); });
 EM_JS(void, js_render_timer, (int sec), { Module.webRenderer?.render_timer(sec); });
@@ -16,6 +24,65 @@ EM_JS(void, js_render_game_over, (), { Module.webRenderer?.render_game_over(); }
 EM_JS(void, js_render_board_from_heap, (), { Module.webRenderer?.render_board_from_heap(); });
 EM_JS(void, js_render_hold_from_heap, (), { Module.webRenderer?.render_hold_from_heap(); });
 EM_JS(void, js_render_next_from_heap, (), { Module.webRenderer?.render_next_from_heap(); });
+
+EM_JS(void, js_lobby_begin, (), { Module.webLobbyUi?.begin(); });
+EM_JS(void, js_lobby_finish, (int state), { Module.webLobbyUi?.finish(state); });
+EM_JS(void, js_lobby_render_set_nickname, (const char* nickname), {
+    Module.webLobbyUi?.renderSetNickname(UTF8ToString(nickname));
+});
+EM_JS(void, js_lobby_render_entrance, (), { Module.webLobbyUi?.renderEntrance(); });
+EM_JS(void, js_lobby_render_entrance_choice, (int entrance), {
+    Module.webLobbyUi?.renderEntranceChoice(entrance);
+});
+EM_JS(void, js_lobby_render_create_room, (), { Module.webLobbyUi?.renderCreateRoom(); });
+EM_JS(void, js_lobby_render_room, (const char* room_name, const char* host_name, int is_server), {
+    Module.webLobbyUi?.renderRoom(UTF8ToString(room_name), UTF8ToString(host_name), is_server !== 0);
+});
+EM_JS(void, js_lobby_render_room_clients, (const char* clients), {
+    Module.webLobbyUi?.renderRoomClients(UTF8ToString(clients));
+});
+EM_JS(void, js_lobby_render_lobby, (), { Module.webLobbyUi?.renderLobby(); });
+EM_JS(void, js_lobby_render_lobby_rooms, (const char* rooms, int selected), {
+    Module.webLobbyUi?.renderLobbyRooms(UTF8ToString(rooms), selected);
+});
+EM_JS(void, js_lobby_render_user_id_input, (), { Module.webLobbyUi?.renderUserIdInput(); });
+EM_JS(void, js_lobby_render_clear, (), { Module.webLobbyUi?.renderClear(); });
+
+EM_ASYNC_JS(int, js_lobby_scan_key, (), {
+    await new Promise((resolve) => setTimeout(resolve, 16));
+    return Module.webLobbyUi ? (Module.webLobbyUi.consumeKey() | 0) : 0;
+});
+EM_ASYNC_JS(int, js_lobby_scan_text, (char* buf_ptr, int buf_len, int is_blocking), {
+    while (true) {
+        const ui = Module.webLobbyUi;
+        const value = ui ? ui.consumeText() : "";
+        if (value) {
+            stringToUTF8(String(value).slice(0, Math.max(0, buf_len - 1)), buf_ptr, buf_len);
+            return 1;
+        }
+        if (!is_blocking) {
+            return 0;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 16));
+    }
+});
+EM_ASYNC_JS(int, js_lobby_scan_int, (int* buf_ptr, int is_blocking), {
+    while (true) {
+        const ui = Module.webLobbyUi;
+        const value = ui ? ui.consumeText() : "";
+        if (value) {
+            const parsed = Number.parseInt(value, 10);
+            if (!Number.isNaN(parsed)) {
+                Module.HEAP32[buf_ptr >> 2] = parsed | 0;
+                return 1;
+            }
+        }
+        if (!is_blocking) {
+            return 0;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 16));
+    }
+});
 
 namespace {
 constexpr bool kIsServer = false;
@@ -72,6 +139,38 @@ void export_tetromino_preview(const Tetromino& tetromino, int* shape_buffer, int
 
     export_shape(tetromino.get_shape(), shape_buffer);
 }
+
+void ensure_setting_loaded()
+{
+    if (g_setting != nullptr) return;
+
+    SettingStorage& storage = SettingStorage::getInstance();
+    storage.initialize("settings.txt");
+    g_setting = std::make_unique<Setting>(storage.load());
+}
+
+std::string join_client_ids(std::unordered_map<std::string, std::string>& clients)
+{
+    std::string result;
+    for (const auto& [id, ip] : clients) {
+        (void)ip;
+        if (!result.empty()) result.push_back('\n');
+        result.append(id);
+    }
+    return result;
+}
+
+std::string join_rooms(std::vector<std::pair<std::string, std::string>>& rooms)
+{
+    std::string result;
+    for (const auto& [room_name, ip] : rooms) {
+        if (!result.empty()) result.push_back('\n');
+        result.append(room_name);
+        result.push_back('|');
+        result.append(ip);
+    }
+    return result;
+}
 } // namespace
 
 static void frame();
@@ -92,6 +191,21 @@ class WebInput final : public IInputHandler {
         const int key = g_last_key;
         g_last_key = 0;
         return key;
+    }
+};
+
+class WebLobbyInputHandler final : public ILobbyInputHandler {
+  public:
+    int scan() override { return js_lobby_scan_key(); }
+
+    int scan(char* buf, int buf_len, int is_blocking) override
+    {
+        return js_lobby_scan_text(buf, buf_len, is_blocking);
+    }
+
+    int scan(int* buf, int is_blocking) override
+    {
+        return js_lobby_scan_int(buf, is_blocking);
     }
 };
 
@@ -158,6 +272,45 @@ class WebRenderer final : public IRenderer {
     void render_clear() override { js_render_clear(); }
 };
 
+class WebLobbyRenderer final : public ILobbyRenderer {
+  public:
+    void render_set_nickname(const std::string& nickname) override
+    {
+        js_lobby_render_set_nickname(nickname.c_str());
+    }
+
+    void render_entrance() override { js_lobby_render_entrance(); }
+
+    void render_entrance_choice(Entrance entrance) override
+    {
+        js_lobby_render_entrance_choice(static_cast<int>(entrance));
+    }
+
+    void render_create_room() override { js_lobby_render_create_room(); }
+
+    void render_room(const std::string& room_name, const std::string& host_name, bool is_server) override
+    {
+        js_lobby_render_room(room_name.c_str(), host_name.c_str(), is_server ? 1 : 0);
+    }
+
+    void render_room_clients(std::unordered_map<std::string, std::string>& clients) override
+    {
+        const std::string joined = join_client_ids(clients);
+        js_lobby_render_room_clients(joined.c_str());
+    }
+
+    void render_lobby() override { js_lobby_render_lobby(); }
+
+    void render_lobby_rooms(std::vector<std::pair<std::string, std::string>>& rooms, int selected) override
+    {
+        const std::string joined = join_rooms(rooms);
+        js_lobby_render_lobby_rooms(joined.c_str(), selected);
+    }
+
+    void render_user_id_input() override { js_lobby_render_user_id_input(); }
+    void render_clear() override { js_lobby_render_clear(); }
+};
+
 static void pause_loop()
 {
     if (!g_loop_initialized || !g_loop_running) return;
@@ -189,16 +342,12 @@ static void destroy_game()
     }
     g_input.reset();
     g_renderer.reset();
-    g_setting.reset();
 }
 
 static void init_game()
 {
     destroy_game();
-
-    SettingStorage& storage = SettingStorage::getInstance();
-    storage.initialize("settings.txt");
-    g_setting = std::make_unique<Setting>(storage.load());
+    ensure_setting_loaded();
 
     g_input = std::make_unique<WebInput>();
     g_renderer = std::make_unique<WebRenderer>();
@@ -226,6 +375,23 @@ extern "C" EMSCRIPTEN_KEEPALIVE void game_reset()
 {
     init_game();
     ensure_loop_started();
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE void game_pause() { pause_loop(); }
+
+extern "C" EMSCRIPTEN_KEEPALIVE int web_run_lobby()
+{
+    ensure_setting_loaded();
+    js_lobby_begin();
+
+    WebLobbyNetwork network;
+    WebLobbyRenderer renderer;
+    WebLobbyInputHandler input;
+    Lobby lobby(g_setting.get(), &network, &renderer, &input);
+
+    const AppState result = lobby.start();
+    js_lobby_finish(static_cast<int>(result));
+    return static_cast<int>(result);
 }
 
 int main()

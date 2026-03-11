@@ -6,6 +6,14 @@ const BOARD_CELL = 22;
 const PREVIEW_CELL = 18;
 const PREVIEW_SIZE = 4;
 const NEXT_COUNT = 3;
+const TAP_MAX_DURATION_MS = 220;
+const TAP_MAX_DISTANCE_PX = 18;
+const HOLD_DELAY_MS = 170;
+const SWIPE_DISTANCE_PX = 54;
+const HARD_DROP_SWIPE_PX = 92;
+const HARD_DROP_MAX_DURATION_MS = 220;
+const DRAG_STEP_PX = 26;
+const SOFT_DROP_STEP_PX = 18;
 
 const COLORS = [
   "#00BCD4",
@@ -315,19 +323,220 @@ function mapKeyToEngine(code) {
   }
 }
 
-export function attachRendererToModule(Module) {
-  Module.webRenderer = new WebRenderer(Module);
-  Module.webRenderer.render_background();
+function sendEngineKey(Module, key) {
+  if (!Module.ccall) {
+    return;
+  }
 
+  Module.ccall("web_set_key", null, ["number"], [key]);
+}
+
+function sendEngineChar(Module, char) {
+  sendEngineKey(Module, char.charCodeAt(0));
+}
+
+function findTouchById(touchList, identifier) {
+  for (const touch of touchList) {
+    if (touch.identifier === identifier) {
+      return touch;
+    }
+  }
+  return null;
+}
+
+function shouldCaptureGameInput(Module) {
+  if (typeof Module.shouldCaptureGameInput === "function") {
+    return Module.shouldCaptureGameInput() === true;
+  }
+
+  const gameScreen = document.getElementById("gameScreen");
+  return !gameScreen || gameScreen.classList.contains("active");
+}
+
+function isTypingTarget(target) {
+  if (!target) {
+    return false;
+  }
+
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable;
+}
+
+function attachKeyboardControls(Module) {
   window.addEventListener("keydown", (event) => {
+    if (!shouldCaptureGameInput(Module) || isTypingTarget(event.target)) {
+      return;
+    }
+
     const key = mapKeyToEngine(event.code);
     if (key === 0) {
       return;
     }
 
     event.preventDefault();
-    if (Module.ccall) {
-      Module.ccall("web_set_key", null, ["number"], [key]);
-    }
+    sendEngineKey(Module, key);
   });
 }
+
+function attachTouchControls(Module) {
+  const surface = Module.webRenderer.boardCanvas;
+  let touchState = null;
+
+  const clearHoldTimer = () => {
+    if (touchState?.holdTimer) {
+      window.clearTimeout(touchState.holdTimer);
+      touchState.holdTimer = 0;
+    }
+  };
+
+  const resetTouchState = () => {
+    clearHoldTimer();
+    touchState = null;
+  };
+
+  surface.addEventListener("touchstart", (event) => {
+    if (!shouldCaptureGameInput(Module) || touchState || event.changedTouches.length === 0) {
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    event.preventDefault();
+
+    touchState = {
+      identifier: touch.identifier,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      currentX: touch.clientX,
+      currentY: touch.clientY,
+      dragAnchorX: touch.clientX,
+      softDropAnchorY: touch.clientY,
+      startTime: performance.now(),
+      holdMode: false,
+      consumed: false,
+      holdTimer: 0
+    };
+
+    touchState.holdTimer = window.setTimeout(() => {
+      if (!touchState || touchState.consumed) {
+        return;
+      }
+
+      const dx = touchState.currentX - touchState.startX;
+      const dy = touchState.currentY - touchState.startY;
+      const distance = Math.hypot(dx, dy);
+      if (distance <= TAP_MAX_DISTANCE_PX) {
+        touchState.holdMode = true;
+        touchState.dragAnchorX = touchState.currentX;
+        touchState.softDropAnchorY = touchState.currentY;
+      }
+    }, HOLD_DELAY_MS);
+  }, { passive: false });
+
+  surface.addEventListener("touchmove", (event) => {
+    if (!touchState) {
+      return;
+    }
+
+    const touch = findTouchById(event.touches, touchState.identifier)
+      ?? findTouchById(event.changedTouches, touchState.identifier);
+    if (!touch) {
+      return;
+    }
+
+    event.preventDefault();
+    touchState.currentX = touch.clientX;
+    touchState.currentY = touch.clientY;
+
+    const dx = touchState.currentX - touchState.startX;
+    const dy = touchState.currentY - touchState.startY;
+    const elapsed = performance.now() - touchState.startTime;
+    const isMostlyVertical = Math.abs(dy) > Math.abs(dx) * 1.15;
+
+    if (!touchState.holdMode) {
+      if (dy <= -SWIPE_DISTANCE_PX && isMostlyVertical) {
+        touchState.consumed = true;
+        sendEngineChar(Module, "w");
+        resetTouchState();
+        return;
+      }
+
+      if (dy >= HARD_DROP_SWIPE_PX && isMostlyVertical && elapsed <= HARD_DROP_MAX_DURATION_MS) {
+        touchState.consumed = true;
+        sendEngineChar(Module, "f");
+        resetTouchState();
+        return;
+      }
+
+      while (dy >= SOFT_DROP_STEP_PX && touchState.currentY - touchState.softDropAnchorY >= SOFT_DROP_STEP_PX) {
+        clearHoldTimer();
+        sendEngineChar(Module, "s");
+        touchState.softDropAnchorY += SOFT_DROP_STEP_PX;
+      }
+
+      if (Math.hypot(dx, dy) > TAP_MAX_DISTANCE_PX) {
+        clearHoldTimer();
+      }
+      return;
+    }
+
+    while (touchState.currentX - touchState.dragAnchorX >= DRAG_STEP_PX) {
+      sendEngineChar(Module, "d");
+      touchState.dragAnchorX += DRAG_STEP_PX;
+    }
+
+    while (touchState.currentX - touchState.dragAnchorX <= -DRAG_STEP_PX) {
+      sendEngineChar(Module, "a");
+      touchState.dragAnchorX -= DRAG_STEP_PX;
+    }
+
+    while (touchState.currentY - touchState.softDropAnchorY >= SOFT_DROP_STEP_PX) {
+      sendEngineChar(Module, "s");
+      touchState.softDropAnchorY += SOFT_DROP_STEP_PX;
+    }
+  }, { passive: false });
+
+  const finishTouch = (event) => {
+    if (!touchState) {
+      return;
+    }
+
+    const touch = findTouchById(event.changedTouches, touchState.identifier);
+    if (!touch) {
+      return;
+    }
+
+    event.preventDefault();
+    clearHoldTimer();
+
+    if (!touchState.consumed) {
+      const dx = touch.clientX - touchState.startX;
+      const dy = touch.clientY - touchState.startY;
+      const duration = performance.now() - touchState.startTime;
+      const distance = Math.hypot(dx, dy);
+
+      if (!touchState.holdMode && duration <= TAP_MAX_DURATION_MS && distance <= TAP_MAX_DISTANCE_PX) {
+        sendEngineChar(Module, "e");
+      }
+    }
+
+    touchState = null;
+  };
+
+  surface.addEventListener("touchend", finishTouch, { passive: false });
+  surface.addEventListener("touchcancel", (event) => {
+    if (touchState) {
+      event.preventDefault();
+    }
+    resetTouchState();
+  }, { passive: false });
+}
+
+export function attachRendererToModule(Module) {
+  Module.webRenderer = new WebRenderer(Module);
+  Module.webRenderer.render_background();
+
+  attachKeyboardControls(Module);
+  attachTouchControls(Module);
+}
+
+

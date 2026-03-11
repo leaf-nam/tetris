@@ -46,8 +46,10 @@ settings.txt
 tags
 
 # cmake build folder
-build
-out
+/build/
+/build_wasm/
+/out/
+CMakeUserPresets.json
 *.cmake
 CMakeCache.txt
 Makefile
@@ -60,9 +62,7 @@ compile_commands.json
 _deps
 llvm.sh
 
-
 # vs
-build_wasm
 .vs
 .vscode
 

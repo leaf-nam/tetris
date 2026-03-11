@@ -14,6 +14,26 @@
       --green: #5cff9d;
       --purple: #bc8cff;
       --amber: #ffbe55;
+      --comment: #98a2dd;
+      --menu-active: #f0e36c;
+      --menu-idle: #95a0d7;
+      --app-pad-x: clamp(14px, 4vw, 34px);
+      --app-pad-y: clamp(16px, 4vw, 28px);
+      --panel-gap: clamp(16px, 3vw, 44px);
+      --side-width: clamp(104px, 16vw, 122px);
+      --board-width: min(220px, calc(100vw - 2 * var(--app-pad-x) - 2 * var(--side-width) - 2 * var(--panel-gap)));
+      --board-width: clamp(164px, var(--board-width), 248px);
+      --board-height: calc(var(--board-width) * 2);
+      --hold-width: clamp(86px, 14vw, 102px);
+      --hold-height: clamp(114px, 19vw, 136px);
+      --next-width: clamp(68px, 11vw, 82px);
+      --next-height: clamp(76px, 12vw, 92px);
+      --title-size: clamp(14px, 1.8vw, 18px);
+      --stat-size: clamp(22px, 3vw, 30px);
+      --logo-size: clamp(54px, 11vw, 124px);
+      --time-size: clamp(15px, 2vw, 18px);
+      --shell-border: clamp(8px, 1.6vw, 12px);
+      --shell-pad: clamp(8px, 1.8vw, 12px);
     }
 
     * {
@@ -29,37 +49,85 @@
       background: var(--bg);
       color: white;
       font-family: Consolas, "Courier New", monospace;
+      overflow-x: hidden;
     }
 
     .app {
       width: min(1160px, 100vw);
-      min-height: 690px;
-      padding: 28px 34px 22px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: var(--app-pad-y) var(--app-pad-x) 20px;
       background: var(--bg);
     }
 
-    .topbar {
-      display: grid;
-      grid-template-columns: 160px 1fr 160px;
-      align-items: start;
-      margin-bottom: 22px;
+    .screen {
+      display: none;
+      width: 100%;
     }
 
-    .brand {
+    .screen.active {
+      display: block;
+    }
+
+    .menu-screen,
+    .lobby-screen {
+      min-height: calc(100vh - 2 * var(--app-pad-y));
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-screen.active,
+    .lobby-screen.active {
+      display: flex;
+    }
+
+    .menu-inner,
+    .lobby-inner {
+      width: min(760px, 100%);
+    }
+
+    .menu-header,
+    .lobby-header {
       display: flex;
       justify-content: center;
       align-items: end;
-      gap: 8px;
+      gap: 10px;
+      margin-bottom: clamp(48px, 10vw, 86px);
+    }
+
+    .menu-logo,
+    .lobby-logo,
+    .logo {
+      font-weight: 700;
+      text-transform: uppercase;
       line-height: 1;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .menu-logo,
+    .lobby-logo {
+      font-size: clamp(60px, 11vw, 118px);
+      letter-spacing: -0.12em;
     }
 
     .logo {
-      font-size: 112px;
-      font-weight: 700;
+      font-size: var(--logo-size);
       letter-spacing: -0.12em;
-      text-transform: uppercase;
-      user-select: none;
     }
+
+    .rainbow span:nth-child(1) { color: #ff78d7; }
+    .rainbow span:nth-child(2) { color: #57ea89; }
+    .rainbow span:nth-child(3) { color: #ff78d7; }
+    .rainbow span:nth-child(4) { color: #57ea89; }
+    .rainbow span:nth-child(5) { color: #73c2df; }
+    .rainbow span:nth-child(6) { color: #ffbd59; }
+    .rainbow span:nth-child(7) { color: #ea61bf; }
+    .rainbow span:nth-child(8) { color: #ffbd59; }
+    .rainbow span:nth-child(9) { color: #73c2df; }
 
     .logo span:nth-child(1) { color: #ffbd59; }
     .logo span:nth-child(2) { color: #ff5a5a; }
@@ -71,40 +139,141 @@
     .logo span:nth-child(8) { color: #73c2df; }
     .logo span:nth-child(9) { color: #57ea89; }
 
+    .menu-version,
+    .lobby-version,
     .version {
       color: var(--amber);
-      font-size: 20px;
       font-weight: 700;
-      margin-bottom: 16px;
+      white-space: nowrap;
+    }
+
+    .menu-version,
+    .lobby-version {
+      font-size: clamp(16px, 2vw, 22px);
+      margin-bottom: 10px;
+    }
+
+    .version {
+      font-size: clamp(14px, 2vw, 20px);
+      margin-bottom: clamp(6px, 1.4vw, 16px);
+    }
+
+    .menu-options,
+    .entrance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: min(360px, 100%);
+      margin: 0 auto;
+    }
+
+    .menu-option {
+      border: 0;
+      background: transparent;
+      color: var(--menu-idle);
+      font: inherit;
+      font-size: clamp(22px, 3vw, 40px);
+      text-align: left;
+      padding: 0;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+
+    .menu-option.active,
+    .menu-option:hover,
+    .menu-option:focus-visible {
+      color: var(--menu-active);
+      outline: none;
+    }
+
+    .menu-option.active::before {
+      content: "> ";
+    }
+
+    .lobby-card {
+      width: min(620px, 100%);
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 28px);
+      background: rgba(69, 73, 107, 0.72);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .lobby-copy {
+      color: var(--comment);
+      font-size: clamp(14px, 1.8vw, 18px);
+      line-height: 1.7;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .lobby-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ghost-btn,
+    button {
+      padding: 8px 14px;
+      border: 1px solid #69719f;
+      background: #2b3150;
+      color: white;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .ghost-btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: var(--side-width) 1fr var(--side-width);
+      align-items: center;
+      gap: 12px;
+      margin-bottom: clamp(16px, 3vw, 22px);
+    }
+
+    .brand {
+      display: flex;
+      justify-content: center;
+      align-items: end;
+      gap: clamp(4px, 1vw, 8px);
+      line-height: 1;
+      min-width: 0;
     }
 
     .time-panel {
       justify-self: end;
-      width: 120px;
+      width: min(100%, 120px);
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 122px 1fr 122px;
-      gap: 44px;
+      grid-template-columns: var(--side-width) minmax(0, 1fr) var(--side-width);
+      gap: var(--panel-gap);
       align-items: start;
     }
 
     .side {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      padding-top: 28px;
+      gap: clamp(14px, 2vw, 24px);
+      padding-top: clamp(0px, 3vw, 28px);
+      min-width: 0;
     }
 
     .panel {
       background: var(--panel);
-      padding: 10px;
+      padding: clamp(8px, 1.6vw, 10px);
+      min-width: 0;
     }
 
     .panel-title {
-      font-size: 18px;
-      margin-bottom: 14px;
+      font-size: var(--title-size);
+      margin-bottom: clamp(8px, 1.8vw, 14px);
       letter-spacing: 0.03em;
     }
 
@@ -117,7 +286,7 @@
     .stat-value {
       min-height: 34px;
       text-align: right;
-      font-size: 30px;
+      font-size: var(--stat-size);
       color: var(--cyan);
       font-weight: 700;
       padding-right: 2px;
@@ -128,7 +297,7 @@
       padding: 4px 8px;
       background: rgba(27, 30, 54, 0.45);
       border: 1px solid rgba(230, 230, 230, 0.15);
-      font-size: 18px;
+      font-size: var(--time-size);
       color: var(--panel-text);
     }
 
@@ -136,57 +305,66 @@
       display: flex;
       justify-content: center;
       align-items: start;
+      min-width: 0;
     }
 
     .board-shell {
-      padding: 12px;
-      border: 12px solid var(--border);
+      padding: var(--shell-pad);
+      border: var(--shell-border) solid var(--border);
       background: transparent;
+      touch-action: none;
+      max-width: 100%;
     }
 
     canvas {
       display: block;
       image-rendering: pixelated;
       background: #1b1e36;
+      max-width: 100%;
     }
 
     #game {
-      width: 220px;
-      height: 440px;
+      width: var(--board-width);
+      height: var(--board-height);
+      touch-action: none;
     }
 
     #hold {
-      width: 102px;
-      height: 136px;
+      width: var(--hold-width);
+      height: var(--hold-height);
+    }
+
+    .score-panel,
+    .level-panel,
+    .hold-panel,
+    .next-panel {
+      width: 100%;
     }
 
     .score-panel,
     .level-panel {
-      width: 122px;
-      min-height: 92px;
+      min-height: clamp(76px, 12vw, 92px);
     }
 
     .hold-panel {
-      width: 122px;
-      min-height: 136px;
+      min-height: clamp(120px, 20vw, 136px);
     }
 
     .next-panel {
-      width: 122px;
-      min-height: 390px;
+      min-height: clamp(290px, 42vw, 390px);
     }
 
     .next-stack {
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: clamp(14px, 2vw, 22px);
       align-items: center;
       padding-top: 4px;
     }
 
     .next-preview {
-      width: 82px;
-      height: 92px;
+      width: var(--next-width);
+      height: var(--next-height);
     }
 
     .controls {
@@ -194,113 +372,480 @@
       display: flex;
       justify-content: center;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
-    button {
-      padding: 8px 14px;
-      border: 1px solid #69719f;
-      background: #2b3150;
-      color: white;
-      font: inherit;
-      cursor: pointer;
+    .mobile-hint {
+      display: none;
+      margin-top: 14px;
+      text-align: center;
+      color: #c9cfff;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    button:hover {
+    button:hover,
+    .ghost-btn:hover:not([disabled]) {
       background: #374064;
     }
 
+
+    .lobby-flow {
+      width: min(720px, 100%);
+      margin: 0 auto;
+    }
+
+    .flow-pane {
+      display: none;
+    }
+
+    .flow-pane.active {
+      display: block;
+    }
+
+    .flow-title {
+      text-align: center;
+      font-size: clamp(52px, 10vw, 112px);
+      letter-spacing: -0.12em;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: clamp(30px, 6vw, 60px);
+      white-space: nowrap;
+    }
+
+    .flow-title.cyan { color: #97d3de; }
+    .flow-title.orange { color: #f0a177; }
+    .flow-title.green { color: #57ea89; }
+    .flow-title.purple { color: #b38cff; }
+
+    .entrance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: min(360px, 100%);
+      margin: 0 auto;
+    }
+
+    .entrance-option,
+    .room-row {
+      border: 0;
+      background: transparent;
+      color: var(--menu-idle);
+      font: inherit;
+      text-align: left;
+      padding: 0;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+
+    .entrance-option {
+      font-size: clamp(22px, 3vw, 40px);
+    }
+
+    .room-row {
+      width: 100%;
+      font-size: clamp(18px, 2.4vw, 28px);
+    }
+
+    .entrance-option.active,
+    .room-row.active {
+      color: var(--cyan);
+      outline: none;
+    }
+
+    .entrance-option.active::before,
+    .room-row.active::before {
+      content: "> ";
+    }
+
+    .prompt-current,
+    .waiting-copy,
+    .lobby-note,
+    .waiting-line {
+      font-size: clamp(18px, 2vw, 32px);
+      margin-bottom: 18px;
+    }
+
+    .prompt-current {
+      color: #b8ef98;
+      text-align: left;
+    }
+
+    .lobby-note {
+      color: var(--amber);
+      margin-top: 22px;
+      text-align: center;
+      font-size: clamp(14px, 1.6vw, 20px);
+    }
+
+    .prompt-box,
+    .room-browser,
+    .waiting-box {
+      width: min(430px, 100%);
+      margin: 0 auto;
+    }
+
+    .prompt-box-head,
+    .room-browser-head {
+      background: #73c2df;
+      color: #10233d;
+      padding: 10px 14px;
+      font-size: clamp(18px, 1.8vw, 28px);
+      font-weight: 700;
+    }
+
+    .prompt-box-body,
+    .room-browser-body {
+      background: #a4bfdd;
+      color: #10233d;
+      min-height: 116px;
+      padding: 18px 16px;
+    }
+
+    .prompt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(22px, 2vw, 30px);
+      font-weight: 700;
+    }
+
+    .prompt-input {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: #10233d;
+      font: inherit;
+    }
+
+    .room-browser-body {
+      min-height: 180px;
+    }
+
+    .room-list,
+    .guest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .room-empty {
+      color: #2a4467;
+      font-size: clamp(16px, 1.8vw, 22px);
+    }
+
+    .waiting-copy {
+      color: var(--amber);
+      text-align: center;
+      margin-bottom: 38px;
+    }
+
+    .waiting-line {
+      color: var(--cyan);
+      margin-bottom: 20px;
+    }
+
+    .guest-title {
+      color: #57ea89;
+      font-size: clamp(24px, 2.3vw, 34px);
+      margin: 30px 0 18px;
+      font-weight: 700;
+    }
+
+    .guest-list {
+      font-size: clamp(22px, 2.1vw, 30px);
+      color: #57ea89;
+    }
     @media (max-width: 980px) {
-      .app {
-        min-height: 100vh;
-        padding: 20px;
+      :root {
+        --app-pad-x: 10px;
+        --app-pad-y: 12px;
+        --panel-gap: 8px;
+        --side-width: clamp(68px, 17vw, 92px);
+        --board-width: clamp(158px, 42vw, 194px);
+        --hold-width: clamp(52px, 14vw, 66px);
+        --hold-height: clamp(72px, 20vw, 92px);
+        --next-width: clamp(38px, 11vw, 50px);
+        --next-height: clamp(48px, 13vw, 62px);
+        --title-size: clamp(11px, 1.5vw, 13px);
+        --stat-size: clamp(16px, 2.4vw, 20px);
+        --time-size: clamp(12px, 1.6vw, 14px);
+        --logo-size: clamp(38px, 9vw, 72px);
+        --shell-border: 6px;
+        --shell-pad: 6px;
       }
 
       .topbar {
-        grid-template-columns: 1fr;
-        gap: 18px;
-        justify-items: center;
+        grid-template-columns: var(--side-width) 1fr auto;
+        gap: 8px;
       }
 
       .time-panel {
-        justify-self: center;
+        width: auto;
       }
 
       .layout {
-        grid-template-columns: 1fr;
-        gap: 22px;
+        grid-template-columns: var(--side-width) minmax(0, 1fr) var(--side-width);
+        gap: var(--panel-gap);
       }
 
       .side {
         padding-top: 0;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+        gap: 8px;
       }
 
-      .logo {
-        font-size: 72px;
+      .next-panel {
+        min-height: auto;
+      }
+
+      .panel {
+        padding: 6px;
+      }
+
+      .panel-title {
+        margin-bottom: 6px;
+      }
+
+      .mobile-hint {
+        display: block;
+      }
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --app-pad-x: 6px;
+        --app-pad-y: 10px;
+        --panel-gap: 6px;
+        --side-width: 62px;
+        --board-width: min(158px, 46vw);
+        --hold-width: 46px;
+        --hold-height: 62px;
+        --next-width: 34px;
+        --next-height: 42px;
+        --title-size: 10px;
+        --stat-size: 15px;
+        --time-size: 11px;
+        --logo-size: 32px;
+        --shell-border: 5px;
+        --shell-pad: 5px;
+      }
+
+      .topbar {
+        grid-template-columns: 62px 1fr auto;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .time-panel,
+      .panel {
+        padding: 5px;
+      }
+
+      .layout {
+        grid-template-columns: 62px minmax(0, 1fr) 62px;
+        gap: 6px;
+      }
+
+      .side,
+      .next-stack {
+        gap: 6px;
+      }
+
+      .score-panel,
+      .level-panel {
+        min-height: 56px;
+      }
+
+      .hold-panel {
+        min-height: 82px;
+      }
+
+      .menu-options,
+    .entrance-list {
+        gap: 12px;
+        width: min(240px, 100%);
+      }
+
+      .menu-option {
+        font-size: clamp(18px, 5vw, 28px);
+      }
+
+      .controls {
+        gap: 8px;
+      }
+
+      button,
+      .ghost-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .mobile-hint {
+        font-size: 11px;
       }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="topbar">
-      <div></div>
-
-      <div class="brand">
-        <div class="logo" aria-label="TETRISSEN">
-          <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span><span>S</span><span>E</span><span>N</span>
-        </div>
-        <div class="version">v1</div>
-      </div>
-
-      <div class="panel time-panel">
-        <div class="panel-title time">[TIME]</div>
-        <div id="timer" class="time-value">00:00</div>
-      </div>
-    </div>
-
-    <div class="layout">
-      <div class="side">
-        <div class="panel hold-panel">
-          <div class="panel-title hold">[HOLD]</div>
-          <canvas id="hold" width="102" height="136"></canvas>
+    <section id="menuScreen" class="screen menu-screen active">
+      <div class="menu-inner">
+        <div class="menu-header">
+          <div class="menu-logo rainbow" aria-label="TETRISSEN">
+            <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span><span>S</span><span>E</span><span>N</span>
+          </div>
+          <div class="menu-version">v1</div>
         </div>
 
-        <div class="panel score-panel">
-          <div class="panel-title score">[SCORE]</div>
-          <div id="score" class="stat-value">0</div>
-        </div>
-
-        <div class="panel level-panel">
-          <div class="panel-title level">[LV]</div>
-          <div id="level" class="stat-value">1</div>
+        <div id="menuOptions" class="menu-options">
+          <button class="menu-option active" data-action="single">SINGLE PLAY</button>
+          <button class="menu-option" data-action="multi">MULTI PLAY</button>
+          <button class="menu-option" data-action="settings">SETTINGS</button>
+          <button class="menu-option" data-action="exit">EXIT</button>
         </div>
       </div>
+    </section>
 
-      <div class="board-wrap">
-        <div class="board-shell">
-          <canvas id="game" width="220" height="440"></canvas>
+    <section id="lobbyScreen" class="screen lobby-screen">
+      <div class="lobby-inner">
+        <div class="lobby-header">
+          <div class="lobby-logo rainbow" aria-label="TETRISSEN">
+            <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span><span>S</span><span>E</span><span>N</span>
+          </div>
+          <div class="lobby-version">v1</div>
+        </div>
+
+        <div class="lobby-flow">
+          <div id="nicknamePane" class="flow-pane active">
+            <div class="flow-title cyan">SET NICKNAME</div>
+            <div id="nicknameCurrent" class="prompt-current">Current Nickname : [ GUEST ]</div>
+            <div class="prompt-box">
+              <div class="prompt-box-head">Type Your Nickname.[length : 1 ~ 8]</div>
+              <div class="prompt-box-body">
+                <label class="prompt-row" for="nicknameInput">
+                  <span>&gt;&gt;</span>
+                  <input id="nicknameInput" class="prompt-input" type="text" maxlength="8" autocomplete="off" spellcheck="false" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div id="entrancePane" class="flow-pane">
+            <div class="flow-title orange">ENTRANCE</div>
+            <div id="entranceList" class="entrance-list">
+              <button class="entrance-option active" data-entrance="create">CREATE ROOM</button>
+              <button class="entrance-option" data-entrance="enter">ENTER ROOM</button>
+              <button class="entrance-option" data-entrance="exit">EXIT</button>
+            </div>
+          </div>
+
+          <div id="createRoomPane" class="flow-pane">
+            <div class="flow-title purple">CREATE ROOM</div>
+            <div class="prompt-box">
+              <div class="prompt-box-head">Type New Room Name.[length : 1 ~ 8]</div>
+              <div class="prompt-box-body">
+                <label class="prompt-row" for="roomNameInput">
+                  <span>&gt;&gt;</span>
+                  <input id="roomNameInput" class="prompt-input" type="text" maxlength="8" autocomplete="off" spellcheck="false" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div id="browsePane" class="flow-pane">
+            <div class="flow-title orange">LOBBY</div>
+            <div class="waiting-copy">&gt; Join Room : Press [ SPACE ]<br />&gt; Exit to Entrance : Press [ ESC ]</div>
+            <div class="room-browser">
+              <div class="room-browser-head">=====ROOMS=====</div>
+              <div class="room-browser-body">
+                <div id="roomList" class="room-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="waitingPane" class="flow-pane">
+            <div class="flow-title green">WAITING ROOM</div>
+            <div id="waitingHint" class="waiting-copy"></div>
+            <div class="waiting-box">
+              <div id="waitingRoomName" class="waiting-line"></div>
+              <div id="waitingHostName" class="waiting-line"></div>
+              <div class="guest-title">=====GUESTS=====</div>
+              <div id="waitingGuestList" class="guest-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="lobbyNote" class="lobby-note"></div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen">
+      <div class="topbar">
+        <div></div>
+
+        <div class="brand">
+          <div class="logo" aria-label="TETRISSEN">
+            <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span><span>S</span><span>E</span><span>N</span>
+          </div>
+          <div class="version">v1</div>
+        </div>
+
+        <div class="panel time-panel">
+          <div class="panel-title time">[TIME]</div>
+          <div id="timer" class="time-value">00:00</div>
         </div>
       </div>
 
-      <div class="side">
-        <div class="panel next-panel">
-          <div class="panel-title next">[NEXT]</div>
-          <div class="next-stack">
-            <canvas id="next0" class="next-preview" width="82" height="92"></canvas>
-            <canvas id="next1" class="next-preview" width="82" height="92"></canvas>
-            <canvas id="next2" class="next-preview" width="82" height="92"></canvas>
+      <div class="layout">
+        <div class="side">
+          <div class="panel hold-panel">
+            <div class="panel-title hold">[HOLD]</div>
+            <canvas id="hold" width="102" height="136"></canvas>
+          </div>
+
+          <div class="panel score-panel">
+            <div class="panel-title score">[SCORE]</div>
+            <div id="score" class="stat-value">0</div>
+          </div>
+
+          <div class="panel level-panel">
+            <div class="panel-title level">[LV]</div>
+            <div id="level" class="stat-value">1</div>
+          </div>
+        </div>
+
+        <div class="board-wrap">
+          <div class="board-shell">
+            <canvas id="game" width="220" height="440"></canvas>
+          </div>
+        </div>
+
+        <div class="side">
+          <div class="panel next-panel">
+            <div class="panel-title next">[NEXT]</div>
+            <div class="next-stack">
+              <canvas id="next0" class="next-preview" width="82" height="92"></canvas>
+              <canvas id="next1" class="next-preview" width="82" height="92"></canvas>
+              <canvas id="next2" class="next-preview" width="82" height="92"></canvas>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="controls">
-      <button id="btnStart">Start</button>
-      <button id="btnReset">Reset</button>
-    </div>
+      <div class="controls">
+        <button id="btnStart">Start</button>
+        <button id="btnReset">Reset</button>
+        <button id="btnBackMenu">Menu</button>
+      </div>
+
+      <div class="mobile-hint">
+        Tap: Rotate<br />
+        Hold + drag left/right: Move<br />
+        Swipe down: Hard Drop<br />
+        Swipe up: Hold
+      </div>
+    </section>
   </div>
 
   <script>
@@ -313,20 +858,22 @@
 
   <script type="module">
     import { attachRendererToModule } from "./renderer.js";
+    import { attachLobbyUi } from "./lobby.js";
 
     const prevInit = Module.onRuntimeInitialized;
     Module.onRuntimeInitialized = function () {
-      if (prevInit) prevInit();
+      if (prevInit) {
+        prevInit();
+      }
+
       attachRendererToModule(Module);
+      const ui = attachLobbyUi(Module);
+      ui.pauseGame();
+      ui.showMenu();
     };
-
-    document.getElementById("btnStart").addEventListener("click", () => {
-      if (Module.ccall) Module.ccall("game_start", null, [], []);
-    });
-
-    document.getElementById("btnReset").addEventListener("click", () => {
-      if (Module.ccall) Module.ccall("game_reset", null, [], []);
-    });
   </script>
 </body>
 </html>
+
+
+
