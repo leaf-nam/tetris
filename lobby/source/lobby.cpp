@@ -131,7 +131,7 @@ bool Lobby::waiting_client()
                               broadcast_ip);
             return false;
         } 
-        else if (in == Key::SPACE) {
+        else if (in == Key::SHIFTSLASH) {
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 1, 0, 0, 0, 0,
                                     "NULL", comment, client_ip_address);
             network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 0, 0, 0, 1, 0, "NULL", comment, 
@@ -149,11 +149,11 @@ bool Lobby::waiting_client()
                                         setting->nick_name.c_str(), comment,
                                         client_ip_address);
                 render->render_clear();
+                render->render_room(room_name, setting->nick_name, true);
+                render->render_room_clients(client_ip_address);
                 render->render_other_user_chat(comment, setting->nick_name);
                 comment_index = 0;
                 comment[comment_index] = '\0';
-                render->render_room(room_name, setting->nick_name, true);
-                render->render_room_clients(client_ip_address);
                 render->render_my_chat(comment, setting->nick_name);
                 is_input_mode = false;
             }
@@ -267,7 +267,7 @@ bool Lobby::enter_lobby()
                 network->send_udp(setting->nick_name.c_str(), false, false, comment, selected_server_ip_address);
             else
                 return false;
-        } else if (in == Key::SPACE) {
+        } else if (is_in_room == false && in == Key::SPACE) {
             network->send_udp(setting->nick_name.c_str(), true, false, comment, rooms[selecting_idx].second.c_str());
         }
         else if (in == Key::SLASH && is_in_room) {

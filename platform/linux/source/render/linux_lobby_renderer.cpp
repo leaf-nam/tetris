@@ -81,7 +81,7 @@ void LinuxLobbyRenderer::render_room(const string& room_name, const string& host
     render_clear();
     render_big_text(15, 7, "WAITNG ROOM", Color::GREEN);
     if (is_server) {
-        render_small_text(27, 14, " > Start Game : Press [ Space ]", Color::ORANGE);
+        render_small_text(27, 14, " > Start Game : Press [ Shift + \\ ]", Color::ORANGE);
         render_small_text(27, 16, " > Delete Room : Press [ ESC ]", Color::ORANGE);
     } else {
         render_small_text(27, 14, " > Out Room : Press [ ESC ]", Color::ORANGE);
