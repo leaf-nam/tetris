@@ -41,6 +41,7 @@ class WindowLobbyRenderer : public ILobbyRenderer
     void render_my_chat(const char* comment, const std::string& id) override;
     void render_other_user_chat(const char* comment, const std::string& id) override;
     void render_current_chat() override;
+    void render_clear_chat() override;
 };
 
 #endif

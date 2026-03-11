@@ -148,13 +148,13 @@ bool Lobby::waiting_client()
                                         client_ip_address.size(), 0, 0, 0, 0, 0, 1,
                                         setting->nick_name.c_str(), comment,
                                         client_ip_address);
+                render->render_clear();
+                render->render_other_user_chat(comment, setting->nick_name);
                 comment_index = 0;
                 comment[comment_index] = '\0';
-                render->render_clear();
                 render->render_room(room_name, setting->nick_name, true);
                 render->render_room_clients(client_ip_address);
                 render->render_my_chat(comment, setting->nick_name);
-                render->render_other_user_chat(comment, setting->nick_name);
                 is_input_mode = false;
             }
         }
@@ -242,6 +242,7 @@ bool Lobby::enter_lobby()
     client_ip_address.clear();
     server_ip_address.clear();
 
+    comment[comment_index] = '\0';
     render->render_user_id_input();
     render->render_lobby_rooms(rooms, selecting_idx);
     render->render_lobby();
@@ -328,6 +329,7 @@ bool Lobby::enter_lobby()
                 render->render_clear();
                 render->render_lobby();
                 render->render_lobby_rooms(rooms, selecting_idx);
+                render->render_clear_chat();
                 comment_index = 0;
                 is_input_mode = false;
                 is_in_room = false;
@@ -358,6 +360,7 @@ bool Lobby::enter_lobby()
                 render->render_clear();
                 render->render_lobby();
                 render->render_lobby_rooms(rooms, selecting_idx);
+                render->render_clear_chat();
                 comment_index = 0;
                 is_input_mode = false;
             }
@@ -366,6 +369,7 @@ bool Lobby::enter_lobby()
             render->render_clear();
             render->render_lobby();
             render->render_lobby_rooms(rooms, selecting_idx);
+            render->render_clear_chat();
             comment_index = 0;
             is_input_mode = false;
             is_in_room = false;

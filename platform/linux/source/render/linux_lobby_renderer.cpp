@@ -201,3 +201,8 @@ void LinuxLobbyRenderer::render_current_chat()
         render_small_text(x + 1 + id_size + 4, y + i, comment_list[i], Color::CYAN);
     }
 }
+
+void LinuxLobbyRenderer::render_clear_chat() { 
+    comment_list_index = 0;
+    comment_user_list_index = 0;
+}

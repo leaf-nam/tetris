@@ -25,6 +25,7 @@ class ILobbyRenderer
     virtual void render_my_chat(const char* comment, const std::string& id) = 0;
     virtual void render_other_user_chat(const char* comment, const std::string& id) = 0;
     virtual void render_current_chat() = 0;
+    virtual void render_clear_chat() = 0;
     virtual ~ILobbyRenderer() = default;
 };
 
