@@ -110,6 +110,7 @@ bool Lobby::waiting_client()
     char s[BUF_SIZE];
     char ip[16];
     char comment[COMMENTSIZE];
+    char system_comment[COMMENTSIZE];
 
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
     comment[comment_index] = '\0';
@@ -185,42 +186,45 @@ bool Lobby::waiting_client()
         user_data received_data;
         if (network->recv_udp(received_data, ip) == false) continue;
 
-        if (index >= 4 ||
-            (received_data.is_enter == true &&
-             client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()))
-            network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name,
-                              client_ip_address.size(), 1, 0, 0, 0, 0, 0, "NULL",
-                              comment, broadcast_ip);
-        else if (received_data.is_chat == true &&
-            client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()){
+        if (received_data.is_chat == true &&
+            client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()) {
             render->render_clear();
             render->render_room(room_name, setting->nick_name, true);
             render->render_room_clients(client_ip_address);
             render->render_other_user_chat(received_data.comment, received_data.id);
             render->render_my_chat(comment, setting->nick_name);
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name,
-                                    client_ip_address.size(), 0, 0, 0, 0, 0, 1,
-                                    received_data.id, received_data.comment, client_ip_address);
+                                    client_ip_address.size(), 0, 0, 0, 0, 0, 1, received_data.id,
+                                    received_data.comment, client_ip_address);
         }
+
+        if (index >= 4 ||
+            (received_data.is_enter == true &&
+             client_ip_address.find(std::string(received_data.id)) != client_ip_address.end()))
+            network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name,
+                              client_ip_address.size(), 1, 0, 0, 0, 0, 0, "NULL", comment,
+                              broadcast_ip);
         else {
             if (received_data.is_enter == true) {
                 client_ip_address[std::string(received_data.id)] = std::string(ip);
                 client_ip_address_for_send.clear();
                 client_ip_address_for_send = client_ip_address;
+                snprintf(system_comment, COMMENTSIZE, "%s ENTER", received_data.id);
             }
             else {
                 client_ip_address_for_send.clear();
                 client_ip_address_for_send = client_ip_address;
                 client_ip_address.erase(std::string(received_data.id));
+                snprintf(system_comment, COMMENTSIZE, "%s EXIT", received_data.id);
             }
             render->render_clear();
             render->render_room(room_name, setting->nick_name, true);
             render->render_room_clients(client_ip_address);
-            render->render_current_chat();
+            render->render_other_user_chat(system_comment, std::string("SYSTEM"));
             render->render_my_chat(comment, setting->nick_name);
             index = client_ip_address.size();
-            network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 0, 0, 1, 0, 0,
-                                    "NULL", comment, client_ip_address_for_send);
+            network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 0, 0, 1, 0, 1, "SYSTEM",
+                                    system_comment, client_ip_address_for_send);
         }
     }
 }
@@ -304,6 +308,11 @@ bool Lobby::enter_lobby()
         room_data received_data;
         if (network->recv_udp(received_data, room_ip) == false) continue;
 
+        if (is_in_room == true && received_data.is_chat) {
+            render->render_other_user_chat(received_data.comment,
+                                           std::string(received_data.comment_id));
+        }
+
         if (received_data.is_broadcast &&
             server_ip_address.find(std::string(room_ip)) == server_ip_address.end()) {
             server_ip_address[std::string(room_ip)] = std::string(received_data.room_master_id);
@@ -334,9 +343,6 @@ bool Lobby::enter_lobby()
                 is_input_mode = false;
                 is_in_room = false;
             }
-        }
-        else if (received_data.is_chat) {
-            render->render_other_user_chat(received_data.comment, std::string(received_data.comment_id));
         }
         else if (received_data.is_update) {
             memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
