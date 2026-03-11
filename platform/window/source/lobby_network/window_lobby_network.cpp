@@ -141,6 +141,8 @@ void WindowLobbyNetwork::serialize(uint8_t* buf, const user_data& pkt)
     write_32b(p, pkt.magic);
     write_bytes(p, pkt.id, 9);
     write_32b(p, pkt.is_enter);
+    write_32b(p, pkt.is_chat);
+    write_bytes(p, pkt.comment, 101);
 }
 
 void WindowLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
@@ -151,6 +153,8 @@ void WindowLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
     read_bytes(p, pkt.id, 9);
     pkt.id[8] = '\0';
     pkt.is_enter = read_32b(p);
+    pkt.is_chat = read_32b(p);
+    read_bytes(p, pkt.comment, 101);
 }
 
 // room_data
@@ -171,6 +175,9 @@ void WindowLobbyNetwork::serialize(uint8_t* buf, const room_data& pkt)
     write_32b(p, pkt.is_broadcast);
     write_32b(p, pkt.is_update);
     write_32b(p, pkt.is_broadcast_delete);
+    write_32b(p, pkt.is_chat);
+    write_bytes(p, pkt.comment_id, 9);
+    write_bytes(p, pkt.comment, 101);
 }
 
 void WindowLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
@@ -191,9 +198,13 @@ void WindowLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
     pkt.is_broadcast = read_32b(p);
     pkt.is_update = read_32b(p);
     pkt.is_broadcast_delete = read_32b(p);
+    pkt.is_chat = read_32b(p);
+    read_bytes(p, pkt.comment_id, 9);
+    read_bytes(p, pkt.comment, 101);
 }
 
-void WindowLobbyNetwork::send_udp(const char* id, int is_enter, const char* send_ip)
+void WindowLobbyNetwork::send_udp(const char* id, int is_enter, int is_chat, const char* comment,
+                                  const char* send_ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
@@ -210,6 +221,8 @@ void WindowLobbyNetwork::send_udp(const char* id, int is_enter, const char* send
     data.magic = USER_DATA_MAGIC;
     snprintf(data.id, sizeof(data.id), "%s", id);
     data.is_enter = is_enter;
+    data.is_chat = is_chat;
+    snprintf(data.comment, sizeof(data.comment), "%s", comment);
     serialize(buf, data);
 
     send_result = sendto(sock, (char*) buf, USER_DATA_SIZE, 0, (SOCKADDR*) &addr,
@@ -254,10 +267,11 @@ bool WindowLobbyNetwork::recv_udp(user_data& ud, char* ip)
 }
 
 void WindowLobbyNetwork::send_udp(const char* room_master_id,
-                                       std::unordered_map<std::string, std::string> ids_ips,
-                                       const char* room_name, int id_len,
-    int is_enter_not_success, int is_game_start, int is_broadcast,
-    int is_update, int is_broadcast_delete, const char* send_ip)
+                                  std::unordered_map<std::string, std::string> ids_ips,
+                                  const char* room_name, int id_len,
+                                  int is_enter_not_success, int is_game_start, int is_broadcast, int is_update,
+                                  int is_broadcast_delete, int is_chat, const char* comment_id,
+                                  const char* comment, const char* send_ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
@@ -283,6 +297,9 @@ void WindowLobbyNetwork::send_udp(const char* room_master_id,
     data.is_broadcast = is_broadcast;
     data.is_update = is_update;
     data.is_broadcast_delete = is_broadcast_delete;
+    data.is_chat = is_chat;
+    snprintf(data.comment_id, sizeof(data.comment_id), "%s", comment_id);
+    snprintf(data.comment, sizeof(data.comment), "%s", comment);
     serialize(buf, data);
 
     send_result = sendto(sock, (char*) buf, ROOM_DATA_SIZE, 0, (SOCKADDR*) &addr, sizeof(addr));
@@ -328,12 +345,13 @@ bool WindowLobbyNetwork::recv_udp(room_data& rd, char* ip)
 void WindowLobbyNetwork::send_multi_udp(
     const char* room_master_id, std::unordered_map<std::string, std::string> pkt_ids_ips,
     const char* room_name, int id_len,
-    int is_enter_not_success, int is_game_start, int is_broadcast,
-    int is_update, int is_broadcast_delete, std::unordered_map<std::string, std::string> ids_ips)
+    int is_enter_not_success, int is_game_start, int is_broadcast, int is_update,
+    int is_broadcast_delete, int is_chat, const char* comment_id, const char* comment,
+    std::unordered_map<std::string, std::string> ids_ips)
 {
     for (const auto& [user_id, user_ip] : ids_ips)
         send_udp(room_master_id, pkt_ids_ips, room_name, id_len, is_enter_not_success, is_game_start, is_broadcast,
-                 is_update, is_broadcast_delete, user_ip.c_str());
+                 is_update, is_broadcast_delete, is_chat, comment_id, comment, user_ip.c_str());
 }
 
 WindowLobbyNetwork::~WindowLobbyNetwork()

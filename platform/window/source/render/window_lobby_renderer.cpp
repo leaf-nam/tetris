@@ -140,3 +140,47 @@ void WindowLobbyRenderer::render_user_id_input()
 }
 
 void WindowLobbyRenderer::render_clear() { platform_renderer->clear(); }
+
+void WindowLobbyRenderer::render_my_chat(const char* comment, const std::string& id)
+{
+    int id_size = strlen(id.c_str());
+    int comment_size = strlen(comment);
+
+    render_small_text(27, 30, "[", Color::CYAN);
+    render_small_text(28, 30, id.c_str(), Color::CYAN);
+    render_small_text(28 + id_size, 30, "] : ", Color::CYAN);
+    render_small_text(28 + id_size + 4, 30, comment, Color::CYAN);
+    render_small_text(27, 31, "/키로 작성 시작, 그 후 /키로 전송, \\키로 지우기", Color::CYAN);
+}
+
+void WindowLobbyRenderer::render_other_user_chat(const char* comment, const std::string& id)
+{
+    int id_size;
+    int i = 0;
+
+    if (comment_list_index == COMMENTLISTNUM) {
+        for (i = 1; i < COMMENTLISTNUM; ++i) {
+            snprintf(comment_list[i - 1], COMMENTSIZE, "%s", comment_list[i]);
+        }
+        snprintf(comment_list[i], COMMENTSIZE, "%s", comment);
+    }
+    else
+        snprintf(comment_list[comment_list_index++], COMMENTSIZE, "%s", comment);
+
+    if (comment_user_list_index == COMMENTLISTNUM) {
+        for (i = 1; i < COMMENTLISTNUM; ++i) {
+            snprintf(comment_user_list[i - 1], COMMENTSIZE, "%s", comment_user_list[i]);
+        }
+        snprintf(comment_user_list[i], COMMENTSIZE, "%s", id.c_str());
+    }
+    else
+        snprintf(comment_user_list[comment_user_list_index++], COMMENTSIZE, "%s", id.c_str());
+
+    for (int i = 0; i < comment_list_index; ++i) {
+        id_size = sizeof(comment_user_list[i]);
+        render_small_text(27, 20 + i, "[", Color::CYAN);
+        render_small_text(28, 20 + i, comment_user_list[i], Color::CYAN);
+        render_small_text(28 + id_size, 20 + i, "] : ", Color::CYAN);
+        render_small_text(28 + id_size + 4, 20 + i, comment_list[i], Color::CYAN);
+    }
+}
