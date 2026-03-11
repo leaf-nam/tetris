@@ -153,8 +153,8 @@ bool Lobby::waiting_client()
                 render->render_clear();
                 render->render_room(room_name, setting->nick_name, true);
                 render->render_room_clients(client_ip_address);
-                render->render_current_chat();
                 render->render_my_chat(comment, setting->nick_name);
+                render->render_other_user_chat(comment, setting->nick_name);
                 is_input_mode = false;
             }
         }

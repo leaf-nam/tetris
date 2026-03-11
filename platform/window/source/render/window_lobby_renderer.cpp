@@ -179,7 +179,7 @@ void WindowLobbyRenderer::render_other_user_chat(const char* comment, const std:
         snprintf(comment_user_list[comment_user_list_index++], COMMENTSIZE, "%s", id.c_str());
 
     for (i = 0; i < comment_list_index; ++i) {
-        id_size = sizeof(comment_user_list[i]);
+        id_size = strlen(comment_user_list[i]);
         render_small_text(x, y + i, "[", Color::CYAN);
         render_small_text(x + 1, y + i, comment_user_list[i], Color::CYAN);
         render_small_text(x + 1 + id_size, y + i, "] : ", Color::CYAN);
@@ -193,7 +193,7 @@ void WindowLobbyRenderer::render_current_chat()
     int id_size;
 
     for (int i = 0; i < comment_list_index; ++i) {
-        id_size = sizeof(comment_user_list[i]);
+        id_size = strlen(comment_user_list[i]);
         render_small_text(x, y + i, "[", Color::CYAN);
         render_small_text(x + 1, y + i, comment_user_list[i], Color::CYAN);
         render_small_text(x + 1 + id_size, y + i, "] : ", Color::CYAN);
