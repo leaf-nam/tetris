@@ -132,7 +132,7 @@ bool Lobby::waiting_client()
                               broadcast_ip);
             return false;
         } 
-        else if (in == Key::SHIFTSLASH) {
+        else if (in == Key::SHIFTBACKSLASH) {
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 1, 0, 0, 0, 0,
                                     "NULL", comment, client_ip_address);
             network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name, client_ip_address.size(), 0, 0, 0, 0, 1, 0, "NULL", comment, 
