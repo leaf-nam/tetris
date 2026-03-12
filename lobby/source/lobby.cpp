@@ -302,7 +302,7 @@ bool Lobby::enter_lobby()
             }
             comment[comment_index] = '\0';
             render->render_clear();
-            render->render_room(room_name, std::string(room_master_id), true);
+            render->render_room(room_name, std::string(room_master_id), false);
             render->render_room_clients(client_ip_address);
             render->render_current_chat();
             render->render_my_chat(comment, setting->nick_name);

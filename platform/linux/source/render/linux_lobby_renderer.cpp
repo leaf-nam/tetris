@@ -164,20 +164,15 @@ void LinuxLobbyRenderer::render_other_user_chat(const char* comment, const std::
     if (comment_list_index == COMMENTLISTNUM) {
         for (i = 1; i < COMMENTLISTNUM; ++i) {
             snprintf(comment_list[i - 1], COMMENTSIZE, "%s", comment_list[i]);
-        }
-        snprintf(comment_list[i], COMMENTSIZE, "%s", comment);
-    }
-    else
-        snprintf(comment_list[comment_list_index++], COMMENTSIZE, "%s", comment);
-
-    if (comment_user_list_index == COMMENTLISTNUM) {
-        for (i = 1; i < COMMENTLISTNUM; ++i) {
             snprintf(comment_user_list[i - 1], COMMENTSIZE, "%s", comment_user_list[i]);
         }
+        snprintf(comment_list[i], COMMENTSIZE, "%s", comment);
         snprintf(comment_user_list[i], COMMENTSIZE, "%s", id.c_str());
     }
-    else
+    else {
+        snprintf(comment_list[comment_list_index++], COMMENTSIZE, "%s", comment);
         snprintf(comment_user_list[comment_user_list_index++], COMMENTSIZE, "%s", id.c_str());
+    }
 
     for (i = 0; i < comment_list_index; ++i) {
         id_size = strlen(comment_user_list[i]);
