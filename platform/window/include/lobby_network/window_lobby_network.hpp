@@ -30,19 +30,21 @@ class WindowLobbyNetwork : public ILobbyNetwork
     WindowLobbyNetwork();
     void find_broadcast_ip(char* broadcast_ip) override;
     // user_data
-    void send_udp(const char* id, int is_enter, const char* send_ip) override;
+    void send_udp(const char* id, int is_enter, int is_out, int is_chat, const char* comment,
+                  const char* send_ip) override;
     bool recv_udp(user_data& ud, char* ip) override;
     // room_data
     void send_udp(const char* room_master_id, std::unordered_map<std::string, std::string> ids_ips,
                   const char* room_name, int id_len,
-                  int is_enter_not_success, int is_game_start, int is_broadcast,
-                  int is_update, int is_broadcast_delete, const char* send_ip) override;
+                  int is_enter_not_success, int is_game_start, int is_broadcast, int is_update, int is_broadcast_delete, int is_chat,
+                  const char* comment_id, const char* comment, const char* send_ip) override;
     bool recv_udp(room_data& rd, char* ip) override;
     void send_multi_udp(const char* room_master_id,
                         std::unordered_map<std::string, std::string>  pkt_ids_ips,
                         const char* room_name, int id_len,
                         int is_enter_not_success, int is_game_start, int is_broadcast,
                         int is_update, int is_broadcast_delete,
+                        int is_chat, const char* comment_id, const char* comment,
                         std::unordered_map<std::string, std::string> ids_ips) override;
     ~WindowLobbyNetwork();
 };
