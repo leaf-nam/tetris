@@ -220,7 +220,7 @@ bool Lobby::waiting_client()
             render->render_clear();
             render->render_room(room_name, setting->nick_name, true);
             render->render_room_clients(client_ip_address);
-            render->render_other_user_chat(received_data.comment, received_data.id);
+            render->render_other_user_chat(received_data.comment, std::string(received_data.id));
             render->render_my_chat(comment, setting->nick_name);
             network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name,
                                     client_ip_address.size(), 0, 0, 0, 0, 0, 1, received_data.id,
@@ -391,8 +391,12 @@ bool Lobby::enter_lobby()
         }
 
         if (is_in_room == true && received_data.is_chat) {
+            render->render_clear();
+            render->render_room(room_name, setting->nick_name, true);
+            render->render_room_clients(client_ip_address);
             render->render_other_user_chat(received_data.comment,
                                            std::string(received_data.comment_id));
+            render->render_my_chat(comment, setting->nick_name);
         }
     }
 
