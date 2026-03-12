@@ -166,8 +166,8 @@ void LinuxLobbyRenderer::render_other_user_chat(const char* comment, const std::
             snprintf(comment_list[i - 1], COMMENTSIZE, "%s", comment_list[i]);
             snprintf(comment_user_list[i - 1], COMMENTSIZE, "%s", comment_user_list[i]);
         }
-        snprintf(comment_list[i], COMMENTSIZE, "%s", comment);
-        snprintf(comment_user_list[i], COMMENTSIZE, "%s", id.c_str());
+        snprintf(comment_list[i - 1], COMMENTSIZE, "%s", comment);
+        snprintf(comment_user_list[i - 1], COMMENTSIZE, "%s", id.c_str());
     }
     else {
         snprintf(comment_list[comment_list_index++], COMMENTSIZE, "%s", comment);
