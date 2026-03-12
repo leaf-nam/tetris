@@ -392,7 +392,7 @@ bool Lobby::enter_lobby()
 
         if (is_in_room == true && received_data.is_chat) {
             render->render_clear();
-            render->render_room(room_name, setting->nick_name, false);
+            render->render_room(room_name, std::string(room_master_id), false);
             render->render_room_clients(client_ip_address);
             render->render_other_user_chat(received_data.comment,
                                            std::string(received_data.comment_id));
