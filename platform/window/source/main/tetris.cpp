@@ -145,7 +145,7 @@ AppState run_single_game()
     renderer->render_background();
 
     for (int i = 3; i >= 1; --i) {
-        text_renderer.draw_game_start_count({42, 16}, i);
+        text_renderer.draw_game_start_count({20, 16}, i);
         Sleep(1000);
     }
 
