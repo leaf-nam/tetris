@@ -19,10 +19,10 @@ private:
     SOCKET client_sock;
     SOCKET server_sock;
 
-    // [window] epoll 관련 변수(epfd, events)는 삭제했습니다.
-    // 대신 수신 주소 정보를 저장할 구조체를 미리 선언해두면 편합니다.
     SOCKADDR_IN server_addr;
     SOCKADDR_IN client_addr;
+
+    WSAPOLLFD fds[1];
 
     void write_32b(uint8_t*& p, int32_t v);
     void write_bytes(uint8_t*& p, const void* data, size_t size);

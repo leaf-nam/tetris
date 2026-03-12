@@ -14,6 +14,7 @@ class WindowLobbyNetwork : public ILobbyNetwork
 {
   private:
     SOCKET sock;
+    WSAPOLLFD fds[1];
 
     void write_32b(uint8_t*& p, int32_t v);
     void write_bytes(uint8_t*& p, const void* data, size_t size);
