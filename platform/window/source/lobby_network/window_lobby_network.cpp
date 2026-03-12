@@ -154,7 +154,7 @@ void WindowLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
     read_bytes(p, pkt.id, 9);
     pkt.id[8] = '\0';
     pkt.is_enter = read_32b(p);
-    pkt.is_enter = read_32b(p);
+    pkt.is_out = read_32b(p);
     pkt.is_chat = read_32b(p);
     read_bytes(p, pkt.comment, 101);
 }
