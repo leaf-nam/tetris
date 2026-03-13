@@ -351,7 +351,7 @@ bool Lobby::enter_lobby()
                 is_input_mode = false;
                 is_in_room = false;
             }
-            else if (is_in_room == false) {
+            else if (is_in_room == false && timeout_rooms.size() > 0) {
                 render->render_clear();
                 render->render_lobby();
                 render->render_lobby_rooms(rooms, selecting_idx);
