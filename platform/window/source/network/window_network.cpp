@@ -139,7 +139,7 @@ uint32_t WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
             }
         }
     }
-    if (board_block_num > 0) {
+    if (board_block_num > 1) {
         compress_32b(p, flag_bit, board_block_num, BOARD_BIT);
         compress_32b(p, flag_bit, board_block_type, BOARD_BIT);
     }
