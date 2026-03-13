@@ -107,6 +107,8 @@ uint32_t LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
     uint8_t* op = buf;
     uint32_t flag_bit = 0;
     uint8_t len = 0;
+    int32_t board_block_num = 0;
+    int32_t board_block_type = 0;
 
     write_32b(p, PACKET_MAGIC);
     op += 4;
@@ -114,9 +116,18 @@ uint32_t LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
     // flag bit
     p += 4;
 
+    board_block_type = pkt.board[0][0];
     for (int i = 0; i < 20; ++i) {
         for (int j = 0; j < 10; ++j) {
-            compress_32b(p, flag_bit, pkt.board[i][j], BOARD_BIT);
+            if (board_block_type == pkt.board[i][j])
+                board_block_num++;
+            else
+            {
+                compress_32b(p, flag_bit, board_block_num, BOARD_BIT);
+                compress_32b(p, flag_bit, board_block_type, BOARD_BIT);
+                board_block_num = 1;
+                board_block_type = pkt.board[i][j];
+            }
         }
     }
     compress_32b(p, flag_bit, pkt.type, TYPE_BIT);
@@ -144,6 +155,10 @@ bool LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     uint32_t magic = 0;
     uint32_t flag_bit = 0;
     uint8_t len = 0;
+    uint32_t board_size = 200;
+    int32_t board_block_num = 0;
+    int32_t board_block_type = 0;
+    auto* board = &pkt.board[0][0];
 
     magic = read_32b(p);
     if (magic != PACKET_MAGIC) return false;
@@ -153,10 +168,13 @@ bool LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     memset((void*) &pkt, 0, PACKET_SIZE);
 
     if (flag_bit & BOARD_BIT) {
-        for (int i = 0; i < 20; ++i) {
-            for (int j = 0; j < 10; ++j) {
-                decompress_32b(p, pkt.board[i][j]);
+        while (board_size > 0) {
+            decompress_32b(p, board_block_num);
+            decompress_32b(p, board_block_type);
+            for (int i = 0; i < board_block_num; ++i) {
+                *(board++) = board_block_type;
             }
+            board_size -= board_block_num;
         }
     }
     if (flag_bit & TYPE_BIT) decompress_32b(p, pkt.type);
