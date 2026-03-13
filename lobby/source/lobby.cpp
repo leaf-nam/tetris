@@ -267,8 +267,17 @@ bool Lobby::enter_lobby()
             render->render_lobby_rooms(rooms, selecting_idx);
         }
         else if (in == Key::ESC) {
-            if (is_in_room)
-                network->send_udp(setting->nick_name.c_str(), false, true, false, comment, selected_server_ip_address);
+            if (is_in_room) {
+                network->send_udp(setting->nick_name.c_str(), false, true, false, comment,
+                                  selected_server_ip_address);
+                render->render_clear();
+                render->render_lobby();
+                render->render_lobby_rooms(rooms, selecting_idx);
+                render->render_clear_chat();
+                comment_index = 0;
+                is_in_room = false;
+                is_input_mode = false;
+            }
             else
                 return false;
         } else if (is_in_room == false && in == Key::SPACE) {
