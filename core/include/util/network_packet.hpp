@@ -6,28 +6,30 @@
 enum PacketInfo
 {
     PACKET_SIZE = ((20 * 10 * 4) + (7 * 4) + 9),
+    BUFFER_SIZE = 1024,
     PACKET_MAGIC = 0x5041434B,
     PACKET_MAGIC_SIZE = 4,
     PACKET_ID_SIZE = 9
 };
 
 /*
-serialilzation packet
+serialization packet
 magic 4byte
 flag bit 4byte : 0 => board / 1 => type / 2 => rotation / 3 => r / 4 => c / 5 => deleted_line / 6 => is_game_over / 7 => is_win / 8 => id
 data ? byte 
-uint32_t board[20][10]; 
-uint32_t type; 
-uint32_t rotation; 
-uint32_t r; 
-uint32_t c; 
-uint32_t deleted_line; 
-uint32_t is_game_over; 
-uint32_t is_win;
+uint8_t board[20][10]; 
+uint8_t type; 
+uint8_t rotation;
+uint8_t r; 
+uint8_t c;
+uint8_t deleted_line;
+uint8_t is_game_over;
+uint8_t is_win;
+uint8_t id_len;
 char id[9];
 */
 
-enum FlagBitInfo
+enum FlagBitInfo : uint32_t
 {
     BOARD_BIT = (1 << 0),
     TYPE_BIT = (1 << 1),

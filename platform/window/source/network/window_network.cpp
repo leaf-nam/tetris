@@ -69,80 +69,6 @@ void WindowNetwork::write_bytes(uint8_t*& p, const void* data, size_t size)
     p += size;
 }
 
-uint32_t WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
-{
-    uint8_t* p = buf;
-    uint8_t* op = buf;
-    uint32_t size = 0;
-    uint32_t flag_bit = 0;
-    uint8_t itc = 0;
-
-    write_32b(p, PACKET_MAGIC);
-    size += 4;
-    op += 4;
-
-    // flag bit
-    p += 4;
-    size += 4;
-
-    flag_bit |= BOARD_BIT;
-    for (int i = 0; i < 20; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            itc = static_cast<uint8_t>(pkt.board[i][j]);
-            write_bytes(p, &itc, 1);
-            size += 1;
-        }
-    }
-
-    flag_bit |= TYPE_BIT;
-    itc = static_cast<uint8_t>(pkt.type);
-    write_bytes(p, &itc, 1);
-    size += 1;
-
-    flag_bit |= ROTATION_BIT;
-    itc = static_cast<uint8_t>(pkt.rotation);
-    write_bytes(p, &itc, 1);
-    size += 1;
-
-    flag_bit |= R_BIT;
-    itc = static_cast<uint8_t>(pkt.r);
-    write_bytes(p, &itc, 1);
-    size += 1;
-
-    flag_bit |= C_BIT;
-    itc = static_cast<uint8_t>(pkt.c);
-    write_bytes(p, &itc, 1);
-    size += 1;
-
-    flag_bit |= DELETED_LINE_BIT;
-    itc = static_cast<uint8_t>(pkt.deleted_line);
-    write_bytes(p, &itc, 1);
-    size += 1;
-
-    if (pkt.is_game_over == 1) {
-        flag_bit |= IS_GAME_OVER_BIT;
-        itc = static_cast<uint8_t>(pkt.is_game_over);
-        write_bytes(p, &itc, 1);
-        size += 1;
-    }
-
-    if (pkt.is_win == 1) {
-        flag_bit |= IS_WIN_BIT;
-        itc = static_cast<uint8_t>(pkt.is_win);
-        write_bytes(p, &itc, 1);
-        size += 1;
-    }
-
-    flag_bit |= ID_BIT;
-    write_bytes(p, pkt.id, 9);
-    size += 9;
-
-    // flag bit
-    write_32b(op, flag_bit);
-
-    return size;
-}
-
 int32_t WindowNetwork::read_32b(const uint8_t*& p)
 {
     int32_t n;
@@ -157,13 +83,77 @@ void WindowNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
     p += size;
 }
 
+void WindowNetwork::compress_32b(uint8_t*& p, uint32_t& flag_bit, int32_t v, uint32_t bit_check)
+{
+    uint8_t itc = 0;
+
+    flag_bit |= bit_check;
+    itc = static_cast<uint8_t>(v);
+    write_bytes(p, &itc, 1);
+}
+
+void WindowNetwork::compress_bytes(uint8_t*& p, uint32_t& flag_bit, const void* data,
+                                   size_t size, uint32_t bit_check)
+{
+    flag_bit |= bit_check;
+    write_bytes(p, data, size);
+}
+
+void WindowNetwork::decompress_32b(const uint8_t*& p, int32_t& v)
+{
+    uint8_t itc;
+    read_bytes(p, &itc, 1);
+    v = static_cast<int32_t>(itc);
+}
+
+void WindowNetwork::decompress_bytes(const uint8_t*& p, void* data, size_t size)
+{
+    read_bytes(p, data, size);
+}
+
+uint32_t WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
+{
+    uint8_t* p = buf;
+    uint8_t* op = buf;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
+
+    write_32b(p, PACKET_MAGIC);
+    op += 4;
+
+    // flag bit
+    p += 4;
+
+    for (int i = 0; i < 20; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            compress_32b(p, flag_bit, pkt.board[i][j], BOARD_BIT);
+        }
+    }
+    compress_32b(p, flag_bit, pkt.type, TYPE_BIT);
+    compress_32b(p, flag_bit, pkt.rotation, ROTATION_BIT);
+    compress_32b(p, flag_bit, pkt.r, R_BIT);
+    compress_32b(p, flag_bit, pkt.c, C_BIT);
+    compress_32b(p, flag_bit, pkt.deleted_line, DELETED_LINE_BIT);
+
+    if (pkt.is_game_over == 1) compress_32b(p, flag_bit, pkt.is_game_over, IS_GAME_OVER_BIT);
+    if (pkt.is_win == 1) compress_32b(p, flag_bit, pkt.is_win, IS_WIN_BIT);
+
+    len = static_cast<uint8_t>(strlen(pkt.id));
+    compress_bytes(p, flag_bit, &len, 1, ID_BIT);
+    compress_bytes(p, flag_bit, pkt.id, len, ID_BIT);
+
+    // flag bit
+    write_32b(op, flag_bit);
+
+    return (p - buf);
+}
+
 bool WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 {
     const uint8_t* p = buf;
-
     uint32_t magic = 0;
     uint32_t flag_bit = 0;
-    uint8_t itc = 0;
+    uint8_t len = 0;
 
     magic = read_32b(p);
     if (magic != PACKET_MAGIC) return false;
@@ -175,50 +165,21 @@ bool WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     if (flag_bit & BOARD_BIT) {
         for (int i = 0; i < 20; ++i) {
             for (int j = 0; j < 10; ++j) {
-                read_bytes(p, &itc, 1);
-                pkt.board[i][j] = static_cast<int32_t>(itc);
+                decompress_32b(p, pkt.board[i][j]);
             }
         }
     }
-
-    if (flag_bit & TYPE_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.type = static_cast<int32_t>(itc);
-    }
-
-    if (flag_bit & ROTATION_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.rotation = static_cast<int32_t>(itc);
-    }
-
-    if (flag_bit & R_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.r = static_cast<int32_t>(itc);
-    }
-
-    if (flag_bit & C_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.c = static_cast<int32_t>(itc);
-    }
-
-    if (flag_bit & DELETED_LINE_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.deleted_line = static_cast<int32_t>(itc);
-    }
-
-    if (flag_bit & IS_GAME_OVER_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.is_game_over = static_cast<int32_t>(itc);
-    }
-
-    if (flag_bit & IS_WIN_BIT) {
-        read_bytes(p, &itc, 1);
-        pkt.is_win = static_cast<int32_t>(itc);
-    }
-
+    if (flag_bit & TYPE_BIT) decompress_32b(p, pkt.type);
+    if (flag_bit & ROTATION_BIT) decompress_32b(p, pkt.rotation);
+    if (flag_bit & R_BIT) decompress_32b(p, pkt.r);
+    if (flag_bit & C_BIT) decompress_32b(p, pkt.c);
+    if (flag_bit & DELETED_LINE_BIT) decompress_32b(p, pkt.deleted_line);
+    if (flag_bit & IS_GAME_OVER_BIT) decompress_32b(p, pkt.is_game_over);
+    if (flag_bit & IS_WIN_BIT) decompress_32b(p, pkt.is_win);
     if (flag_bit & ID_BIT) {
-        read_bytes(p, pkt.id, PACKET_ID_SIZE);
-        pkt.id[PACKET_ID_SIZE - 1] = '\0';
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.id, len);
+        pkt.id[len] = '\0';
     }
 
     return true;
@@ -229,7 +190,7 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
 {
     Packet pkt{};
     auto [pos_r, pos_c] = tetromino.get_pos();
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     SOCKADDR_IN another_user;
     ZeroMemory(&another_user, sizeof(another_user));
     another_user.sin_family = AF_INET;
@@ -277,7 +238,7 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
                                    std::vector<std::pair<std::string, std::string>> ids_ips)
 {
     char* another_user_ip;
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     SOCKADDR_IN another_user;
     uint32_t buffer_size = 0;
     int send_result = 0;
@@ -318,7 +279,7 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
 
 bool WindowNetwork::recv_udp(Packet& recv_pkt)
 {
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     bool data_received = false;
     SOCKADDR_IN client_addr;
     int addr_len = sizeof(client_addr);
@@ -330,7 +291,7 @@ bool WindowNetwork::recv_udp(Packet& recv_pkt)
 
     if (ret > 0) {
         if (fds[0].revents & POLLIN) {
-            r = recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr,
+            r = recvfrom(server_sock, (char*) buf, BUFFER_SIZE, 0, (SOCKADDR*) &client_addr,
                              &addr_len);
 
             if (r == SOCKET_ERROR) {

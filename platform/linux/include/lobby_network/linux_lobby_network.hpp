@@ -24,12 +24,19 @@ class LinuxLobbyNetwork : public ILobbyNetwork
     int32_t read_32b(const uint8_t*& p);
     void read_bytes(const uint8_t*& p, void* dst, size_t size);
     
+    void compress_32b(uint8_t*& p, uint32_t& flag_bit, int32_t v, uint32_t bit_check);
+    void compress_bytes(uint8_t*& p, uint32_t& flag_bit, const void* data, size_t size,
+                        uint32_t bit_check);
+    void decompress_32b(const uint8_t*& p, int32_t& v);
+    void decompress_bytes(const uint8_t*& p, void* data, size_t size);
+
     // user_data
-    void serialize(uint8_t* buf, const user_data& pkt);
-    void deserialize(const uint8_t* buf, user_data& pkt);
+    uint32_t serialize(uint8_t* buf, const user_data& pkt);
+    bool deserialize(const uint8_t* buf, user_data& pkt);
     // room_data
-    void serialize(uint8_t* buf, const room_data& pkt);
-    void deserialize(const uint8_t* buf, room_data& pkt);
+    uint32_t serialize(uint8_t* buf, const room_data& pkt);
+    bool deserialize(const uint8_t* buf, room_data& pkt);
+
   public:
     LinuxLobbyNetwork();
     void find_broadcast_ip(char* broadcast_ip) override;
