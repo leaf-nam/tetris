@@ -135,10 +135,8 @@ uint32_t LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
             compress_32b(n_c_board_p, flag_bit, pkt.board[i][j], BOARD_BIT);
         }
     }
-    if (board_block_num > 1) {
-        compress_32b(c_board_p, flag_bit, board_block_num, BOARD_BIT);
-        compress_32b(c_board_p, flag_bit, board_block_type, BOARD_BIT);
-    }
+    compress_32b(c_board_p, flag_bit, board_block_num, BOARD_BIT);
+    compress_32b(c_board_p, flag_bit, board_block_type, BOARD_BIT);
 
     if (c_board_p - compress_board >= 200)
     {
