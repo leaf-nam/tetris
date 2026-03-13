@@ -200,7 +200,7 @@ bool LinuxLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
     if (flag_bit & LOBBY_USER_IS_CHAT_BIT) decompress_32b(p, pkt.is_chat);
     if (flag_bit & LOBBY_USER_COMMENT_BIT) {
         decompress_bytes(p, &len, 1);
-        decompress_bytes(p, pkt.id, len);
+        decompress_bytes(p, pkt.comment, len);
         pkt.id[len] = '\0';
     }
 
