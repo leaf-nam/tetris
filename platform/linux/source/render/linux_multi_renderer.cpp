@@ -265,6 +265,13 @@ void LinuxMultiRenderer::render_other_game_over(Packet& pkt)
     platform_renderer->print_s("GAMEOVER", Color::RED);
 }
 
+void LinuxMultiRenderer::render_other_timeout(std::string id)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(id);
+    platform_renderer->set_cursor(start_x + 5, start_y + 10);
+    platform_renderer->print_s("TIMEOUT", Color::RED);
+}
+
 void LinuxMultiRenderer::render_win()
 {
     platform_renderer->set_cursor(MY_BOARD_X + 9, BOARD_START_Y + 10);
