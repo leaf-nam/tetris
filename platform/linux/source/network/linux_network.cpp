@@ -178,7 +178,7 @@ bool LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 void LinuxNetwork::send_udp(const Board& board, const Tetromino& tetromino, const int deleted_line, int is_game_over, int is_win, const char* another_user_ip, const char* my_id)
 {
     Packet pkt;
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     auto [pos_r, pos_c] = tetromino.get_pos();
     sockaddr_in another_user;
     int send_result;
@@ -223,7 +223,7 @@ void LinuxNetwork::send_relay_udp(const Packet& packet,
                                    std::vector<std::pair<std::string, std::string>> ids_ips)
 {
     char* another_user_ip;
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     int send_result;
     uint32_t buffer_size = 0;
 
@@ -264,7 +264,7 @@ void LinuxNetwork::send_relay_udp(const Packet& packet,
 
 bool LinuxNetwork::recv_udp(Packet& recv_pkt)
 {
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     int n = epoll_wait(epfd, events, MAX_EVENTS, 0);
     bool is_deserialize_success = false;
     int r;
@@ -281,7 +281,7 @@ bool LinuxNetwork::recv_udp(Packet& recv_pkt)
             sockaddr_in client{};
             socklen_t len = sizeof(client);
 
-            r = recvfrom(server_sock, (char*)buf, PACKET_SIZE, 0, (sockaddr*) &client, &len);
+            r = recvfrom(server_sock, (char*)buf, BUFFER_SIZE, 0, (sockaddr*) &client, &len);
 
             if (r < 0) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK) {

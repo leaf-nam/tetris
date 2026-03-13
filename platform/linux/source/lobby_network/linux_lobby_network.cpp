@@ -327,7 +327,7 @@ void LinuxLobbyNetwork::send_udp(const char* id, int is_enter, int is_out, int i
     sockaddr_in addr{};
     int addr_len;
     user_data data{};
-    uint8_t buf[USER_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int send_result;
     uint32_t buffer_size = 0;
 
@@ -350,7 +350,7 @@ void LinuxLobbyNetwork::send_udp(const char* id, int is_enter, int is_out, int i
 bool LinuxLobbyNetwork::recv_udp(user_data& ud, char* ip)
 {
     socklen_t addr_len;
-    uint8_t buf[USER_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int recv_result;
     bool is_deserialize_success = false;
     int n = epoll_wait(epfd, events, MAX_EVENTS, 0);
@@ -402,7 +402,7 @@ void LinuxLobbyNetwork::send_udp(const char* room_master_id,
     sockaddr_in addr{};
     int addr_len;
     room_data data{};
-    uint8_t buf[ROOM_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int send_result;
     int index = 0;
     uint32_t buffer_size = 0;
@@ -434,7 +434,7 @@ void LinuxLobbyNetwork::send_udp(const char* room_master_id,
 bool LinuxLobbyNetwork::recv_udp(room_data& rd, char* ip)
 {
     socklen_t addr_len;
-    uint8_t buf[ROOM_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int recv_result;
     bool is_deserialize_success = false;
     int n = epoll_wait(epfd, events, MAX_EVENTS, 0);
