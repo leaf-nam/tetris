@@ -16,7 +16,9 @@ void MultiEngine::init(bool is_server)
     rule = create_rule("VERSUS", board);
     ids_ips = lobby->get_client_ids_ips();
     active_user = lobby->get_ids(is_server);
+
     for (auto [key, value] : active_user) {
+        if (key == lobby->get_my_id()) continue;
         active_user_time_checker[key] = 0;
     }
 
@@ -107,15 +109,15 @@ bool MultiEngine::run(bool is_server)
 
     if(network->recv_udp(recv_pkt))
     {
-        if (active_user.find(std::string(recv_pkt.id)) == active_user.end())
+        if (active_user.find(recv_pkt.id) == active_user.end())
             return true;
         else
-            active_user_time_checker[std::string(recv_pkt.id)] = 0;
+            active_user_time_checker[recv_pkt.id] = 0;
         renderer->render_other_board(recv_pkt);
 
         if (recv_pkt.is_game_over == 1) {
             renderer->render_other_game_over(recv_pkt);
-            active_user.erase(std::string(recv_pkt.id));
+            active_user.erase(recv_pkt.id);
         }
 
         if (active_user.size() == 1)
@@ -173,14 +175,14 @@ bool MultiEngine::stop(bool is_server)
     if (active_user.size() > 0)
     {
         if (network->recv_udp(recv_pkt)) {
-            if (active_user.find(std::string(recv_pkt.id)) != active_user.end()) {
-                active_user_time_checker[std::string(recv_pkt.id)] = 0;
+            if (active_user.find(recv_pkt.id) != active_user.end()) {
+                active_user_time_checker[recv_pkt.id] = 0;
 
                 if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
                 renderer->render_other_board(recv_pkt);
                 if (recv_pkt.is_game_over == 1) {
                     renderer->render_other_game_over(recv_pkt);
-                    active_user.erase(std::string(recv_pkt.id));
+                    active_user.erase(recv_pkt.id);
                 }
                 if (recv_pkt.is_win == 1) {
                     renderer->render_other_win(recv_pkt);

@@ -268,7 +268,7 @@ void WindowMultiRenderer::render_other_game_over(Packet& pkt)
 void WindowMultiRenderer::render_other_timeout(std::string id)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(id);
-    platform_renderer->set_cursor(start_x + 5, start_y + 10);
+    platform_renderer->set_cursor(start_x + 7, start_y + 10);
     platform_renderer->print_s("TIMEOUT", Color::RED);
 }
 
