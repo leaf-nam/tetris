@@ -75,6 +75,22 @@ bool MultiEngine::run(bool is_server)
                 ++it;
             }
         }
+
+        if (active_user.size() == 1) {
+            renderer->render_win();
+            attack = rule->update_score();
+            is_game_over = 0;
+            is_win = 1;
+            if (is_server == true)
+                network->send_multi_udp(board, board.get_active_mino(), attack, is_game_over,
+                                        is_win, lobby->get_my_id(), ids_ips);
+            else
+                network->send_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
+                                  lobby->get_server_ip_address(), lobby->get_my_id());
+            active_user.erase(lobby->get_my_id());
+            goto out;
+        }
+
         rule->process(Action::DROP);
         renderer->render_level(rule->get_level());
         renderer->render_timer(timer.get_seconds());
