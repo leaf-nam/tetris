@@ -22,10 +22,10 @@ class LinuxNetwork : public INetwork
 
     void write_32b(uint8_t*& p, int32_t v);
     void write_bytes(uint8_t*& p, const void* data, size_t size);
-    void serialize(uint8_t* buf, const Packet& pkt);
+    uint32_t serialize(uint8_t* buf, const Packet& pkt);
     int32_t read_32b(const uint8_t*& p);
     void read_bytes(const uint8_t*& p, void* dst, size_t size);
-    void deserialize(const uint8_t* buf, Packet& pkt);
+    bool deserialize(const uint8_t* buf, Packet& pkt);
 
   public:
     LinuxNetwork();

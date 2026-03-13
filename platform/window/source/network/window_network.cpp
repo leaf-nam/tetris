@@ -69,25 +69,78 @@ void WindowNetwork::write_bytes(uint8_t*& p, const void* data, size_t size)
     p += size;
 }
 
-void WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
+uint32_t WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
 {
     uint8_t* p = buf;
+    uint8_t* op = buf;
+    uint32_t size = 0;
+    uint32_t flag_bit = 0;
+    uint8_t itc = 0;
 
-    write_32b(p, pkt.magic);
+    write_32b(p, PACKET_MAGIC);
+    size += 4;
+    op += 4;
 
-    for (int i = 0; i < 20; ++i)
-        for (int j = 0; j < 10; ++j)
-            write_32b(p, pkt.board[i][j]);
+    // flag bit
+    p += 4;
+    size += 4;
 
-    write_32b(p, pkt.type);
-    write_32b(p, pkt.rotation);
-    write_32b(p, pkt.r);
-    write_32b(p, pkt.c);
-    write_32b(p, pkt.deleted_line);
-    write_32b(p, pkt.is_game_over);
-    write_32b(p, pkt.is_win);
+    flag_bit |= BOARD_BIT;
+    for (int i = 0; i < 20; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            itc = static_cast<uint8_t>(pkt.board[i][j]);
+            write_bytes(p, &itc, 1);
+            size += 1;
+        }
+    }
 
+    flag_bit |= TYPE_BIT;
+    itc = static_cast<uint8_t>(pkt.type);
+    write_bytes(p, &itc, 1);
+    size += 1;
+
+    flag_bit |= ROTATION_BIT;
+    itc = static_cast<uint8_t>(pkt.rotation);
+    write_bytes(p, &itc, 1);
+    size += 1;
+
+    flag_bit |= R_BIT;
+    itc = static_cast<uint8_t>(pkt.r);
+    write_bytes(p, &itc, 1);
+    size += 1;
+
+    flag_bit |= C_BIT;
+    itc = static_cast<uint8_t>(pkt.c);
+    write_bytes(p, &itc, 1);
+    size += 1;
+
+    flag_bit |= DELETED_LINE_BIT;
+    itc = static_cast<uint8_t>(pkt.deleted_line);
+    write_bytes(p, &itc, 1);
+    size += 1;
+
+    if (pkt.is_game_over == 1) {
+        flag_bit |= IS_GAME_OVER_BIT;
+        itc = static_cast<uint8_t>(pkt.is_game_over);
+        write_bytes(p, &itc, 1);
+        size += 1;
+    }
+
+    if (pkt.is_win == 1) {
+        flag_bit |= IS_WIN_BIT;
+        itc = static_cast<uint8_t>(pkt.is_win);
+        write_bytes(p, &itc, 1);
+        size += 1;
+    }
+
+    flag_bit |= ID_BIT;
     write_bytes(p, pkt.id, 9);
+    size += 9;
+
+    // flag bit
+    write_32b(op, flag_bit);
+
+    return size;
 }
 
 int32_t WindowNetwork::read_32b(const uint8_t*& p)
@@ -104,26 +157,71 @@ void WindowNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
     p += size;
 }
 
-void WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
+bool WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 {
     const uint8_t* p = buf;
 
-    pkt.magic = read_32b(p);
+    uint32_t magic = 0;
+    uint32_t flag_bit = 0;
+    uint8_t itc = 0;
 
-    for (int i = 0; i < 20; ++i)
-        for (int j = 0; j < 10; ++j)
-            pkt.board[i][j] = read_32b(p);
+    magic = read_32b(p);
+    if (magic != PACKET_MAGIC) return false;
 
-    pkt.type = read_32b(p);
-    pkt.rotation = read_32b(p);
-    pkt.r = read_32b(p);
-    pkt.c = read_32b(p);
-    pkt.deleted_line = read_32b(p);
-    pkt.is_game_over = read_32b(p);
-    pkt.is_win = read_32b(p);
+    flag_bit = read_32b(p);
 
-    read_bytes(p, pkt.id, 9);
-    pkt.id[8] = '\0';
+    memset((void*) &pkt, 0, PACKET_SIZE);
+
+    if (flag_bit & BOARD_BIT) {
+        for (int i = 0; i < 20; ++i) {
+            for (int j = 0; j < 10; ++j) {
+                read_bytes(p, &itc, 1);
+                pkt.board[i][j] = static_cast<uint32_t>(itc);
+            }
+        }
+    }
+
+    if (flag_bit & TYPE_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.type = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & ROTATION_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.rotation = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & R_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.r = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & C_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.c = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & DELETED_LINE_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.deleted_line = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & IS_GAME_OVER_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.is_game_over = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & IS_WIN_BIT) {
+        read_bytes(p, &itc, 1);
+        pkt.is_win = static_cast<uint32_t>(itc);
+    }
+
+    if (flag_bit & ID_BIT) {
+        read_bytes(p, pkt.id, PACKET_ID_SIZE);
+        pkt.id[PACKET_ID_SIZE - 1] = '\0';
+    }
+
+    return true;
 }
 
 void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over, int is_win,
@@ -136,13 +234,12 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     ZeroMemory(&another_user, sizeof(another_user));
     another_user.sin_family = AF_INET;
     another_user.sin_port = htons(PORT);
+    uint32_t buffer_size = 0;
 
     // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
     inet_pton(AF_INET, another_user_ip, &another_user.sin_addr);
 
     // 보드 데이터 복사
-
-    pkt.magic = PACKET_MAGIC;
 
     for (int r = 0; r < 20; ++r)
         for (int c = 0; c < 10; ++c)
@@ -155,11 +252,11 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     pkt.deleted_line = deleted_line;
     pkt.is_game_over = is_game_over;
     pkt.is_win = is_win;
-    snprintf(pkt.id, sizeof(pkt.id), "%s", my_id);
+    snprintf(pkt.id, PACKET_ID_SIZE, "%s", my_id);
 
-    serialize(buf, pkt);
+    buffer_size = serialize(buf, pkt);
 
-    int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &another_user,
+    int send_result = sendto(client_sock, (char*)buf, buffer_size, 0, (SOCKADDR*) &another_user,
                              sizeof(another_user));
 
     if (send_result == SOCKET_ERROR) {
@@ -182,6 +279,8 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
     char* another_user_ip;
     uint8_t buf[PACKET_SIZE];
     SOCKADDR_IN another_user;
+    uint32_t buffer_size = 0;
+    int send_result = 0;
 
     for (const auto& [id, ip] : ids_ips) {
         if (strcmp(id.c_str(), packet.id) == 0) continue;
@@ -194,9 +293,6 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
         // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
         inet_pton(AF_INET, ip.c_str(), &another_user.sin_addr);
 
-        // 보드 데이터 복사
-        pkt.magic = PACKET_MAGIC;
-
         for (int r = 0; r < 20; ++r)
             for (int c = 0; c < 10; ++c)
                 pkt.board[r][c] = packet.board[r][c]; // 숨겨진 2줄 제외하고 복사
@@ -208,12 +304,11 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
         pkt.deleted_line = packet.deleted_line;
         pkt.is_game_over = packet.is_game_over;
         pkt.is_win = packet.is_win;
-        snprintf(pkt.id, sizeof(pkt.id), "%s", packet.id);
+        snprintf(pkt.id, PACKET_ID_SIZE, "%s", packet.id);
 
-        serialize(buf, pkt);
+        buffer_size = serialize(buf, pkt);
 
-        int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0,
-                                 (SOCKADDR*) &another_user, sizeof(another_user));
+        send_result = sendto(client_sock, (char*)buf, buffer_size, 0, (SOCKADDR*) &another_user, sizeof(another_user));
 
         if (send_result == SOCKET_ERROR) {
             cerr << "sendto failed: " << WSAGetLastError() << "\n";
@@ -227,13 +322,15 @@ bool WindowNetwork::recv_udp(Packet& recv_pkt)
     bool data_received = false;
     SOCKADDR_IN client_addr;
     int addr_len = sizeof(client_addr);
+    bool is_deserialize_success = false;
+    int r;
 
     // [window Poll 처리]
     int ret = WSAPoll(fds, 1, 0);
 
     if (ret > 0) {
         if (fds[0].revents & POLLIN) {
-            int r = recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr,
+            r = recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr,
                              &addr_len);
 
             if (r == SOCKET_ERROR) {
@@ -241,11 +338,13 @@ bool WindowNetwork::recv_udp(Packet& recv_pkt)
                 cerr << "recvfrom failed: " << err << "\n";
                 return false;
             }
+            else if (r < PACKET_MAGIC_SIZE)
+                return false;
 
             // 데이터 수신 성공
-            deserialize(buf, recv_pkt);
+            is_deserialize_success = deserialize(buf, recv_pkt);
 
-            if (recv_pkt.magic != PACKET_MAGIC) data_received = false;
+            if (is_deserialize_success == false) data_received = false;
 
             data_received = true;
         }
