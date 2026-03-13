@@ -320,7 +320,7 @@ bool Lobby::enter_lobby()
             is_my_room_timeout = false;
             for (auto it = rooms_timeout_checker.begin(); it != rooms_timeout_checker.end();) {
                 it->second++;
-                if (it->second >= 7) {
+                if (it->second >= 16) {
                     timeout_rooms.push_back(it->first);
                     server_ip_address.erase(it->first);
                     it = rooms_timeout_checker.erase(it);
@@ -350,6 +350,11 @@ bool Lobby::enter_lobby()
                 comment_index = 0;
                 is_input_mode = false;
                 is_in_room = false;
+            }
+            else if (is_in_room == false) {
+                render->render_clear();
+                render->render_lobby();
+                render->render_lobby_rooms(rooms, selecting_idx);
             }
         }
 
