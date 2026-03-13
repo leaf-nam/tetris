@@ -130,6 +130,10 @@ uint32_t LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
             }
         }
     }
+    if (board_block_num > 0) {
+        compress_32b(p, flag_bit, board_block_num, BOARD_BIT);
+        compress_32b(p, flag_bit, board_block_type, BOARD_BIT);
+    }
     compress_32b(p, flag_bit, pkt.type, TYPE_BIT);
     compress_32b(p, flag_bit, pkt.rotation, ROTATION_BIT);
     compress_32b(p, flag_bit, pkt.r, R_BIT);
