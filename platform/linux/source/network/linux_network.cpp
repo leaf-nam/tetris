@@ -109,6 +109,10 @@ uint32_t LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
     uint8_t len = 0;
     int32_t board_block_num = 0;
     int32_t board_block_type = 0;
+    uint8_t compress_board[400];
+    uint8_t non_compress_board[200];
+    uint8_t* c_board_p = compress_board;
+    uint8_t* n_c_board_p = non_compress_board;
 
     write_32b(p, PACKET_MAGIC);
     op += 4;
@@ -123,17 +127,30 @@ uint32_t LinuxNetwork::serialize(uint8_t* buf, const Packet& pkt)
                 board_block_num++;
             else
             {
-                compress_32b(p, flag_bit, board_block_num, BOARD_BIT);
-                compress_32b(p, flag_bit, board_block_type, BOARD_BIT);
+                compress_32b(c_board_p, flag_bit, board_block_num, BOARD_BIT);
+                compress_32b(c_board_p, flag_bit, board_block_type, BOARD_BIT);
                 board_block_num = 1;
                 board_block_type = pkt.board[i][j];
             }
+            compress_32b(n_c_board_p, flag_bit, pkt.board[i][j], BOARD_BIT);
         }
     }
     if (board_block_num > 1) {
-        compress_32b(p, flag_bit, board_block_num, BOARD_BIT);
-        compress_32b(p, flag_bit, board_block_type, BOARD_BIT);
+        compress_32b(c_board_p, flag_bit, board_block_num, BOARD_BIT);
+        compress_32b(c_board_p, flag_bit, board_block_type, BOARD_BIT);
     }
+
+    if (c_board_p - compress_board >= 200)
+    {
+        compress_32b(p, flag_bit, 0, BOARD_BIT);
+        compress_bytes(p, flag_bit, non_compress_board, 200, BOARD_BIT);
+    }
+    else
+    {
+        compress_32b(p, flag_bit, 1, BOARD_BIT);
+        compress_bytes(p, flag_bit, compress_board, c_board_p - compress_board, BOARD_BIT);
+    }
+
     compress_32b(p, flag_bit, pkt.type, TYPE_BIT);
     compress_32b(p, flag_bit, pkt.rotation, ROTATION_BIT);
     compress_32b(p, flag_bit, pkt.r, R_BIT);
@@ -162,6 +179,7 @@ bool LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     uint32_t board_size = 200;
     int32_t board_block_num = 0;
     int32_t board_block_type = 0;
+    int32_t is_board_compressed = 0;
     auto* board = &pkt.board[0][0];
 
     magic = read_32b(p);
@@ -172,13 +190,22 @@ bool LinuxNetwork::deserialize(const uint8_t* buf, Packet& pkt)
     memset((void*) &pkt, 0, PACKET_SIZE);
 
     if (flag_bit & BOARD_BIT) {
-        while (board_size > 0) {
-            decompress_32b(p, board_block_num);
-            decompress_32b(p, board_block_type);
-            for (int i = 0; i < board_block_num; ++i) {
-                *(board++) = board_block_type;
+        decompress_32b(p, is_board_compressed);
+
+        if (is_board_compressed == 1) {
+            while (board_size > 0) {
+                decompress_32b(p, board_block_num);
+                decompress_32b(p, board_block_type);
+                for (int i = 0; i < board_block_num; ++i) {
+                    *(board++) = board_block_type;
+                }
+                board_size -= board_block_num;
             }
-            board_size -= board_block_num;
+        }
+        else {
+            for (int i = 0; i < 20; ++i)
+                for (int j = 0; j < 10; ++j)
+                    decompress_32b(p, pkt.board[i][j]);
         }
     }
     if (flag_bit & TYPE_BIT) decompress_32b(p, pkt.type);

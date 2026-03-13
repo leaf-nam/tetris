@@ -17,6 +17,7 @@ serialization packet
 magic 4byte
 flag bit 4byte : 0 => board / 1 => type / 2 => rotation / 3 => r / 4 => c / 5 => deleted_line / 6 => is_game_over / 7 => is_win / 8 => id
 data ? byte 
+uint8_t is_board_compressed => 1: compress, 0: non-compress
 uint8_t board[20][10]; => compress len + compress data
 uint8_t type; 
 uint8_t rotation;
