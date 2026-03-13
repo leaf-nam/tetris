@@ -176,44 +176,44 @@ bool WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
         for (int i = 0; i < 20; ++i) {
             for (int j = 0; j < 10; ++j) {
                 read_bytes(p, &itc, 1);
-                pkt.board[i][j] = static_cast<uint32_t>(itc);
+                pkt.board[i][j] = static_cast<int32_t>(itc);
             }
         }
     }
 
     if (flag_bit & TYPE_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.type = static_cast<uint32_t>(itc);
+        pkt.type = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & ROTATION_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.rotation = static_cast<uint32_t>(itc);
+        pkt.rotation = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & R_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.r = static_cast<uint32_t>(itc);
+        pkt.r = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & C_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.c = static_cast<uint32_t>(itc);
+        pkt.c = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & DELETED_LINE_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.deleted_line = static_cast<uint32_t>(itc);
+        pkt.deleted_line = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & IS_GAME_OVER_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.is_game_over = static_cast<uint32_t>(itc);
+        pkt.is_game_over = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & IS_WIN_BIT) {
         read_bytes(p, &itc, 1);
-        pkt.is_win = static_cast<uint32_t>(itc);
+        pkt.is_win = static_cast<int32_t>(itc);
     }
 
     if (flag_bit & ID_BIT) {

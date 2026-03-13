@@ -15,7 +15,16 @@ enum PacketInfo
 serialilzation packet
 magic 4byte
 flag bit 4byte : 0 => board / 1 => type / 2 => rotation / 3 => r / 4 => c / 5 => deleted_line / 6 => is_game_over / 7 => is_win / 8 => id
-data ? byte
+data ? byte 
+uint32_t board[20][10]; 
+uint32_t type; 
+uint32_t rotation; 
+uint32_t r; 
+uint32_t c; 
+uint32_t deleted_line; 
+uint32_t is_game_over; 
+uint32_t is_win;
+char id[9];
 */
 
 enum FlagBitInfo
@@ -32,14 +41,14 @@ enum FlagBitInfo
 };
 
 typedef struct PacketStruct {
-    uint32_t board[20][10];
-    uint32_t type;
-    uint32_t rotation;
-    uint32_t r;
-    uint32_t c;
-    uint32_t deleted_line;
-    uint32_t is_game_over;
-    uint32_t is_win;
+    int32_t board[20][10];
+    int32_t type;
+    int32_t rotation;
+    int32_t r;
+    int32_t c;
+    int32_t deleted_line;
+    int32_t is_game_over;
+    int32_t is_win;
     char id[9];
 } Packet;
 
