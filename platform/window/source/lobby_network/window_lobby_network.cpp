@@ -295,7 +295,7 @@ bool WindowLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
     uint8_t len = 0;
 
     magic = read_32b(p);
-    if (magic != USER_DATA_MAGIC) return false;
+    if (magic != ROOM_DATA_MAGIC) return false;
 
     flag_bit = read_32b(p);
 
