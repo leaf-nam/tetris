@@ -19,19 +19,26 @@ private:
     SOCKET client_sock;
     SOCKET server_sock;
 
-    // [window] epoll 관련 변수(epfd, events)는 삭제했습니다.
-    // 대신 수신 주소 정보를 저장할 구조체를 미리 선언해두면 편합니다.
     SOCKADDR_IN server_addr;
     SOCKADDR_IN client_addr;
 
+    WSAPOLLFD fds[1];
+
     void write_32b(uint8_t*& p, int32_t v);
     void write_bytes(uint8_t*& p, const void* data, size_t size);
-    void serialize(uint8_t* buf, const Packet& pkt);
     int32_t read_32b(const uint8_t*& p);
     void read_bytes(const uint8_t*& p, void* dst, size_t size);
-    void deserialize(const uint8_t* buf, Packet& pkt);
+    
+    void compress_32b(uint8_t*& p, uint32_t& flag_bit, int32_t v, uint32_t bit_check);
+    void compress_bytes(uint8_t*& p, uint32_t& flag_bit, const void* data,
+                        size_t size, uint32_t bit_check);
+    void decompress_32b(const uint8_t*& p, int32_t& v);
+    void decompress_bytes(const uint8_t*& p, void* data, size_t size);
 
-public:
+    uint32_t serialize(uint8_t* buf, const Packet& pkt);
+    bool deserialize(const uint8_t* buf, Packet& pkt);
+
+  public:
     WindowNetwork();
     
     // 부모 클래스(INetwork)의 가상 함수 오버라이드

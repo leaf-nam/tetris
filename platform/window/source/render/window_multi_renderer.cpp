@@ -212,7 +212,7 @@ void WindowMultiRenderer::render_board(const Board& board, const Tetromino& tetr
 void WindowMultiRenderer::render_other_board(Packet& pkt)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-    auto game_board = pkt.board;
+    auto& game_board = pkt.board;
     int pos_r = pkt.r;
     int pos_c = pkt.c;
     int mino_type = pkt.type;
