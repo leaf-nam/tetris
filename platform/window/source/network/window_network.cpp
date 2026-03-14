@@ -295,10 +295,13 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
     std::unordered_set<std::string> ips;
 
     for (const auto& [id, ip] : ids_ips) {
-        if (strcmp(id.c_str(), packet.id) == 0) {
+        if (id == packet.id) {
             ips.insert(ip);
-            continue;
+            break;
         }
+    }
+
+    for (const auto& [id, ip] : ids_ips) {
         if (ips.find(ip) != ips.end()) continue;
         ips.insert(ip);
         Packet pkt{};
