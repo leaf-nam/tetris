@@ -343,6 +343,7 @@ bool Lobby::enter_lobby()
             selecting_idx = (selecting_idx >= rooms.size() ? rooms.size() - 1 : selecting_idx);
 
             if (is_in_room == true && is_my_room_timeout == true) {
+                memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
                 render->render_clear();
                 render->render_lobby();
                 render->render_lobby_rooms(rooms, selecting_idx);
@@ -387,6 +388,7 @@ bool Lobby::enter_lobby()
             }
             if (is_in_room == false ||
                 (is_in_room == true && strcmp(selected_server_ip_address, room_ip) == 0)) {
+                memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
                 render->render_clear();
                 render->render_lobby();
                 render->render_lobby_rooms(rooms, selecting_idx);
@@ -396,9 +398,8 @@ bool Lobby::enter_lobby()
                 is_in_room = false;
             }
         }
-        else if (received_data.is_update) {
+        else if (received_data.is_update && strcmp(room_ip, selected_server_ip_address) == 0) {
             memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
-            snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s",room_ip);
             client_ip_address.clear(); 
             is_in_room = false; 
             for (int i = 0; i < received_data.id_len; ++i) {
@@ -407,6 +408,8 @@ bool Lobby::enter_lobby()
                     std::string(received_data.room_master_id);
             }
             if (is_in_room == true) {
+                snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s",
+                         room_ip);
                 render->render_clear();
                 snprintf(room_name, ROOMNAMESIZE, "%s", received_data.room_name);
                 snprintf(room_master_id, IDSIZE, "%s", received_data.room_master_id);
@@ -432,7 +435,7 @@ bool Lobby::enter_lobby()
             is_input_mode = false;
             is_in_room = false;
         }
-        else if (received_data.is_game_start) {
+        else if (received_data.is_game_start && strcmp(room_ip, selected_server_ip_address) == 0) {
             memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
             snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s", room_ip);
             client_ip_address.clear();
