@@ -17,6 +17,11 @@ void MultiEngine::init(bool is_server)
     ids_ips = lobby->get_client_ids_ips();
     active_user = lobby->get_ids(is_server);
 
+    for (auto [key, value] : active_user) {
+        if (key == lobby->get_my_id()) continue;
+        active_user_time_checker[key] = 0;
+    }
+
     curr_mino = 0;
     attack = 0;
     is_line_fill_complete = false;
@@ -59,6 +64,33 @@ bool MultiEngine::run(bool is_server)
 
     timer.set_curr_time();
     if (timer.check_500ms_time()) {
+        for (auto it = active_user_time_checker.begin(); it != active_user_time_checker.end();) {
+            it->second++;
+            if (it->second >= 7) {
+                active_user.erase(it->first);
+                renderer->render_other_timeout(it->first);
+                it = active_user_time_checker.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+        if (active_user.size() == 1) {
+            renderer->render_win();
+            attack = rule->update_score();
+            is_game_over = 0;
+            is_win = 1;
+            if (is_server == true)
+                network->send_multi_udp(board, board.get_active_mino(), attack, is_game_over,
+                                        is_win, lobby->get_my_id(), ids_ips);
+            else
+                network->send_udp(board, board.get_active_mino(), attack, is_game_over, is_win,
+                                  lobby->get_server_ip_address(), lobby->get_my_id());
+            active_user.erase(lobby->get_my_id());
+            goto out;
+        }
+
         rule->process(Action::DROP);
         renderer->render_level(rule->get_level());
         renderer->render_timer(timer.get_seconds());
@@ -93,11 +125,15 @@ bool MultiEngine::run(bool is_server)
 
     if(network->recv_udp(recv_pkt))
     {
+        if (active_user.find(recv_pkt.id) == active_user.end())
+            return true;
+        else
+            active_user_time_checker[recv_pkt.id] = 0;
         renderer->render_other_board(recv_pkt);
 
         if (recv_pkt.is_game_over == 1) {
             renderer->render_other_game_over(recv_pkt);
-            active_user.erase(std::string(recv_pkt.id));
+            active_user.erase(recv_pkt.id);
         }
 
         if (active_user.size() == 1)
@@ -155,20 +191,35 @@ bool MultiEngine::stop(bool is_server)
     if (active_user.size() > 0)
     {
         if (network->recv_udp(recv_pkt)) {
-            if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
-            renderer->render_other_board(recv_pkt);
-            if (recv_pkt.is_game_over == 1) {
-                renderer->render_other_game_over(recv_pkt);
-                active_user.erase(std::string(recv_pkt.id));
-            }
-            if (recv_pkt.is_win == 1) {
-                renderer->render_other_win(recv_pkt);
-                goto out;
+            if (active_user.find(recv_pkt.id) != active_user.end()) {
+                active_user_time_checker[recv_pkt.id] = 0;
+
+                if (is_server) network->send_relay_udp(recv_pkt, ids_ips);
+                renderer->render_other_board(recv_pkt);
+                if (recv_pkt.is_game_over == 1) {
+                    renderer->render_other_game_over(recv_pkt);
+                    active_user.erase(recv_pkt.id);
+                }
+                if (recv_pkt.is_win == 1) {
+                    renderer->render_other_win(recv_pkt);
+                    goto out;
+                }
             }
         }
 
         timer.set_curr_time();
         if (timer.check_500ms_time()) {
+            for (auto it = active_user_time_checker.begin(); it != active_user_time_checker.end();) {
+                it->second++;
+                if (it->second >= 7) {
+                    active_user.erase(it->first);
+                    renderer->render_other_timeout(it->first);
+                    it = active_user_time_checker.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
             if (is_server)
                 network->send_multi_udp(board, board.get_active_mino(), 0, is_game_over,
                                         is_win, lobby->get_my_id(), ids_ips);

@@ -131,6 +131,8 @@ void LinuxRenderer::render_game_over() {}
 
 void LinuxRenderer::render_other_game_over(Packet& pkt) {}
 
+void LinuxRenderer::render_other_timeout(std::string id) {}
+
 void LinuxRenderer::render_win() {}
 
 void LinuxRenderer::render_other_win(Packet& pkt) {}

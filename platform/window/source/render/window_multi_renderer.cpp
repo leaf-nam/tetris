@@ -212,7 +212,7 @@ void WindowMultiRenderer::render_board(const Board& board, const Tetromino& tetr
 void WindowMultiRenderer::render_other_board(Packet& pkt)
 {
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
-    auto game_board = pkt.board;
+    auto& game_board = pkt.board;
     int pos_r = pkt.r;
     int pos_c = pkt.c;
     int mino_type = pkt.type;
@@ -263,6 +263,13 @@ void WindowMultiRenderer::render_other_game_over(Packet& pkt)
     auto [start_x, start_y] = other_render_loc_get_or_set(std::string(pkt.id));
     platform_renderer->set_cursor(start_x + 6, start_y + 10);
     platform_renderer->print_s("GAMEOVER", Color::RED);
+}
+
+void WindowMultiRenderer::render_other_timeout(std::string id)
+{
+    auto [start_x, start_y] = other_render_loc_get_or_set(id);
+    platform_renderer->set_cursor(start_x + 7, start_y + 10);
+    platform_renderer->print_s("TIMEOUT", Color::RED);
 }
 
 void WindowMultiRenderer::render_win()
