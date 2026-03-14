@@ -319,6 +319,7 @@ bool Lobby::enter_lobby()
         }
 
         if (std::chrono::steady_clock::now() - base_time >= std::chrono::milliseconds(5000)) {
+            base_time = std::chrono::steady_clock::now();
             timeout_rooms.clear();
             is_my_room_timeout = false;
             for (auto it = rooms_timeout_checker.begin(); it != rooms_timeout_checker.end();) {
