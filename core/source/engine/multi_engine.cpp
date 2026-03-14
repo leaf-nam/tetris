@@ -125,7 +125,7 @@ bool MultiEngine::run(bool is_server)
 
     if(network->recv_udp(recv_pkt))
     {
-        if (active_user.find(recv_pkt.id) == active_user.end() || strcmp(lobby->get_my_id(), recv_pkt.id) == 0)
+        if (active_user.find(recv_pkt.id) == active_user.end())
             return true;
         else
             active_user_time_checker[recv_pkt.id] = 0;

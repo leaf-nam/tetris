@@ -1,6 +1,7 @@
 #include "network/window_network.hpp"
 
 #include <iostream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -274,8 +275,13 @@ void WindowNetwork::send_multi_udp(
     int is_win, const char* my_id,
     std::vector<std::pair<std::string, std::string>> ids_ips)
 {
-    for (const auto& [id, ip] : ids_ips)
+    std::unordered_set<std::string> ips;
+
+    for (const auto& [id, ip] : ids_ips) {
+        if (ips.find(ip) != ips.end()) continue;
+        ips.insert(ip);
         send_udp(board, tetromino, deleted_line, is_game_over, is_win, ip.c_str(), my_id);
+    }
 }
 
 void WindowNetwork::send_relay_udp(const Packet& packet,
@@ -286,9 +292,15 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
     SOCKADDR_IN another_user;
     uint32_t buffer_size = 0;
     int send_result = 0;
+    std::unordered_set<std::string> ips;
 
     for (const auto& [id, ip] : ids_ips) {
-        if (strcmp(id.c_str(), packet.id) == 0) continue;
+        if (strcmp(id.c_str(), packet.id) == 0) {
+            ips.insert(ip);
+            continue;
+        }
+        if (ips.find(ip) != ips.end()) continue;
+        ips.insert(ip);
         Packet pkt{};
         memset(buf, 0, sizeof(buf));
         ZeroMemory(&another_user, sizeof(another_user));
