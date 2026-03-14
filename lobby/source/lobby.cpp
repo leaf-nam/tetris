@@ -181,6 +181,9 @@ bool Lobby::waiting_client()
             network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name,
                               client_ip_address.size(), 0, 0, 1, 0, 0, 0, "NULL",
                               comment, broadcast_ip);
+            network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name,
+                                    client_ip_address.size(), 0, 0, 0, 1, 0, 0, "NULL", comment,
+                                    client_ip_address);
         }
 
         memset(ip, 16, sizeof(ip));
@@ -235,6 +238,7 @@ bool Lobby::enter_lobby()
     int in;
     char buffer[BUF_SIZE];
     int room_user_index = 0, comment_index = 0;
+    std::chrono::steady_clock::time_point base_time;
     bool is_in_room = false;
     bool is_game_start = false, is_input_mode = false, is_my_room_timeout = false;
     char s[BUF_SIZE];
@@ -244,7 +248,6 @@ bool Lobby::enter_lobby()
     std::vector<std::pair<std::string, std::string>> rooms;
     std::unordered_map<std::string, int> rooms_timeout_checker;
     std::vector<std::string> timeout_rooms;
-    Timer timer;
 
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
     client_ip_address.clear();
@@ -255,6 +258,7 @@ bool Lobby::enter_lobby()
     render->render_lobby_rooms(rooms, selecting_idx);
     render->render_lobby();
 
+    base_time = std::chrono::steady_clock::now();
     while (true) {
         in = input->scan();
 
@@ -314,13 +318,12 @@ bool Lobby::enter_lobby()
             render->render_my_chat(comment, setting->nick_name);
         }
 
-        timer.set_curr_time();
-        if (timer.check_500ms_time()) {
+        if (std::chrono::steady_clock::now() - base_time >= std::chrono::milliseconds(5000)) {
             timeout_rooms.clear();
             is_my_room_timeout = false;
             for (auto it = rooms_timeout_checker.begin(); it != rooms_timeout_checker.end();) {
                 it->second++;
-                if (it->second >= 16) {
+                if (it->second >= 4) {
                     timeout_rooms.push_back(it->first);
                     server_ip_address.erase(it->first);
                     it = rooms_timeout_checker.erase(it);
@@ -398,7 +401,7 @@ bool Lobby::enter_lobby()
                 is_in_room = false;
             }
         }
-        else if (received_data.is_update && strcmp(room_ip, selected_server_ip_address) == 0) {
+        else if (received_data.is_update) {
             memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
             client_ip_address.clear(); 
             is_in_room = false; 
@@ -435,7 +438,7 @@ bool Lobby::enter_lobby()
             is_input_mode = false;
             is_in_room = false;
         }
-        else if (received_data.is_game_start && strcmp(room_ip, selected_server_ip_address) == 0) {
+        else if (received_data.is_game_start) {
             memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
             snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s", room_ip);
             client_ip_address.clear();
