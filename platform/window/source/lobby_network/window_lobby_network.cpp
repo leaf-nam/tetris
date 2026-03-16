@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <iphlpapi.h>
+#include <unordered_set>
 
 #pragma comment(lib, "iphlpapi.lib")
 #pragma comment(lib, "ws2_32.lib")
@@ -46,6 +47,10 @@ WindowLobbyNetwork::WindowLobbyNetwork()
         perror("bind failed: ");
         exit(0);
     }
+
+    // 8. Poll
+    fds[0].fd = sock;
+    fds[0].events = POLLIN;
 }
 
 /**
@@ -133,73 +138,223 @@ void WindowLobbyNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
     p += size;
 }
 
-// user_data
-void WindowLobbyNetwork::serialize(uint8_t* buf, const user_data& pkt)
+void WindowLobbyNetwork::compress_32b(uint8_t*& p, uint32_t& flag_bit, int32_t v,
+                                      uint32_t bit_check)
 {
-    uint8_t* p = buf;
+    uint8_t itc = 0;
 
-    write_32b(p, pkt.magic);
-    write_bytes(p, pkt.id, 9);
-    write_32b(p, pkt.is_enter);
+    flag_bit |= bit_check;
+    itc = static_cast<uint8_t>(v);
+    write_bytes(p, &itc, 1);
 }
 
-void WindowLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
+void WindowLobbyNetwork::compress_bytes(uint8_t*& p, uint32_t& flag_bit, const void* data,
+                                        size_t size, uint32_t bit_check)
+{
+    flag_bit |= bit_check;
+    write_bytes(p, data, size);
+}
+
+void WindowLobbyNetwork::decompress_32b(const uint8_t*& p, int32_t& v)
+{
+    uint8_t itc;
+    read_bytes(p, &itc, 1);
+    v = static_cast<int32_t>(itc);
+}
+
+void WindowLobbyNetwork::decompress_bytes(const uint8_t*& p, void* data, size_t size)
+{
+    read_bytes(p, data, size);
+}
+
+// user_data
+uint32_t WindowLobbyNetwork::serialize(uint8_t* buf, const user_data& pkt)
+{
+    uint8_t* p = buf;
+    uint8_t* op = buf;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
+
+    write_32b(p, USER_DATA_MAGIC);
+    op += 4;
+
+    // flag bit
+    p += 4;
+    
+    len = static_cast<uint8_t>(strlen(pkt.id));
+    compress_bytes(p, flag_bit, &len, 1, LOBBY_USER_ID_BIT);
+    compress_bytes(p, flag_bit, pkt.id, len, LOBBY_USER_ID_BIT);
+
+    if (pkt.is_enter == 1) compress_32b(p, flag_bit, pkt.is_enter, LOBBY_USER_IS_ENTER_BIT);
+    if (pkt.is_out == 1) compress_32b(p, flag_bit, pkt.is_out, LOBBY_USER_IS_OUT_BIT);
+    if (pkt.is_chat == 1) compress_32b(p, flag_bit, pkt.is_chat, LOBBY_USER_IS_CHAT_BIT);
+
+    len = static_cast<uint8_t>(strlen(pkt.comment));
+    if (len > 0) {
+        compress_bytes(p, flag_bit, &len, 1, LOBBY_USER_COMMENT_BIT);
+        compress_bytes(p, flag_bit, pkt.comment, len, LOBBY_USER_COMMENT_BIT);
+    }
+
+    write_32b(op, flag_bit);
+
+    return (p - buf);
+}
+
+bool WindowLobbyNetwork::deserialize(const uint8_t* buf, user_data& pkt)
 {
     const uint8_t* p = buf;
+    uint32_t magic = 0;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
 
-    pkt.magic = read_32b(p);
-    read_bytes(p, pkt.id, 9);
-    pkt.id[8] = '\0';
-    pkt.is_enter = read_32b(p);
+    magic = read_32b(p);
+    if (magic != USER_DATA_MAGIC) return false;
+
+    flag_bit = read_32b(p);
+
+    memset((void*) &pkt, 0, USER_DATA_SIZE);
+
+    if (flag_bit & LOBBY_USER_ID_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.id, len);
+        pkt.id[len] = '\0';
+    }
+    if (flag_bit & LOBBY_USER_IS_ENTER_BIT) decompress_32b(p, pkt.is_enter);
+    if (flag_bit & LOBBY_USER_IS_OUT_BIT) decompress_32b(p, pkt.is_out);
+    if (flag_bit & LOBBY_USER_IS_CHAT_BIT) decompress_32b(p, pkt.is_chat);
+    if (flag_bit & LOBBY_USER_COMMENT_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.comment, len);
+        pkt.comment[len] = '\0';
+    }
+
+    return true;
 }
 
 // room_data
-void WindowLobbyNetwork::serialize(uint8_t* buf, const room_data& pkt)
+uint32_t WindowLobbyNetwork::serialize(uint8_t* buf, const room_data& pkt)
 {
     uint8_t* p = buf;
-    
-    write_32b(p, pkt.magic);
-    write_bytes(p, pkt.room_master_id, 9);
-    for (int i = 0; i < 4; ++i)
-    {
-        write_bytes(p, pkt.id[i], 9);
+    uint8_t* op = buf;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
+
+    write_32b(p, ROOM_DATA_MAGIC);
+    op += 4;
+
+    // flag bit
+    p += 4;
+
+    len = static_cast<uint8_t>(strlen(pkt.room_master_id));
+    compress_bytes(p, flag_bit, &len, 1, LOBBY_ROOM_ROOM_MASTER_ID_BIT);
+    compress_bytes(p, flag_bit, pkt.room_master_id, len, LOBBY_ROOM_ROOM_MASTER_ID_BIT);
+
+    if (pkt.id_len > 0) {
+        compress_32b(p, flag_bit, pkt.id_len, LOBBY_ROOM_ID_LEN_BIT);
+        for (int i = 0; i < pkt.id_len; ++i) {
+            len = static_cast<uint8_t>(strlen(pkt.id[i]));
+            compress_bytes(p, flag_bit, &len, 1, LOBBY_ROOM_ID_BIT);
+            compress_bytes(p, flag_bit, pkt.id[i], len, LOBBY_ROOM_ID_BIT);
+        }
     }
-    write_bytes(p, pkt.room_name, 9);
-    write_32b(p, pkt.id_len);
-    write_32b(p, pkt.is_enter_not_success);
-    write_32b(p, pkt.is_game_start);
-    write_32b(p, pkt.is_broadcast);
-    write_32b(p, pkt.is_update);
-    write_32b(p, pkt.is_broadcast_delete);
+
+    len = static_cast<uint8_t>(strlen(pkt.room_name));
+    compress_bytes(p, flag_bit, &len, 1, LOBBY_ROOM_ROOM_NAME_BIT);
+    compress_bytes(p, flag_bit, pkt.room_name, len, LOBBY_ROOM_ROOM_NAME_BIT);
+
+    if (pkt.is_enter_not_success == 1)
+        compress_32b(p, flag_bit, pkt.is_enter_not_success, LOBBY_ROOM_IS_ENTER_NOT_SUCCESS_BIT);
+    if (pkt.is_game_start == 1)
+        compress_32b(p, flag_bit, pkt.is_game_start, LOBBY_ROOM_IS_GAME_START_BIT);
+    if (pkt.is_broadcast == 1)
+        compress_32b(p, flag_bit, pkt.is_broadcast, LOBBY_ROOM_IS_BROADCAST_BIT);
+    if (pkt.is_update == 1) compress_32b(p, flag_bit, pkt.is_update, LOBBY_ROOM_IS_UPDATE_BIT);
+    if (pkt.is_broadcast_delete == 1)
+        compress_32b(p, flag_bit, pkt.is_broadcast_delete, LOBBY_ROOM_IS_BROADCAST_DELETE_BIT);
+    if (pkt.is_chat == 1)
+        compress_32b(p, flag_bit, pkt.is_chat, LOBBY_ROOM_IS_CHAT_BIT);
+
+    if (pkt.is_chat == 1) {
+        len = static_cast<uint8_t>(strlen(pkt.comment_id));
+        compress_bytes(p, flag_bit, &len, 1, LOBBY_ROOM_COMMENT_ID_BIT);
+        compress_bytes(p, flag_bit, pkt.comment_id, len, LOBBY_ROOM_COMMENT_ID_BIT);
+        len = static_cast<uint8_t>(strlen(pkt.comment));
+        compress_bytes(p, flag_bit, &len, 1, LOBBY_ROOM_COMMENT_BIT);
+        compress_bytes(p, flag_bit, pkt.comment, len, LOBBY_ROOM_COMMENT_BIT);
+    }
+
+    write_32b(op, flag_bit);
+
+    return (p - buf);
 }
 
-void WindowLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
+bool WindowLobbyNetwork::deserialize(const uint8_t* buf, room_data& pkt)
 {
     const uint8_t* p = buf;
+    uint32_t magic = 0;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
 
-    pkt.magic = read_32b(p);
-    read_bytes(p, pkt.room_master_id, 9);
-    pkt.room_master_id[8] = '\0';
-    for (int i = 0; i < 4; ++i) {
-        read_bytes(p, pkt.id[i], 9);
-        pkt.id[i][8] = '\0';
+    magic = read_32b(p);
+    if (magic != ROOM_DATA_MAGIC) return false;
+
+    flag_bit = read_32b(p);
+
+    memset((void*) &pkt, 0, ROOM_DATA_SIZE);
+
+    if (flag_bit & LOBBY_ROOM_ROOM_MASTER_ID_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.room_master_id, len);
+        pkt.room_master_id[len] = '\0';
     }
-    read_bytes(p, pkt.room_name, 9);
-    pkt.id_len = read_32b(p);
-    pkt.is_enter_not_success = read_32b(p);
-    pkt.is_game_start = read_32b(p);
-    pkt.is_broadcast = read_32b(p);
-    pkt.is_update = read_32b(p);
-    pkt.is_broadcast_delete = read_32b(p);
+
+    if (flag_bit & LOBBY_ROOM_ID_LEN_BIT) decompress_32b(p, pkt.id_len);
+
+    if (flag_bit & LOBBY_ROOM_ID_BIT) {
+        for (int i = 0; i < pkt.id_len; ++i) {
+            decompress_bytes(p, &len, 1);
+            decompress_bytes(p, pkt.id[i], len);
+            pkt.id[i][len] = '\0';
+        }
+    }
+
+    if (flag_bit & LOBBY_ROOM_ROOM_NAME_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.room_name, len);
+        pkt.room_name[len] = '\0';
+    }
+
+    if (flag_bit & LOBBY_ROOM_IS_ENTER_NOT_SUCCESS_BIT) decompress_32b(p, pkt.is_enter_not_success);
+    if (flag_bit & LOBBY_ROOM_IS_GAME_START_BIT) decompress_32b(p, pkt.is_game_start);
+    if (flag_bit & LOBBY_ROOM_IS_BROADCAST_BIT) decompress_32b(p, pkt.is_broadcast);
+    if (flag_bit & LOBBY_ROOM_IS_UPDATE_BIT) decompress_32b(p, pkt.is_update);
+    if (flag_bit & LOBBY_ROOM_IS_BROADCAST_DELETE_BIT) decompress_32b(p, pkt.is_broadcast_delete);
+    if (flag_bit & LOBBY_ROOM_IS_CHAT_BIT) decompress_32b(p, pkt.is_chat);
+
+    if (flag_bit & LOBBY_ROOM_COMMENT_ID_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.comment_id, len);
+        pkt.comment_id[len] = '\0';
+    }
+    
+    if (flag_bit & LOBBY_ROOM_COMMENT_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.comment, len);
+        pkt.comment[len] = '\0';
+    }
+
+    return true;
 }
 
-void WindowLobbyNetwork::send_udp(const char* id, int is_enter, const char* send_ip)
+void WindowLobbyNetwork::send_udp(const char* id, int is_enter, int is_out, int is_chat, const char* comment,
+                                  const char* send_ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
     user_data data{};
-    uint8_t buf[USER_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int send_result;
+    uint32_t buffer_size = 0;
 
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
@@ -207,13 +362,15 @@ void WindowLobbyNetwork::send_udp(const char* id, int is_enter, const char* send
     addr.sin_port = htons(LOBBY_PORT);
     inet_pton(AF_INET, send_ip, &addr.sin_addr);
     
-    data.magic = USER_DATA_MAGIC;
     snprintf(data.id, sizeof(data.id), "%s", id);
     data.is_enter = is_enter;
-    serialize(buf, data);
+    data.is_out = is_out;
+    data.is_chat = is_chat;
+    snprintf(data.comment, sizeof(data.comment), "%s", comment);
+    buffer_size = serialize(buf, data);
 
-    send_result = sendto(sock, (char*) buf, USER_DATA_SIZE, 0, (SOCKADDR*) &addr,
-                             sizeof(addr));
+    send_result = sendto(sock, (char*)buf, buffer_size, 0, (SOCKADDR*) &addr,
+                         sizeof(addr));
     if (send_result == SOCKET_ERROR) printf("sendto failed: %d\n", send_result);
 }
 
@@ -221,50 +378,58 @@ bool WindowLobbyNetwork::recv_udp(user_data& ud, char* ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
-    uint8_t buf[USER_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int recv_result;
-    int recv_err;
+    bool data_received = false;
+    bool is_deserialize_success = false;
 
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
     memset(buf, 0, sizeof(buf));
-    
-    recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
-    recv_err = (recv_result == SOCKET_ERROR) ? WSAGetLastError() : 0;
-    if (recv_result == SOCKET_ERROR) {
-        if (recv_err == WSAEWOULDBLOCK || recv_err == WSAEMSGSIZE)
-            // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
-            return false;
-        else {
-            // 진짜 에러 발생
-            printf("recvfrom failed: %d\n", recv_err);
-            return false;
+
+     // [window Poll 처리]
+    int ret = WSAPoll(fds, 1, 0);
+
+    if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr,
+                             &addr_len);
+
+            if (recv_result == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                printf("recvfrom failed: %d\n", err);
+                return false;
+            }
+            else if (recv_result < LOBBY_MAGIC_SIZE)
+                return false;
+
+            // 데이터 수신 성공
+            inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
+            is_deserialize_success = deserialize(buf, ud);
+
+            if (is_deserialize_success == false) data_received = false;
+
+            data_received = true;
         }
     }
-    else if (recv_result != USER_DATA_SIZE)
-        return false;
 
-    inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
-    deserialize(buf, ud);
-
-    if (ud.magic != USER_DATA_MAGIC)
-        return false;
-
-    return true;
+    return data_received;
 }
 
 void WindowLobbyNetwork::send_udp(const char* room_master_id,
-                                       std::unordered_map<std::string, std::string> ids_ips,
-                                       const char* room_name, int id_len,
-    int is_enter_not_success, int is_game_start, int is_broadcast,
-    int is_update, int is_broadcast_delete, const char* send_ip)
+                                  std::unordered_map<std::string, std::string> ids_ips,
+                                  const char* room_name, int id_len,
+                                  int is_enter_not_success, int is_game_start, int is_broadcast, int is_update,
+                                  int is_broadcast_delete, int is_chat, const char* comment_id,
+                                  const char* comment, const char* send_ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
     room_data data{};
-    uint8_t buf[ROOM_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int send_result;
     int index = 0;
+    uint32_t buffer_size = 0;
 
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
@@ -272,7 +437,6 @@ void WindowLobbyNetwork::send_udp(const char* room_master_id,
     addr.sin_port = htons(LOBBY_PORT);
     inet_pton(AF_INET, send_ip, &addr.sin_addr);
 
-    data.magic = ROOM_DATA_MAGIC;
     snprintf(data.room_master_id, sizeof(data.room_master_id), "%s", room_master_id);
     for (const auto& [id, ip] : ids_ips)
         snprintf(data.id[index++], sizeof(data.id[0]), "%s", id.c_str());
@@ -283,9 +447,12 @@ void WindowLobbyNetwork::send_udp(const char* room_master_id,
     data.is_broadcast = is_broadcast;
     data.is_update = is_update;
     data.is_broadcast_delete = is_broadcast_delete;
-    serialize(buf, data);
+    data.is_chat = is_chat;
+    snprintf(data.comment_id, sizeof(data.comment_id), "%s", comment_id);
+    snprintf(data.comment, sizeof(data.comment), "%s", comment);
+    buffer_size = serialize(buf, data);
 
-    send_result = sendto(sock, (char*) buf, ROOM_DATA_SIZE, 0, (SOCKADDR*) &addr, sizeof(addr));
+    send_result = sendto(sock, (char*)buf, buffer_size, 0, (SOCKADDR*) &addr, sizeof(addr));
     if (send_result == SOCKET_ERROR) printf("sendto failed: %d\n", send_result);
 }
 
@@ -293,47 +460,59 @@ bool WindowLobbyNetwork::recv_udp(room_data& rd, char* ip)
 {
     SOCKADDR_IN addr;
     int addr_len;
-    uint8_t buf[ROOM_DATA_SIZE];
+    uint8_t buf[LOBBY_BUFFER_SIZE];
     int recv_result;
-    int recv_err;
+    bool data_received = false;
+    bool is_deserialize_success = false;
 
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
     memset(buf, 0, sizeof(buf));
 
-    recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
-    recv_err = (recv_result == SOCKET_ERROR) ? WSAGetLastError() : 0;
-    if (recv_result == SOCKET_ERROR) {
-        if (recv_err == WSAEWOULDBLOCK || recv_err == WSAEMSGSIZE)
-            // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
-            return false;
-        else {
-            // 진짜 에러 발생
-            printf("recvfrom failed: %d\n", recv_err);
-            return false;
+     // [window Poll 처리]
+    int ret = WSAPoll(fds, 1, 0);
+
+    if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
+
+            if (recv_result == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                printf("recvfrom failed: %d\n", err);
+                return false;
+            }
+            else if (recv_result < LOBBY_MAGIC_SIZE)
+                return false;
+
+            // 데이터 수신 성공
+            inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
+            is_deserialize_success = deserialize(buf, rd);
+
+            if (is_deserialize_success == false) data_received = false;
+
+            data_received = true;
         }
     }
-    else if (recv_result != ROOM_DATA_SIZE)
-        return false;
 
-    inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
-    deserialize(buf, rd);
-
-    if (rd.magic != ROOM_DATA_MAGIC)
-        return false;
-
-    return true;
+    return data_received;
 }
 
 void WindowLobbyNetwork::send_multi_udp(
     const char* room_master_id, std::unordered_map<std::string, std::string> pkt_ids_ips,
     const char* room_name, int id_len,
-    int is_enter_not_success, int is_game_start, int is_broadcast,
-    int is_update, int is_broadcast_delete, std::unordered_map<std::string, std::string> ids_ips)
+    int is_enter_not_success, int is_game_start, int is_broadcast, int is_update,
+    int is_broadcast_delete, int is_chat, const char* comment_id, const char* comment,
+    std::unordered_map<std::string, std::string> ids_ips)
 {
-    for (const auto& [user_id, user_ip] : ids_ips)
-        send_udp(room_master_id, pkt_ids_ips, room_name, id_len, is_enter_not_success, is_game_start, is_broadcast,
-                 is_update, is_broadcast_delete, user_ip.c_str());
+    std::unordered_set<std::string> ips;
+
+    for (const auto& [user_id, user_ip] : ids_ips) {
+        if (ips.find(user_ip) != ips.end()) continue;
+        ips.insert(user_ip);
+        send_udp(room_master_id, pkt_ids_ips, room_name, id_len, is_enter_not_success,
+                 is_game_start, is_broadcast, is_update, is_broadcast_delete, is_chat, comment_id,
+                 comment, user_ip.c_str());
+    }
 }
 
 WindowLobbyNetwork::~WindowLobbyNetwork()

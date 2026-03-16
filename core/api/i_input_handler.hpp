@@ -13,6 +13,8 @@ enum Key
 {
     ESC = 27,
     SPACE = 32,
+    SLASH = 47,
+    SHIFTBACKSLASH = 124,
 };
 
 class IInputHandler

@@ -1,6 +1,7 @@
 #include "network/window_network.hpp"
 
 #include <iostream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -51,8 +52,9 @@ WindowNetwork::WindowNetwork()
         exit(0);
     }
 
-    // window에는 epoll이 없으므로 epoll 생성 코드는 삭제됩니다.
-    // 대신 recv_udp에서 논블로킹 소켓의 특성을 이용합니다.
+    // 6. Poll
+    fds[0].fd = server_sock;
+    fds[0].events = POLLIN;
 }
 
 void WindowNetwork::write_32b(uint8_t*& p, int32_t v)
@@ -66,27 +68,6 @@ void WindowNetwork::write_bytes(uint8_t*& p, const void* data, size_t size)
 {
     memcpy(p, data, size);
     p += size;
-}
-
-void WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
-{
-    uint8_t* p = buf;
-
-    write_32b(p, pkt.magic);
-
-    for (int i = 0; i < 20; ++i)
-        for (int j = 0; j < 10; ++j)
-            write_32b(p, pkt.board[i][j]);
-
-    write_32b(p, pkt.type);
-    write_32b(p, pkt.rotation);
-    write_32b(p, pkt.r);
-    write_32b(p, pkt.c);
-    write_32b(p, pkt.deleted_line);
-    write_32b(p, pkt.is_game_over);
-    write_32b(p, pkt.is_win);
-
-    write_bytes(p, pkt.id, 9);
 }
 
 int32_t WindowNetwork::read_32b(const uint8_t*& p)
@@ -103,26 +84,150 @@ void WindowNetwork::read_bytes(const uint8_t*& p, void* dst, size_t size)
     p += size;
 }
 
-void WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
+void WindowNetwork::compress_32b(uint8_t*& p, uint32_t& flag_bit, int32_t v, uint32_t bit_check)
+{
+    uint8_t itc = 0;
+
+    flag_bit |= bit_check;
+    itc = static_cast<uint8_t>(v);
+    write_bytes(p, &itc, 1);
+}
+
+void WindowNetwork::compress_bytes(uint8_t*& p, uint32_t& flag_bit, const void* data,
+                                   size_t size, uint32_t bit_check)
+{
+    flag_bit |= bit_check;
+    write_bytes(p, data, size);
+}
+
+void WindowNetwork::decompress_32b(const uint8_t*& p, int32_t& v)
+{
+    uint8_t itc;
+    read_bytes(p, &itc, 1);
+    v = static_cast<int32_t>(itc);
+}
+
+void WindowNetwork::decompress_bytes(const uint8_t*& p, void* data, size_t size)
+{
+    read_bytes(p, data, size);
+}
+
+uint32_t WindowNetwork::serialize(uint8_t* buf, const Packet& pkt)
+{
+    uint8_t* p = buf;
+    uint8_t* op = buf;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
+    int32_t board_block_num = 0;
+    int32_t board_block_type = 0;
+    uint8_t compress_board[400];
+    uint8_t non_compress_board[200];
+    uint8_t* c_board_p = compress_board;
+    uint8_t* n_c_board_p = non_compress_board;
+
+    write_32b(p, PACKET_MAGIC);
+    op += 4;
+
+    // flag bit
+    p += 4;
+
+    board_block_type = pkt.board[0][0];
+    for (int i = 0; i < 20; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            if (board_block_type == pkt.board[i][j])
+                board_block_num++;
+            else {
+                compress_32b(c_board_p, flag_bit, board_block_num, BOARD_BIT);
+                compress_32b(c_board_p, flag_bit, board_block_type, BOARD_BIT);
+                board_block_num = 1;
+                board_block_type = pkt.board[i][j];
+            }
+            compress_32b(n_c_board_p, flag_bit, pkt.board[i][j], BOARD_BIT);
+        }
+    }
+    compress_32b(c_board_p, flag_bit, board_block_num, BOARD_BIT);
+    compress_32b(c_board_p, flag_bit, board_block_type, BOARD_BIT);
+
+    if (c_board_p - compress_board >= 200) {
+        compress_32b(p, flag_bit, 0, BOARD_BIT);
+        compress_bytes(p, flag_bit, non_compress_board, 200, BOARD_BIT);
+    }
+    else {
+        compress_32b(p, flag_bit, 1, BOARD_BIT);
+        compress_bytes(p, flag_bit, compress_board, c_board_p - compress_board, BOARD_BIT);
+    }
+
+    compress_32b(p, flag_bit, pkt.type, TYPE_BIT);
+    compress_32b(p, flag_bit, pkt.rotation, ROTATION_BIT);
+    compress_32b(p, flag_bit, pkt.r, R_BIT);
+    compress_32b(p, flag_bit, pkt.c, C_BIT);
+    compress_32b(p, flag_bit, pkt.deleted_line, DELETED_LINE_BIT);
+
+    if (pkt.is_game_over == 1) compress_32b(p, flag_bit, pkt.is_game_over, IS_GAME_OVER_BIT);
+    if (pkt.is_win == 1) compress_32b(p, flag_bit, pkt.is_win, IS_WIN_BIT);
+
+    len = static_cast<uint8_t>(strlen(pkt.id));
+    compress_bytes(p, flag_bit, &len, 1, ID_BIT);
+    compress_bytes(p, flag_bit, pkt.id, len, ID_BIT);
+
+    // flag bit
+    write_32b(op, flag_bit);
+
+    return (p - buf);
+}
+
+bool WindowNetwork::deserialize(const uint8_t* buf, Packet& pkt)
 {
     const uint8_t* p = buf;
+    uint32_t magic = 0;
+    uint32_t flag_bit = 0;
+    uint8_t len = 0;
+    uint32_t board_size = 200;
+    int32_t board_block_num = 0;
+    int32_t board_block_type = 0;
+    int32_t is_board_compressed = 0;
+    auto* board = &pkt.board[0][0];
 
-    pkt.magic = read_32b(p);
+    magic = read_32b(p);
+    if (magic != PACKET_MAGIC) return false;
 
-    for (int i = 0; i < 20; ++i)
-        for (int j = 0; j < 10; ++j)
-            pkt.board[i][j] = read_32b(p);
+    flag_bit = read_32b(p);
 
-    pkt.type = read_32b(p);
-    pkt.rotation = read_32b(p);
-    pkt.r = read_32b(p);
-    pkt.c = read_32b(p);
-    pkt.deleted_line = read_32b(p);
-    pkt.is_game_over = read_32b(p);
-    pkt.is_win = read_32b(p);
+    memset((void*) &pkt, 0, PACKET_SIZE);
 
-    read_bytes(p, pkt.id, 9);
-    pkt.id[8] = '\0';
+    if (flag_bit & BOARD_BIT) {
+        decompress_32b(p, is_board_compressed);
+
+        if (is_board_compressed == 1) {
+            while (board_size > 0) {
+                decompress_32b(p, board_block_num);
+                decompress_32b(p, board_block_type);
+                for (int i = 0; i < board_block_num; ++i) {
+                    *(board++) = board_block_type;
+                }
+                board_size -= board_block_num;
+            }
+        }
+        else {
+            for (int i = 0; i < 20; ++i)
+                for (int j = 0; j < 10; ++j)
+                    decompress_32b(p, pkt.board[i][j]);
+        }
+    }
+    if (flag_bit & TYPE_BIT) decompress_32b(p, pkt.type);
+    if (flag_bit & ROTATION_BIT) decompress_32b(p, pkt.rotation);
+    if (flag_bit & R_BIT) decompress_32b(p, pkt.r);
+    if (flag_bit & C_BIT) decompress_32b(p, pkt.c);
+    if (flag_bit & DELETED_LINE_BIT) decompress_32b(p, pkt.deleted_line);
+    if (flag_bit & IS_GAME_OVER_BIT) decompress_32b(p, pkt.is_game_over);
+    if (flag_bit & IS_WIN_BIT) decompress_32b(p, pkt.is_win);
+    if (flag_bit & ID_BIT) {
+        decompress_bytes(p, &len, 1);
+        decompress_bytes(p, pkt.id, len);
+        pkt.id[len] = '\0';
+    }
+
+    return true;
 }
 
 void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int deleted_line, int is_game_over, int is_win,
@@ -130,18 +235,17 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
 {
     Packet pkt{};
     auto [pos_r, pos_c] = tetromino.get_pos();
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     SOCKADDR_IN another_user;
     ZeroMemory(&another_user, sizeof(another_user));
     another_user.sin_family = AF_INET;
     another_user.sin_port = htons(PORT);
+    uint32_t buffer_size = 0;
 
     // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
     inet_pton(AF_INET, another_user_ip, &another_user.sin_addr);
 
     // 보드 데이터 복사
-
-    pkt.magic = PACKET_MAGIC;
 
     for (int r = 0; r < 20; ++r)
         for (int c = 0; c < 10; ++c)
@@ -154,11 +258,11 @@ void WindowNetwork::send_udp(const Board& board, const Tetromino& tetromino, int
     pkt.deleted_line = deleted_line;
     pkt.is_game_over = is_game_over;
     pkt.is_win = is_win;
-    snprintf(pkt.id, sizeof(pkt.id), "%s", my_id);
+    snprintf(pkt.id, PACKET_ID_SIZE, "%s", my_id);
 
-    serialize(buf, pkt);
+    buffer_size = serialize(buf, pkt);
 
-    int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &another_user,
+    int send_result = sendto(client_sock, (char*)buf, buffer_size, 0, (SOCKADDR*) &another_user,
                              sizeof(another_user));
 
     if (send_result == SOCKET_ERROR) {
@@ -171,19 +275,35 @@ void WindowNetwork::send_multi_udp(
     int is_win, const char* my_id,
     std::vector<std::pair<std::string, std::string>> ids_ips)
 {
-    for (const auto& [id, ip] : ids_ips)
+    std::unordered_set<std::string> ips;
+
+    for (const auto& [id, ip] : ids_ips) {
+        if (ips.find(ip) != ips.end()) continue;
+        ips.insert(ip);
         send_udp(board, tetromino, deleted_line, is_game_over, is_win, ip.c_str(), my_id);
+    }
 }
 
 void WindowNetwork::send_relay_udp(const Packet& packet,
                                    std::vector<std::pair<std::string, std::string>> ids_ips)
 {
     char* another_user_ip;
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     SOCKADDR_IN another_user;
+    uint32_t buffer_size = 0;
+    int send_result = 0;
+    std::unordered_set<std::string> ips;
 
     for (const auto& [id, ip] : ids_ips) {
-        if (strcmp(id.c_str(), packet.id) == 0) continue;
+        if (id == packet.id) {
+            ips.insert(ip);
+            break;
+        }
+    }
+
+    for (const auto& [id, ip] : ids_ips) {
+        if (ips.find(ip) != ips.end()) continue;
+        ips.insert(ip);
         Packet pkt{};
         memset(buf, 0, sizeof(buf));
         ZeroMemory(&another_user, sizeof(another_user));
@@ -192,9 +312,6 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
 
         // window에서는 inet_pton 사용 시 <WS2tcpip.h> 필요
         inet_pton(AF_INET, ip.c_str(), &another_user.sin_addr);
-
-        // 보드 데이터 복사
-        pkt.magic = PACKET_MAGIC;
 
         for (int r = 0; r < 20; ++r)
             for (int c = 0; c < 10; ++c)
@@ -207,12 +324,11 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
         pkt.deleted_line = packet.deleted_line;
         pkt.is_game_over = packet.is_game_over;
         pkt.is_win = packet.is_win;
-        snprintf(pkt.id, sizeof(pkt.id), "%s", packet.id);
+        snprintf(pkt.id, PACKET_ID_SIZE, "%s", packet.id);
 
-        serialize(buf, pkt);
+        buffer_size = serialize(buf, pkt);
 
-        int send_result = sendto(client_sock, (char*) buf, PACKET_SIZE, 0,
-                                 (SOCKADDR*) &another_user, sizeof(another_user));
+        send_result = sendto(client_sock, (char*)buf, buffer_size, 0, (SOCKADDR*) &another_user, sizeof(another_user));
 
         if (send_result == SOCKET_ERROR) {
             cerr << "sendto failed: " << WSAGetLastError() << "\n";
@@ -222,37 +338,36 @@ void WindowNetwork::send_relay_udp(const Packet& packet,
 
 bool WindowNetwork::recv_udp(Packet& recv_pkt)
 {
-    uint8_t buf[PACKET_SIZE];
+    uint8_t buf[BUFFER_SIZE];
     bool data_received = false;
     SOCKADDR_IN client_addr;
     int addr_len = sizeof(client_addr);
+    bool is_deserialize_success = false;
+    int r;
 
-    // [window Non-blocking 처리]
-    // epoll 대신 루프를 돌며 쌓인 패킷을 모두 처리하고 가장 최신 것을 가져옵니다.
-    while (true) {
-        int r =
-            recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr, &addr_len);
+    // [window Poll 처리]
+    int ret = WSAPoll(fds, 1, 0);
 
-        if (r == SOCKET_ERROR) {
-            int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK) {
-                // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
-                break;
-            }
-            else {
-                // 진짜 에러 발생
+    if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            r = recvfrom(server_sock, (char*) buf, BUFFER_SIZE, 0, (SOCKADDR*) &client_addr,
+                             &addr_len);
+
+            if (r == SOCKET_ERROR) {
+                int err = WSAGetLastError();
                 cerr << "recvfrom failed: " << err << "\n";
                 return false;
             }
+            else if (r < PACKET_MAGIC_SIZE)
+                return false;
+
+            // 데이터 수신 성공
+            is_deserialize_success = deserialize(buf, recv_pkt);
+
+            if (is_deserialize_success == false) data_received = false;
+
+            data_received = true;
         }
-
-        // 데이터 수신 성공
-        deserialize(buf, recv_pkt);
-
-        if (recv_pkt.magic != PACKET_MAGIC)
-            data_received = false;
-
-        data_received = true;
     }
 
     return data_received;

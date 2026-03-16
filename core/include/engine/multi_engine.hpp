@@ -19,6 +19,7 @@ class MultiEngine : public Engine {
     Timer timer;
     std::vector<std::pair<std::string, std::string>> ids_ips;
     std::unordered_map<std::string, std::string> active_user;
+    std::unordered_map<std::string, int> active_user_time_checker; // 7 => timeout
     PacketStruct recv_pkt;
 
     int curr_mino;

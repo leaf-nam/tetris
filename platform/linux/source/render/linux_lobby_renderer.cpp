@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <cstring>
 
 using namespace std;
 
@@ -80,7 +81,7 @@ void LinuxLobbyRenderer::render_room(const string& room_name, const string& host
     render_clear();
     render_big_text(15, 7, "WAITNG ROOM", Color::GREEN);
     if (is_server) {
-        render_small_text(27, 14, " > Start Game : Press [ Space ]", Color::ORANGE);
+        render_small_text(27, 14, " > Start Game : Press [ Shift + \\ ]", Color::ORANGE);
         render_small_text(27, 16, " > Delete Room : Press [ ESC ]", Color::ORANGE);
     } else {
         render_small_text(27, 14, " > Out Room : Press [ ESC ]", Color::ORANGE);
@@ -140,3 +141,63 @@ void LinuxLobbyRenderer::render_user_id_input()
 }
 
 void LinuxLobbyRenderer::render_clear() { platform_renderer->clear(); }
+
+void LinuxLobbyRenderer::render_my_chat(const char* comment, const std::string& id)
+{
+    int x = 80, y = 28;
+    int id_size = strlen(id.c_str());
+    int comment_size = strlen(comment);
+
+    render_small_text(x, y, "[", Color::CYAN);
+    render_small_text(x + 1, y, id.c_str(), Color::CYAN);
+    render_small_text(x + 1 + id_size, y, "] : ", Color::CYAN);
+    render_small_text(x + 1 + id_size + 4, y, comment, Color::CYAN);
+    render_small_text(x, y + 1, "Write: /, and send: /, delete: \\", Color::CYAN);
+}
+
+void LinuxLobbyRenderer::render_other_user_chat(const char* comment, const std::string& id)
+{
+    int x = 80, y = 17;
+    int id_size;
+    int i = 0;
+
+    if (comment_list_index == COMMENTLISTNUM) {
+        for (i = 1; i < COMMENTLISTNUM; ++i) {
+            snprintf(comment_list[i - 1], COMMENTSIZE, "%s", comment_list[i]);
+            snprintf(comment_user_list[i - 1], COMMENTSIZE, "%s", comment_user_list[i]);
+        }
+        snprintf(comment_list[i - 1], COMMENTSIZE, "%s", comment);
+        snprintf(comment_user_list[i - 1], COMMENTSIZE, "%s", id.c_str());
+    }
+    else {
+        snprintf(comment_list[comment_list_index++], COMMENTSIZE, "%s", comment);
+        snprintf(comment_user_list[comment_user_list_index++], COMMENTSIZE, "%s", id.c_str());
+    }
+
+    for (i = 0; i < comment_list_index; ++i) {
+        id_size = strlen(comment_user_list[i]);
+        render_small_text(x, y + i, "[", Color::CYAN);
+        render_small_text(x + 1, y + i, comment_user_list[i], Color::CYAN);
+        render_small_text(x + 1 + id_size, y + i, "] : ", Color::CYAN);
+        render_small_text(x + 1 + id_size + 4, y + i, comment_list[i], Color::CYAN);
+    }
+}
+
+void LinuxLobbyRenderer::render_current_chat()
+{
+    int x = 80, y = 17;
+    int id_size;
+
+    for (int i = 0; i < comment_list_index; ++i) {
+        id_size = strlen(comment_user_list[i]);
+        render_small_text(x, y + i, "[", Color::CYAN);
+        render_small_text(x + 1, y + i, comment_user_list[i], Color::CYAN);
+        render_small_text(x + 1 + id_size, y + i, "] : ", Color::CYAN);
+        render_small_text(x + 1 + id_size + 4, y + i, comment_list[i], Color::CYAN);
+    }
+}
+
+void LinuxLobbyRenderer::render_clear_chat() { 
+    comment_list_index = 0;
+    comment_user_list_index = 0;
+}
