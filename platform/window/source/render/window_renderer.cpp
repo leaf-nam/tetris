@@ -189,6 +189,8 @@ void WindowRenderer::render_game_over() {}
 
 void WindowRenderer::render_other_game_over(Packet& pkt) {}
 
+void WindowRenderer::render_other_timeout(std::string id) {}
+
 void WindowRenderer::render_win() {}
 
 void WindowRenderer::render_other_win(Packet& pkt) {}

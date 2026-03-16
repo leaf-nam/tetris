@@ -7,6 +7,7 @@
 #include <net/if.h>
 #include <stdint.h>
 #include <array>
+#include <unordered_set>
 
 LinuxLobbyNetwork::LinuxLobbyNetwork()
 {
@@ -483,9 +484,15 @@ void LinuxLobbyNetwork::send_multi_udp(
     int is_chat, const char* comment_id, const char* comment,
     std::unordered_map<std::string, std::string> ids_ips)
 {
-    for (const auto& [user_id, user_ip] : ids_ips)
-        send_udp(room_master_id, pkt_ids_ips, room_name, id_len, is_enter_not_success, is_game_start, is_broadcast,
-                 is_update, is_broadcast_delete, is_chat, comment_id, comment, user_ip.c_str());
+    std::unordered_set<std::string> ips;
+
+    for (const auto& [user_id, user_ip] : ids_ips) {
+        if (ips.find(user_ip) != ips.end()) continue;
+        ips.insert(user_ip);
+        send_udp(room_master_id, pkt_ids_ips, room_name, id_len, is_enter_not_success,
+                 is_game_start, is_broadcast, is_update, is_broadcast_delete, is_chat, comment_id,
+                 comment, user_ip.c_str());
+    }
 }
 
 LinuxLobbyNetwork::~LinuxLobbyNetwork()

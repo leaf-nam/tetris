@@ -3,6 +3,7 @@
 #include "i_input_handler.hpp"
 #include "lobby.hpp"
 #include "setting_storage.hpp"
+#include "util/timer.hpp"
 
 #include <chrono>
 #include <cstring>
@@ -180,6 +181,9 @@ bool Lobby::waiting_client()
             network->send_udp(setting->nick_name.c_str(), client_ip_address, room_name,
                               client_ip_address.size(), 0, 0, 1, 0, 0, 0, "NULL",
                               comment, broadcast_ip);
+            network->send_multi_udp(setting->nick_name.c_str(), client_ip_address, room_name,
+                                    client_ip_address.size(), 0, 0, 0, 1, 0, 0, "NULL", comment,
+                                    client_ip_address);
         }
 
         memset(ip, 16, sizeof(ip));
@@ -234,13 +238,16 @@ bool Lobby::enter_lobby()
     int in;
     char buffer[BUF_SIZE];
     int room_user_index = 0, comment_index = 0;
+    std::chrono::steady_clock::time_point base_time;
     bool is_in_room = false;
-    bool is_game_start = false, is_input_mode = false;
+    bool is_game_start = false, is_input_mode = false, is_my_room_timeout = false;
     char s[BUF_SIZE];
     char room_ip[16];
     int selecting_idx = 0;
     char comment[101], room_name[ROOMNAMESIZE], room_master_id[IDSIZE];
     std::vector<std::pair<std::string, std::string>> rooms;
+    std::unordered_map<std::string, int> rooms_timeout_checker;
+    std::vector<std::string> timeout_rooms;
 
     memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
     client_ip_address.clear();
@@ -251,6 +258,7 @@ bool Lobby::enter_lobby()
     render->render_lobby_rooms(rooms, selecting_idx);
     render->render_lobby();
 
+    base_time = std::chrono::steady_clock::now();
     while (true) {
         in = input->scan();
 
@@ -267,8 +275,10 @@ bool Lobby::enter_lobby()
             render->render_lobby_rooms(rooms, selecting_idx);
         }
         else if (in == Key::ESC) {
-            if (is_in_room)
-                network->send_udp(setting->nick_name.c_str(), false, true, false, comment, selected_server_ip_address);
+            if (is_in_room) {
+                network->send_udp(setting->nick_name.c_str(), false, true, false, comment,
+                                  selected_server_ip_address);
+            }
             else
                 return false;
         } else if (is_in_room == false && in == Key::SPACE) {
@@ -308,9 +318,57 @@ bool Lobby::enter_lobby()
             render->render_my_chat(comment, setting->nick_name);
         }
 
+        if (std::chrono::steady_clock::now() - base_time >= std::chrono::milliseconds(5000)) {
+            base_time = std::chrono::steady_clock::now();
+            timeout_rooms.clear();
+            is_my_room_timeout = false;
+            for (auto it = rooms_timeout_checker.begin(); it != rooms_timeout_checker.end();) {
+                it->second++;
+                if (it->second >= 4) {
+                    timeout_rooms.push_back(it->first);
+                    server_ip_address.erase(it->first);
+                    it = rooms_timeout_checker.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+            for (auto s : timeout_rooms) {
+                if (s == selected_server_ip_address) {
+                    is_my_room_timeout = true;
+                }
+                for (int i = 0; i < rooms.size(); ++i) {
+                    if (s == rooms[i].second.c_str()) {
+                        rooms.erase(rooms.begin() + i);
+                        break;
+                    }
+                }
+            }
+            selecting_idx = (selecting_idx >= rooms.size() ? rooms.size() - 1 : selecting_idx);
+
+            if (is_in_room == true && is_my_room_timeout == true) {
+                memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
+                render->render_clear();
+                render->render_lobby();
+                render->render_lobby_rooms(rooms, selecting_idx);
+                render->render_clear_chat();
+                comment_index = 0;
+                is_input_mode = false;
+                is_in_room = false;
+            }
+            else if (is_in_room == false && timeout_rooms.size() > 0) {
+                render->render_clear();
+                render->render_lobby();
+                render->render_lobby_rooms(rooms, selecting_idx);
+            }
+        }
+
         memset(room_ip, 16, sizeof(room_ip));
         room_data received_data{};
-        if (network->recv_udp(received_data, room_ip) == false) continue;
+        if (network->recv_udp(received_data, room_ip) == false)
+            continue;
+        else
+            rooms_timeout_checker[room_ip] = 0;
 
         if (received_data.is_broadcast &&
             server_ip_address.find(std::string(room_ip)) == server_ip_address.end()) {
@@ -334,6 +392,7 @@ bool Lobby::enter_lobby()
             }
             if (is_in_room == false ||
                 (is_in_room == true && strcmp(selected_server_ip_address, room_ip) == 0)) {
+                memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
                 render->render_clear();
                 render->render_lobby();
                 render->render_lobby_rooms(rooms, selecting_idx);
@@ -345,7 +404,6 @@ bool Lobby::enter_lobby()
         }
         else if (received_data.is_update) {
             memset(selected_server_ip_address, 0, sizeof(selected_server_ip_address));
-            snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s",room_ip);
             client_ip_address.clear(); 
             is_in_room = false; 
             for (int i = 0; i < received_data.id_len; ++i) {
@@ -354,6 +412,8 @@ bool Lobby::enter_lobby()
                     std::string(received_data.room_master_id);
             }
             if (is_in_room == true) {
+                snprintf(selected_server_ip_address, sizeof(selected_server_ip_address), "%s",
+                         room_ip);
                 render->render_clear();
                 snprintf(room_name, ROOMNAMESIZE, "%s", received_data.room_name);
                 snprintf(room_master_id, IDSIZE, "%s", received_data.room_master_id);

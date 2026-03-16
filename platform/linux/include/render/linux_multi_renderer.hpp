@@ -66,6 +66,8 @@ class LinuxMultiRenderer : public IRenderer
 
     void render_other_game_over(Packet& pkt) override;
 
+    void render_other_timeout(std::string id) override;
+
     void render_win() override;
 
     void render_other_win(Packet& pkt) override;
