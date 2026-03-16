@@ -51,8 +51,9 @@ WindowNetwork::WindowNetwork()
         exit(0);
     }
 
-    // window에는 epoll이 없으므로 epoll 생성 코드는 삭제됩니다.
-    // 대신 recv_udp에서 논블로킹 소켓의 특성을 이용합니다.
+    // 6. Poll
+    fds[0].fd = server_sock;
+    fds[0].events = POLLIN;
 }
 
 void WindowNetwork::write_32b(uint8_t*& p, int32_t v)
@@ -227,32 +228,27 @@ bool WindowNetwork::recv_udp(Packet& recv_pkt)
     SOCKADDR_IN client_addr;
     int addr_len = sizeof(client_addr);
 
-    // [window Non-blocking 처리]
-    // epoll 대신 루프를 돌며 쌓인 패킷을 모두 처리하고 가장 최신 것을 가져옵니다.
-    while (true) {
-        int r =
-            recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr, &addr_len);
+    // [window Poll 처리]
+    int ret = WSAPoll(fds, 1, 0);
 
-        if (r == SOCKET_ERROR) {
-            int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK) {
-                // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
-                break;
-            }
-            else {
-                // 진짜 에러 발생
+    if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            int r = recvfrom(server_sock, (char*) buf, PACKET_SIZE, 0, (SOCKADDR*) &client_addr,
+                             &addr_len);
+
+            if (r == SOCKET_ERROR) {
+                int err = WSAGetLastError();
                 cerr << "recvfrom failed: " << err << "\n";
                 return false;
             }
+
+            // 데이터 수신 성공
+            deserialize(buf, recv_pkt);
+
+            if (recv_pkt.magic != PACKET_MAGIC) data_received = false;
+
+            data_received = true;
         }
-
-        // 데이터 수신 성공
-        deserialize(buf, recv_pkt);
-
-        if (recv_pkt.magic != PACKET_MAGIC)
-            data_received = false;
-
-        data_received = true;
     }
 
     return data_received;

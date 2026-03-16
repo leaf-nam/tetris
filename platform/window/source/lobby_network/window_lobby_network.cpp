@@ -46,6 +46,10 @@ WindowLobbyNetwork::WindowLobbyNetwork()
         perror("bind failed: ");
         exit(0);
     }
+
+    // 8. Poll
+    fds[0].fd = sock;
+    fds[0].events = POLLIN;
 }
 
 /**
@@ -239,34 +243,39 @@ bool WindowLobbyNetwork::recv_udp(user_data& ud, char* ip)
     int addr_len;
     uint8_t buf[USER_DATA_SIZE];
     int recv_result;
-    int recv_err;
+    bool data_received = false;
 
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
     memset(buf, 0, sizeof(buf));
-    
-    recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
-    recv_err = (recv_result == SOCKET_ERROR) ? WSAGetLastError() : 0;
-    if (recv_result == SOCKET_ERROR) {
-        if (recv_err == WSAEWOULDBLOCK || recv_err == WSAEMSGSIZE)
-            // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
-            return false;
-        else {
-            // 진짜 에러 발생
-            printf("recvfrom failed: %d\n", recv_err);
-            return false;
+
+     // [window Poll 처리]
+    int ret = WSAPoll(fds, 1, 0);
+
+    if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr,
+                             &addr_len);
+
+            if (recv_result == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                printf("recvfrom failed: %d\n", err);
+                return false;
+            }
+            else if (recv_result != USER_DATA_SIZE)
+                return false;
+
+            // 데이터 수신 성공
+            inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
+            deserialize(buf, ud);
+
+            if (ud.magic != USER_DATA_MAGIC) data_received = false;
+
+            data_received = true;
         }
     }
-    else if (recv_result != USER_DATA_SIZE)
-        return false;
 
-    inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
-    deserialize(buf, ud);
-
-    if (ud.magic != USER_DATA_MAGIC)
-        return false;
-
-    return true;
+    return data_received;
 }
 
 void WindowLobbyNetwork::send_udp(const char* room_master_id,
@@ -315,34 +324,38 @@ bool WindowLobbyNetwork::recv_udp(room_data& rd, char* ip)
     int addr_len;
     uint8_t buf[ROOM_DATA_SIZE];
     int recv_result;
-    int recv_err;
+    bool data_received = false;
 
     ZeroMemory(&addr, sizeof(addr));
     addr_len = sizeof(addr);
     memset(buf, 0, sizeof(buf));
 
-    recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
-    recv_err = (recv_result == SOCKET_ERROR) ? WSAGetLastError() : 0;
-    if (recv_result == SOCKET_ERROR) {
-        if (recv_err == WSAEWOULDBLOCK || recv_err == WSAEMSGSIZE)
-            // 더 이상 읽을 데이터가 없음 (버퍼 비워짐)
-            return false;
-        else {
-            // 진짜 에러 발생
-            printf("recvfrom failed: %d\n", recv_err);
-            return false;
+     // [window Poll 처리]
+    int ret = WSAPoll(fds, 1, 0);
+
+    if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            recv_result = recvfrom(sock, (char*) buf, sizeof(buf), 0, (SOCKADDR*) &addr, &addr_len);
+
+            if (recv_result == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                printf("recvfrom failed: %d\n", err);
+                return false;
+            }
+            else if (recv_result != ROOM_DATA_SIZE)
+                return false;
+
+            // 데이터 수신 성공
+            inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
+            deserialize(buf, rd);
+
+            if (rd.magic != ROOM_DATA_MAGIC) data_received = false;
+
+            data_received = true;
         }
     }
-    else if (recv_result != ROOM_DATA_SIZE)
-        return false;
 
-    inet_ntop(AF_INET, &addr.sin_addr, ip, 16);
-    deserialize(buf, rd);
-
-    if (rd.magic != ROOM_DATA_MAGIC)
-        return false;
-
-    return true;
+    return data_received;
 }
 
 void WindowLobbyNetwork::send_multi_udp(
