@@ -183,7 +183,7 @@ bool Lobby::waiting_client()
         }
 
         memset(ip, 16, sizeof(ip));
-        user_data received_data;
+        user_data received_data{};
         if (network->recv_udp(received_data, ip) == false) continue;
 
         if (index >= 4 ||
@@ -309,7 +309,7 @@ bool Lobby::enter_lobby()
         }
 
         memset(room_ip, 16, sizeof(room_ip));
-        room_data received_data;
+        room_data received_data{};
         if (network->recv_udp(received_data, room_ip) == false) continue;
 
         if (received_data.is_broadcast &&
