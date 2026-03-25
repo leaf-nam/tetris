@@ -24,8 +24,7 @@ Windows (WPF, window) · Linux (window) · Web *(추가예정)*
 ## 🕹️ 게임 모드
 
 ### 1️⃣ 싱글 플레이어
-*(스크린샷 추가 예정)*  
-![Gameplay Screenshot]()
+<img width="1461" height="694" alt="image" src="https://github.com/user-attachments/assets/ed082ccb-97a5-469b-98cd-9852ef3681b1" />
 
 - 일정 시간이 지나면 레벨 상승
 - 레벨 증가 시 하단에 방해 블록 라인 추가
@@ -34,8 +33,7 @@ Windows (WPF, window) · Linux (window) · Web *(추가예정)*
 ---
 
 ### 2️⃣ 멀티 플레이어
-*(스크린샷 추가 예정)*  
-![Gameplay Screenshot]()
+<img width="1459" height="687" alt="image" src="https://github.com/user-attachments/assets/fd4e9a4c-fbd7-49d8-af90-241f6265dd43" />
 
 - IP 주소를 통한 방 생성 / 참가, 실시간 대전 플레이
 - 2줄 이상 제거 시 상대방 보드 하단에 방해 블록 라인 추가하여 공격
